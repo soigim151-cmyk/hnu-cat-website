@@ -1,16 +1,48 @@
-# React + Vite
+# HNU CAT WEBSITE
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+「한남대 고양이가 학생이 되었다!」: 한남대학교 고양이를 소개하는 인터랙티브 캠퍼스 웹사이트
 
-Currently, two official plugins are available:
+React + Vite · Three.js · React Three Fiber · Drei · GSAP
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 실행 방법
 
-## React Compiler
+```bash
+npm install     # 처음 한 번만
+npm run dev     # 개발 서버 → http://localhost:5173
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 폴더 구조
 
-## Expanding the Oxlint configuration
+```
+public/
+  images/          Figma에서 내보낸 원본 이미지
+    deco/          Decorations.png를 요소별로 자른 이미지 (별·반짝이·발바닥)
+  models/
+    Campus_3D_Area.glb         원본 모델 (데스크톱용)
+    Campus_3D_Area.mobile.glb  최적화본 (모바일용, 텍스처 2048px WebP)
+src/
+  pages/StartPage.jsx    시작 페이지 (+ StartPage.css)
+  pages/CampusPage.jsx   3D 캠퍼스 페이지 (+ CampusPage.css)
+  components/CampusScene.jsx  3D 장면: 카메라 구도, 회전 제한, 조명
+  components/campusModel.js   기기별 모델 파일 선택
+  styles/global.css      색상·폰트 등 디자인 토큰
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 자주 바꾸는 값
+
+| 무엇 | 파일 | 위치 |
+|---|---|---|
+| 색상 | `src/styles/global.css` | `:root` |
+| 시작 페이지 요소 위치 | `src/pages/StartPage.jsx` | `STARS`, `PAW`, `pos({...})` (Figma 1440×1014 좌표) |
+| 카메라 각도·회전 범위 | `src/components/CampusScene.jsx` | `VIEW` |
+
+## 모바일용 모델 다시 만들기
+
+원본 GLB를 교체했다면 아래 명령으로 최적화본을 다시 만듭니다.
+
+```bash
+npx @gltf-transform/cli resize public/models/Campus_3D_Area.glb tmp.glb --width 2048 --height 2048
+npx @gltf-transform/cli webp tmp.glb tmp2.glb --quality 85
+npx @gltf-transform/cli meshopt tmp2.glb public/models/Campus_3D_Area.mobile.glb --level medium
+rm tmp.glb tmp2.glb
+```

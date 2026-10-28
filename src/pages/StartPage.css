@@ -1,0 +1,144 @@
+/* ─────────────────────────────────────────
+   시작 페이지
+   Figma 프레임 1440 × 1014 를 "무대(stage)"로 만들고
+   화면에 꽉 차도록 비율을 유지한 채 확대·축소합니다.
+   --u = Figma 1px 이 화면에서 차지하는 크기
+   ───────────────────────────────────────── */
+.start {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.start__stage {
+  --u: min(calc(100vw / 1440), calc(100vh / 1014));
+  --u: min(calc(100vw / 1440), calc(100dvh / 1014));
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(1440 * var(--u));
+  height: calc(1014 * var(--u));
+  transform: translate(-50%, -50%);
+}
+
+/* 흐린 발바닥 무대: 화면을 꽉 채우는 쪽(cover)으로 확대
+   Figma와 같은 비율의 화면에서는 일반 무대와 크기가 같습니다. */
+.start__stage--cover {
+  --u: max(calc(100vw / 1440), calc(100vh / 1014));
+  --u: max(calc(100vw / 1440), calc(100dvh / 1014));
+  pointer-events: none;
+}
+
+/* Figma 좌표(--x, --y, --w)대로 배치되는 요소 */
+.start__layer {
+  position: absolute;
+  left: calc(var(--x) * var(--u));
+  top: calc(var(--y) * var(--u));
+  width: calc(var(--w) * var(--u));
+  height: auto;
+  pointer-events: none;
+}
+
+.start__bg,
+.start__deco,
+.start__actions {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.start__title-wrap {
+  font-size: 0; /* h1 기본 글자 크기가 레이아웃에 영향 주지 않도록 */
+}
+
+/* 별: 회전 중심을 가운데로 */
+.start__star {
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+/* 발바닥: 마우스가 있는 기기에서만 hover 반응 */
+.start__paw {
+  transition: transform 0.35s var(--ease-out-expo);
+}
+@media (hover: hover) and (pointer: fine) {
+  .start__paw {
+    pointer-events: auto;
+  }
+  .start__paw:hover {
+    transform: scale(1.08) rotate(5deg);
+  }
+}
+
+/* ── 버튼 (Figma: 364 × 98, 반경 22, #8A855F) ── */
+.start__btn {
+  position: absolute;
+  top: calc(740 * var(--u));
+  width: calc(364 * var(--u));
+  height: calc(98 * var(--u));
+  border-radius: calc(22 * var(--u));
+  background: var(--color-button);
+  color: var(--color-button-text);
+  font-size: calc(30 * var(--u));
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  pointer-events: auto;
+  transition: transform 0.3s var(--ease-out-expo);
+}
+.start__btn--story {
+  left: calc(280 * var(--u));
+}
+.start__btn--school {
+  left: calc(763 * var(--u));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .start__btn:hover {
+    transform: translateY(-3px) scale(1.04);
+  }
+}
+/* 클릭(또는 Enter/Space) 순간 눌림 */
+.start__btn:active,
+.start__btn.is-pressed {
+  transform: scale(0.96);
+  transition-duration: 0.12s;
+}
+/* 키보드로 이동했을 때만 보이는 포커스 표시 */
+.start__btn:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+/* ── 세로로 긴 화면(모바일 세로) ──
+   무대를 가로 기준으로 키우고, 버튼을 세로로 쌓아 누르기 쉽게 합니다. */
+@media (max-aspect-ratio: 4/5) {
+  .start__stage {
+    --u: calc(100vw / 1180);
+  }
+  /* 세로 화면에선 흐린 발바닥도 일반 무대 크기로, 아래쪽 잘린 경계는 부드럽게 흐림 */
+  .start__blur {
+    -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+  }
+  .start__btn {
+    left: calc(440 * var(--u));
+    width: calc(560 * var(--u));
+    height: calc(140 * var(--u));
+    border-radius: calc(32 * var(--u));
+    font-size: calc(46 * var(--u));
+  }
+  .start__btn--story {
+    top: calc(760 * var(--u));
+  }
+  .start__btn--school {
+    top: calc(930 * var(--u));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start__btn,
+  .start__paw {
+    transition: none;
+  }
+}

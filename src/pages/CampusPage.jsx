@@ -1,0 +1,68 @@
+import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { useProgress } from '@react-three/drei'
+import { NoToneMapping } from 'three'
+import gsap from 'gsap'
+import CampusScene from '../components/CampusScene.jsx'
+import { CAMPUS_MODEL_URL } from '../components/campusModel.js'
+import './CampusPage.css'
+
+export default function CampusPage() {
+  const stageRef = useRef(null)
+  const [ready, setReady] = useState(false)
+  const [dragging, setDragging] = useState(false)
+
+  const handleReady = useCallback(() => setReady(true), [])
+
+  // 등장 전 상태: 투명 + 살짝 작게
+  useLayoutEffect(() => {
+    gsap.set(stageRef.current, { opacity: 0, scale: 0.94 })
+  }, [])
+
+  // 모델 준비 완료 → 부드럽게 등장
+  useEffect(() => {
+    if (!ready) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const tween = gsap.to(stageRef.current, {
+      opacity: 1,
+      scale: 1,
+      duration: reduce ? 0.3 : 1.1,
+      ease: 'expo.out',
+    })
+    return () => tween.kill()
+  }, [ready])
+
+  return (
+    <main className="campus">
+      <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}`}>
+        <Canvas
+          frameloop="demand" // 움직임이 있을 때만 다시 그림 (배터리·발열 절약)
+          dpr={[1, 1.75]} // 고해상도 화면에서도 최대 1.75배까지만
+          flat // 톤매핑 끔 → 텍스처 원래 색 그대로
+          gl={{ antialias: true, alpha: true, toneMapping: NoToneMapping }}
+          camera={{ fov: 28, position: [0, 1, 1] }}
+          resize={{ offsetSize: true }} // 등장 애니메이션의 scale 이 캔버스 크기 계산에 끼어들지 않도록
+        >
+          <Suspense fallback={null}>
+            <CampusScene url={CAMPUS_MODEL_URL} onReady={handleReady} onDragChange={setDragging} />
+          </Suspense>
+        </Canvas>
+      </div>
+
+      <Loader visible={!ready} />
+    </main>
+  )
+}
+
+// 간결한 로딩 표시
+function Loader({ visible }) {
+  const { progress } = useProgress()
+  return (
+    <div className={`campus__loader${visible ? '' : ' is-hidden'}`} role="status" aria-live="polite">
+      <span className="campus__loader-bar">
+        <span style={{ transform: `scaleX(${progress / 100})` }} />
+      </span>
+      <span className="campus__loader-text">캠퍼스로 등교 중 {Math.round(progress)}%</span>
+    </div>
+  )
+}

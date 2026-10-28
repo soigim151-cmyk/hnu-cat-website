@@ -1,0 +1,55 @@
+/* ─────────────────────────────────────────
+   3D 캠퍼스 페이지
+   ───────────────────────────────────────── */
+.campus {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg); /* 시작 페이지와 같은 아이보리 → 전환 시 배경색 유지 */
+}
+
+.campus__stage {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  will-change: transform, opacity;
+}
+.campus__stage.is-dragging {
+  cursor: grabbing;
+}
+
+/* 로딩 표시 */
+.campus__loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-button);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.campus__loader.is-hidden {
+  opacity: 0;
+}
+
+.campus__loader-bar {
+  display: block;
+  width: 160px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(138, 133, 95, 0.2);
+  overflow: hidden;
+}
+.campus__loader-bar > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-button);
+  transform-origin: left center;
+  transition: transform 0.3s ease;
+}

@@ -1,4 +1,23 @@
-/* 전역 스타일: Figma 디자인 값(색상·폰트)은 에셋을 받은 뒤 채웁니다 */
+/* ─────────────────────────────────────────
+   전역 스타일 + 디자인 토큰 (Figma 기준값)
+   ───────────────────────────────────────── */
+@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+
+:root {
+  /* 색상 */
+  --color-bg: #f1edea;        /* 아이보리 배경 (두 페이지 공통) */
+  --color-button: #8a855f;    /* 버튼 올리브색 */
+  --color-button-text: #f1edea;
+  --color-accent: #5f8ef5;    /* 타이틀 파란색: 포커스 표시용 */
+
+  /* 폰트 */
+  --font-base: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+
+  /* 모션 */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 *,
 *::before,
 *::after {
@@ -13,4 +32,23 @@ body,
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+
+body {
+  background: var(--color-bg);
+  font-family: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+button {
+  font: inherit;
+  border: 0;
+  cursor: pointer;
 }

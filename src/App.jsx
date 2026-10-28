@@ -1,9 +1,20 @@
-// 임시 확인용 화면입니다. 디자인 에셋을 받으면 시작 페이지 / 캠퍼스 페이지로 교체합니다.
+import { lazy, Suspense, useState } from 'react'
+import StartPage from './pages/StartPage.jsx'
+
+// 3D 캠퍼스 페이지는 용량이 커서 필요할 때 따로 불러옵니다.
+// (시작 페이지가 열린 뒤 백그라운드에서 미리 받아둡니다)
+const CampusPage = lazy(() => import('./pages/CampusPage.jsx'))
+
+// 페이지 전환: 'start' → 'campus'
+// 시작 페이지가 퇴장 애니메이션을 끝낸 뒤 onEnterCampus를 호출합니다.
 export default function App() {
+  const [page, setPage] = useState('start')
+
+  if (page === 'start') return <StartPage onEnterCampus={() => setPage('campus')} />
+
   return (
-    <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
-      <h1>HNU CAT WEBSITE</h1>
-      <p>프로젝트 초기화 완료. 디자인 에셋을 기다리는 중입니다.</p>
-    </div>
+    <Suspense fallback={null}>
+      <CampusPage />
+    </Suspense>
   )
 }
