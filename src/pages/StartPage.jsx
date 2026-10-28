@@ -4,7 +4,8 @@ import './StartPage.css'
 
 // Figma 프레임(1440 × 1014) 기준 좌표입니다. 단위는 Figma px.
 // 화면 크기에 맞춰 CSS 변수 --u 로 한꺼번에 확대·축소됩니다.
-const IMG = '/images'
+// BASE_URL: 로컬에선 '/', GitHub Pages에선 '/hnu-cat-website/'
+const IMG = `${import.meta.env.BASE_URL}images`
 
 const STARS = [
   { name: 'star-big', x: 159, y: 177, w: 254, rot: 5, dur: 3.6, delay: 0 },
@@ -127,7 +128,7 @@ export default function StartPage({ onEnterCampus }) {
           className="start__layer start__sub"
           src={`${IMG}/sub_Title.png`}
           alt="The cat at Hannam University became a student."
-          style={pos({ x: 561.5, y: 661, w: 317 })}
+          style={pos({ x: 539.5, y: 661, w: 361 })}
         />
 
         {/* 버튼 */}
