@@ -152,7 +152,7 @@
   position: absolute;
   left: 50%;
   top: 54%; /* 화면 가운데보다 살짝 아래 */
-  width: max(100vw, 115vh); /* 세로로 긴 화면에서도 정문이 너무 작지 않게 (양옆은 잘림) */
+  width: max(78vw, 92vh); /* 화면보다 조금 작게 (세로로 긴 화면에서는 양옆이 살짝 잘림) */
   transform: translate(-50%, -50%);
   z-index: 5;
   pointer-events: none;
@@ -162,6 +162,9 @@
   width: 100%;
   height: auto;
   transform-origin: 50.8% 58%; /* 두 기둥 사이 도로 끝 쪽으로 다가가는 느낌 */
+  /* 앞쪽 도로가 뚝 끊겨 보이지 않도록 아래로 갈수록 서서히 사라짐 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 58%, transparent 96%);
   will-change: transform, opacity;
 }
 
