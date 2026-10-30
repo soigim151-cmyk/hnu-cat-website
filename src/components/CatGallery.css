@@ -6,16 +6,16 @@
   --gap: clamp(10px, 1.2vw, 20px);
   --caption: 22px; /* 캡션 높이 */
   --row-h: calc((100dvh - 2 * clamp(16px, 3vh, 36px) - 36px - 2 * var(--gap)) / 3 - var(--caption));
-  position: absolute;
-  inset: 0;
-  z-index: 0; /* 지도(캔버스) 뒤에 화면 전체로 깔림 */
+  position: relative;
+  height: 100vh;
+  height: 100dvh; /* 지도 아래 한 화면 */
+  background: #000;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: clamp(16px, 3vh, 36px) 0;
   overflow: hidden;
   color: #fff;
-  pointer-events: none; /* 클릭은 CampusPage 가 받아서 전달 (지도 옆 빈 곳) */
 }
 
 .gallery__title {
@@ -60,18 +60,29 @@
 
 .gallery__thumb {
   position: relative;
+  display: block;
   height: var(--row-h);
-  overflow: hidden;
+  padding: 0;
+  border: 0;
   background: #1a1a1a;
+  cursor: zoom-in;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .gallery__thumb img {
   display: block;
   height: 100%;
   width: auto;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.gallery__item.is-hover .gallery__thumb img {
-  transform: scale(1.05);
+/* 마우스를 올리면 사진이 살짝 커짐 (흐름은 그대로) */
+@media (hover: hover) and (pointer: fine) {
+  .gallery__thumb:hover {
+    transform: scale(1.06);
+    z-index: 1;
+  }
+}
+.gallery__thumb:focus-visible {
+  outline: 2px solid #6290ed;
+  outline-offset: 3px;
 }
 
 /* 동영상 표시 ▶ */

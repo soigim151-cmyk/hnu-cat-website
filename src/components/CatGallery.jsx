@@ -12,68 +12,42 @@ const largeSrc = (it) => (it.type === 'video' ? `${DIR}${it.id}.mp4` : `${DIR}${
 const ROWS = [0, 1, 2].map((r) => GALLERY.map((_, i) => i).filter((i) => i % 3 === r))
 const ROW_SECONDS = [90, 110, 100] // 줄마다 한 바퀴 도는 시간 (조금씩 달라서 단조롭지 않게)
 
-// 화면 전체에 3줄로 깔리는 갤러리: 사진이 옆으로 계속 흘러감 (모든 사진 세로 길이 동일)
-// 지도가 앞에 겹쳐 있어서 클릭은 CampusPage 가 대신 받아 openAt(x, y) 로 전달합니다.
-export default function CatGallery({ apiRef }) {
+// 지도 아래 화면에 3줄로 깔리는 갤러리: 사진이 옆으로 계속 흘러감 (모든 사진 세로 길이 동일)
+export default function CatGallery() {
   const [open, setOpen] = useState(-1) // 크게 보는 사진 번호 (-1 = 닫힘)
-  const [hover, setHover] = useState(-1)
-  const trackRef = useRef(null)
-
-  // 화면 좌표에 있는 사진 번호 찾기 (없으면 -1)
-  const indexAt = useCallback((x, y) => {
-    // 갤러리는 pointer-events: none 이라 위치를 직접 비교
-    for (const el of trackRef.current?.querySelectorAll('.gallery__thumb') ?? []) {
-      const r = el.getBoundingClientRect()
-      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return Number(el.parentElement.dataset.index)
-    }
-    return -1
-  }, [])
-
-  useEffect(() => {
-    if (!apiRef) return
-    apiRef.current = {
-      hoverAt: (x, y) => {
-        const i = x === null ? -1 : indexAt(x, y)
-        setHover(i)
-        return i >= 0
-      },
-      openAt: (x, y) => {
-        const i = indexAt(x, y)
-        if (i >= 0) setOpen(i)
-        return i >= 0
-      },
-    }
-  }, [apiRef, indexAt])
-
-  // 마우스를 올리면 흐름 멈춤, 크게 보는 동안에도 멈춤
-  const paused = hover >= 0 || open >= 0
 
   return (
-    <section className="gallery" aria-label="한남대 고양이 사진">
-      <h2 className="gallery__title">(HNU CATS)</h2>
-      <div className="gallery__rows" ref={trackRef}>
+    <section className="gallery" id="cat-gallery" aria-labelledby="gallery-title">
+      <h2 className="gallery__title" id="gallery-title">
+        (HNU CATS)
+      </h2>
+      <div className="gallery__rows">
         {ROWS.map((row, r) => (
           // 같은 줄을 두 번 이어 붙여서 끊김 없이 반복, 가운데 줄은 반대 방향
           <div
             key={r}
-            className={`gallery__track${r % 2 ? ' is-reverse' : ''}${paused ? ' is-paused' : ''}`}
+            className={`gallery__track${r % 2 ? ' is-reverse' : ''}${open >= 0 ? ' is-paused' : ''}`}
             style={{ '--dur': `${ROW_SECONDS[r]}s` }}
           >
             {[...row, ...row].map((i, k) => {
               const it = GALLERY[i]
               const copy = k >= row.length
               return (
-                <figure
-                  key={`${it.id}-${k}`}
-                  className={`gallery__item${hover === i ? ' is-hover' : ''}`}
-                  data-index={i}
-                  aria-hidden={copy}
-                >
-                  <div className="gallery__thumb">
-                    <img src={thumbSrc(it)} alt={copy ? '' : it.caption} style={{ aspectRatio: `${it.w} / ${it.h}` }} />
+                <figure key={`${it.id}-${k}`} className="gallery__item">
+                  <button
+                    type="button"
+                    className="gallery__thumb"
+                    onClick={() => setOpen(i)}
+                    aria-label={`${it.caption} 크게 보기`}
+                    tabIndex={copy ? -1 : 0}
+                    aria-hidden={copy}
+                  >
+                    <img src={thumbSrc(it)} alt="" loading="lazy" style={{ aspectRatio: `${it.w} / ${it.h}` }} />
                     {it.type === 'video' && <span className="gallery__play" aria-hidden="true" />}
-                  </div>
-                  <figcaption className="gallery__caption">{it.caption}</figcaption>
+                  </button>
+                  <figcaption className="gallery__caption" aria-hidden={copy}>
+                    {it.caption}
+                  </figcaption>
                 </figure>
               )
             })}
@@ -81,7 +55,7 @@ export default function CatGallery({ apiRef }) {
         ))}
       </div>
 
-      {/* 크게 보기는 지도보다 위에 떠야 하므로 화면 맨 위층(body)에 띄움 */}
+      {/* 크게 보기는 맨 위층(body)에 띄움 */}
       {open >= 0 && createPortal(<Lightbox index={open} onChange={setOpen} onClose={() => setOpen(-1)} />, document.body)}
     </section>
   )
@@ -112,7 +86,14 @@ function Lightbox({ index, onChange, onClose }) {
       else if (e.key === 'ArrowLeft') go(-1)
     }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    // 열려 있는 동안 뒤 페이지 스크롤 막기
+    const scroller = document.querySelector('.campus')
+    const prev = scroller?.style.overflowY
+    if (scroller) scroller.style.overflowY = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      if (scroller) scroller.style.overflowY = prev
+    }
   }, [go, onClose])
 
   // 휴대폰: 좌우로 밀어서 넘기기
