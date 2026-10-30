@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { Html, OrbitControls } from '@react-three/drei'
 import {
   Color,
   LinearMipmapLinearFilter,
@@ -17,6 +17,7 @@ import {
 } from 'three'
 import { BUILDINGS } from '../data/buildings.js'
 import { readMapAssets } from './mapAssets.js'
+import './MapMarkers.css'
 
 const deg = MathUtils.degToRad
 
@@ -33,6 +34,9 @@ const MAP = {
   fill: 0.88, // 처음 화면에서 그림이 차지하는 비율
 }
 const OUTLINE_COLOR = '#0225ff'
+const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker.png`
+const MARKER_LIFT = 40 // 마커를 땅보다 카메라 쪽으로 띄우는 거리 (회전할 때 떠 있는 느낌)
+const MARKER_DEPTH = 0.3 // 핀 끝이 가리키는 지점: 구역 위쪽 끝(0) ~ 아래쪽 끝(1) 사이
 const OUTLINE_RADIUS = 3 // 외곽선 두께 (건물 위치 지도 픽셀 단위, 1칸 = 그림 2px)
 const DRAG_THRESHOLD = 6
 
@@ -79,7 +83,51 @@ function makeReliefGeometry(width, height, depth, [sx, sy]) {
     pos.setXYZ(i, pos.getX(i) * (1 - t), pos.getY(i) * (1 - t), z)
   }
   g.computeBoundingSphere()
+  g.userData.mean = mean
   return g
+}
+
+// 그림 좌표(px) → 3D 위치 (판을 만들 때와 같은 방식)
+function imageToWorld(px, py, width, height, depth, mean, lift = 0) {
+  const n = sampleDepth(depth, px / width, py / height)
+  const z = (n - mean) * MAP.depthRange + lift
+  const t = z / MAP.cameraDistance
+  return [(px - width / 2) * (1 - t), (height / 2 - py) * (1 - t), z]
+}
+
+// 건물 위치 지도에서 각 장소에 핀을 꽂을 좌표를 찾습니다 (그림 px)
+function findMarkerAnchors(ids, width, height) {
+  const { width: w, height: h, data } = ids
+  const sx = width / w
+  const sy = height / h
+  return BUILDINGS.map((_, i) => {
+    const id = i + 1
+    let sumX = 0
+    let count = 0
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (data[(y * w + x) * 4] === id) {
+          sumX += x
+          count++
+        }
+      }
+    }
+    if (!count) return null
+    const cx = Math.round(sumX / count)
+    // 가운데 열 근처(±3칸)에서 구역의 위·아래 끝을 찾고, 위에서 MARKER_DEPTH 만큼 내려온 지점
+    let top = h
+    let bottom = 0
+    for (let x = Math.max(0, cx - 3); x <= Math.min(w - 1, cx + 3); x++) {
+      for (let y = 0; y < h; y++) {
+        if (data[(y * w + x) * 4] === id) {
+          top = Math.min(top, y)
+          bottom = Math.max(bottom, y)
+        }
+      }
+    }
+    const y = top + (bottom - top) * MARKER_DEPTH
+    return { px: (cx + 0.5) * sx, py: (y + 0.5) * sy }
+  })
 }
 
 const vertexShader = /* glsl */ `
@@ -144,6 +192,13 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     () => makeReliefGeometry(width, height, assets.depth, [90, 43]),
     [assets, width, height],
   )
+
+  const markers = useMemo(() => {
+    const mean = geometry.userData.mean
+    return findMarkerAnchors(assets.ids, width, height).map((a) =>
+      a ? imageToWorld(a.px, a.py, width, height, assets.depth, mean, MARKER_LIFT) : null,
+    )
+  }, [assets, width, height, geometry])
 
   const material = useMemo(() => {
     const map = new Texture(assets.image)
@@ -257,6 +312,31 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         onPointerLeave={() => setHovered(0)}
         onClick={handleClick}
       />
+      {/* 장소 마커: 각 구역 위에 떠 있고, 누르면 그 장소를 선택 */}
+      {markers.map((position, i) =>
+        position ? (
+          <Html key={BUILDINGS[i].id} position={position} zIndexRange={[5, 0]}>
+            <button
+              type="button"
+              className={`map-marker${active === i + 1 ? ' is-active' : ''}`}
+              style={{ '--bob-delay': `${i * -0.45}s` }}
+              aria-label={`${BUILDINGS[i].name} (${BUILDINGS[i].characters.join(', ')})`}
+              onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(i + 1)}
+              onPointerLeave={() => setHovered(0)}
+              onFocus={() => setHovered(i + 1)}
+              onBlur={() => setHovered(0)}
+              onClick={() => {
+                setArmed(0)
+                setSelected(i + 1)
+                onSelectBuilding?.(BUILDINGS[i])
+              }}
+            >
+              <img src={MARKER_IMG} alt="" draggable="false" />
+            </button>
+          </Html>
+        ) : null,
+      )}
+
       <OrbitControls
         ref={controlsRef}
         target={[0, 0, 0]}

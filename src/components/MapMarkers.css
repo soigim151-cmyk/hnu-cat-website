@@ -1,0 +1,55 @@
+/* ─────────────────────────────────────────
+   2.5D 지도 위 장소 마커
+   핀 끝이 장소 위 기준점에 오도록 배치하고, 위아래로 둥실둥실
+   ───────────────────────────────────────── */
+.map-marker {
+  --marker-w: clamp(26px, 2.6vw, 44px);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--marker-w);
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transform: translate(-50%, -100%); /* 핀 끝 = 기준점 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-marker img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 100%;
+  animation: map-marker-bob 2.4s ease-in-out infinite alternate;
+  animation-delay: var(--bob-delay, 0s);
+  transition: scale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 마우스를 올렸거나 선택된 장소: 살짝 커짐 */
+.map-marker.is-active img {
+  scale: 1.15;
+}
+
+.map-marker:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+@keyframes map-marker-bob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-marker img {
+    animation: none;
+  }
+}
