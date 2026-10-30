@@ -16,21 +16,50 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.map-marker img {
+/* 이름표 + 핀을 함께 위아래로 */
+.map-marker__float {
+  position: relative;
+  display: block;
+  animation: map-marker-bob 2.4s ease-in-out infinite alternate;
+  animation-delay: var(--bob-delay, 0s);
+}
+
+.map-marker__pin {
   display: block;
   width: 100%;
   height: auto;
   transform-origin: 50% 100%;
-  animation: map-marker-bob 2.4s ease-in-out infinite alternate;
-  animation-delay: var(--bob-delay, 0s);
   transition: scale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
   -webkit-user-drag: none;
 }
 
-/* 마우스를 올렸거나 선택된 장소: 살짝 커짐 */
-.map-marker.is-active img {
+/* 마우스를 올렸거나 선택된 장소: 핀이 살짝 커짐 */
+.map-marker.is-active .map-marker__pin {
   scale: 1.15;
+}
+
+/* 이름표: 평소엔 숨어 있다가 구역/마커에 마우스를 올리면 핀 위에 나타남 */
+.map-marker__label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  width: clamp(96px, 8.4vw, 120px); /* 원본 120px 이하로 → 흐려지지 않게 */
+  max-width: none;
+  height: auto;
+  opacity: 0;
+  transform: translate(-50%, 6px);
+  transition:
+    opacity 0.25s ease-out,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.map-marker.is-hovered .map-marker__label {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .map-marker:focus-visible {
@@ -49,7 +78,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .map-marker img {
+  .map-marker__float {
     animation: none;
+  }
+  .map-marker__label {
+    transition: opacity 0.2s;
   }
 }

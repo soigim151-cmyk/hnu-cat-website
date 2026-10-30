@@ -318,7 +318,9 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
           <Html key={BUILDINGS[i].id} position={position} zIndexRange={[5, 0]}>
             <button
               type="button"
-              className={`map-marker${active === i + 1 ? ' is-active' : ''}`}
+              className={`map-marker${active === i + 1 ? ' is-active' : ''}${
+                hovered === i + 1 || armed === i + 1 ? ' is-hovered' : ''
+              }`}
               style={{ '--bob-delay': `${i * -0.45}s` }}
               aria-label={`${BUILDINGS[i].name} (${BUILDINGS[i].characters.join(', ')})`}
               onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(i + 1)}
@@ -331,7 +333,18 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
                 onSelectBuilding?.(BUILDINGS[i])
               }}
             >
-              <img src={MARKER_IMG} alt="" draggable="false" />
+              {/* 이름표와 핀이 함께 둥실거림 */}
+              <span className="map-marker__float">
+                {BUILDINGS[i].label && (
+                  <img
+                    className="map-marker__label"
+                    src={`${import.meta.env.BASE_URL}${BUILDINGS[i].label}`}
+                    alt=""
+                    draggable="false"
+                  />
+                )}
+                <img className="map-marker__pin" src={MARKER_IMG} alt="" draggable="false" />
+              </span>
             </button>
           </Html>
         ) : null,

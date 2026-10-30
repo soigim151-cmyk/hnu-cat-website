@@ -20,6 +20,7 @@ public/
     map_depth_ai.webp  Depth Anything V2 결과 원본 (색 표시)
     map_depth.png  깊이 지도 (흰색 = 가까움). 더 정확한 지도로 같은 이름으로 교체 가능
     map_ids.png    건물 위치 지도 (픽셀 값 1~5 = data/buildings.js 순서)
+    label_insarye.png  인사례교양동 이름표 (인사례교양동_marker.png 를 영문 이름으로 복사)
     maker_image.png  장소 마커 원본 (화면에는 흰 테두리를 넣고 작게 줄인 marker_outline.png 사용)
     deco/          Decorations.png를 요소별로 자른 이미지 (별·반짝이·발바닥)
   models/
@@ -50,6 +51,7 @@ src/
 | 2.5D 외곽선 색·두께 | `src/components/MapScene.jsx` | `OUTLINE_COLOR`, `OUTLINE_RADIUS` |
 | 마커 위치·떠 있는 높이 | `src/components/MapScene.jsx` | `MARKER_DEPTH`, `MARKER_LIFT` |
 | 마커 크기·둥실거림 | `src/components/MapMarkers.css` | `--marker-w`, `map-marker-bob` |
+| 장소별 이름표 이미지 | `src/data/buildings.js` | `label` |
 
 ## 모바일용 모델 다시 만들기
 
