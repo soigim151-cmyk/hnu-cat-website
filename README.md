@@ -20,7 +20,7 @@ public/
     map_depth_ai.webp  Depth Anything V2 결과 원본 (색 표시)
     map_depth.png  깊이 지도 (흰색 = 가까움). 더 정확한 지도로 같은 이름으로 교체 가능
     map_ids.png    건물 위치 지도 (픽셀 값 1~5 = data/buildings.js 순서)
-    maker_image.png  장소 마커 원본 (화면에는 작게 줄인 marker.png 사용)
+    maker_image.png  장소 마커 원본 (화면에는 흰 테두리를 넣고 작게 줄인 marker_outline.png 사용)
     deco/          Decorations.png를 요소별로 자른 이미지 (별·반짝이·발바닥)
   models/
     Campus_3D_Area.glb         원본 모델 (데스크톱용)

@@ -34,7 +34,7 @@ const MAP = {
   fill: 0.88, // 처음 화면에서 그림이 차지하는 비율
 }
 const OUTLINE_COLOR = '#0225ff'
-const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker.png`
+const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker_outline.png`
 const MARKER_LIFT = 40 // 마커를 땅보다 카메라 쪽으로 띄우는 거리 (회전할 때 떠 있는 느낌)
 const MARKER_DEPTH = 0.3 // 핀 끝이 가리키는 지점: 구역 위쪽 끝(0) ~ 아래쪽 끝(1) 사이
 const OUTLINE_RADIUS = 3 // 외곽선 두께 (건물 위치 지도 픽셀 단위, 1칸 = 그림 2px)
