@@ -19,7 +19,8 @@ public/
     map_image.png  캠퍼스 지도 원본 (화면에는 압축한 map_image.webp 사용, 왼쪽 아래 휜 도로만 곧게 보정)
     map_depth_ai.webp  Depth Anything V2 결과 원본 (색 표시)
     map_depth.png  깊이 지도 (흰색 = 가까움). 더 정확한 지도로 같은 이름으로 교체 가능
-    map_ids.png    건물 위치 지도 (픽셀 값 1~5 = data/buildings.js 순서)
+    map_ids.png    건물 위치 지도 (픽셀 값 1~5 = data/buildings.js 순서) → 외곽선용
+    map_hover.png  마우스 판정용 지도 (구역을 약 45px 넓힘, 서로 겹치지 않음)
     인사례교양동_marker.png  이름표 디자인 원본 (화면 이름표는 이 디자인을 HTML 글자로 재현)
     maker_image.png  장소 마커 원본 (화면에는 흰 테두리를 넣고 작게 줄인 marker_outline.png 사용)
     deco/          Decorations.png를 요소별로 자른 이미지 (별·반짝이·발바닥)

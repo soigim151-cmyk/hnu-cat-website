@@ -5,12 +5,14 @@ import { setDownloadProgress } from './downloadProgress.js'
 //          왼쪽 아래 도로가 위로 휘어 그려진 부분만 곧게 보정)
 // - depth: 깊이 지도 (흰색 = 가까움, 검은색 = 멂)
 //          디자이너가 Depth Anything V2로 만든 map_depth_ai.webp(색 표시)를 흑백으로 변환한 파일
-// - ids:   건물 위치 지도 (픽셀 값 1~5 = BUILDINGS 순서, 0 = 건물 아님)
+// - ids:   건물 위치 지도 (픽셀 값 1~5 = BUILDINGS 순서, 0 = 건물 아님) → 외곽선용
+// - hover: 마우스 판정용 지도 (각 구역을 약 45px 넓힘, 서로 겹치지 않게)
 const BASE = `${import.meta.env.BASE_URL}images/`
 const FILES = [
   { key: 'image', url: `${BASE}map_image.webp`, bytes: 528944 },
   { key: 'depth', url: `${BASE}map_depth.png`, bytes: 56000 },
   { key: 'ids', url: `${BASE}map_ids.png`, bytes: 2000 },
+  { key: 'hover', url: `${BASE}map_hover.png`, bytes: 2500 },
 ]
 
 // 받은 데이터 양으로 진행률 계산
@@ -59,9 +61,9 @@ export function loadMapAssets() {
         setDownloadProgress(Math.min(1, loaded / total))
       }).then(blobToImage),
     ),
-  ).then(([image, depth, ids]) => {
+  ).then(([image, depth, ids, hover]) => {
     setDownloadProgress(1)
-    result = { image, depth: imageToPixels(depth), ids: imageToPixels(ids) }
+    result = { image, depth: imageToPixels(depth), ids: imageToPixels(ids), hover: imageToPixels(hover) }
     return result
   })
   return promise

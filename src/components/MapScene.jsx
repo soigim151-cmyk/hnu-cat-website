@@ -273,9 +273,10 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     invalidate()
   }, [active, hovered, dragging, material, onPointingChange, invalidate])
 
+  // 마우스 판정은 넓힌 지도(hover)로 → 구역 근처만 가도 반응
   const idAtUv = (uv) => {
     if (!uv) return 0
-    const { width: w, height: h, data } = assets.ids
+    const { width: w, height: h, data } = assets.hover
     const x = Math.min(w - 1, Math.max(0, Math.floor(uv.x * w)))
     const y = Math.min(h - 1, Math.max(0, Math.floor((1 - uv.y) * h)))
     return data[(y * w + x) * 4]
