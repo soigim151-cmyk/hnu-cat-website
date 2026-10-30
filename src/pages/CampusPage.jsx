@@ -9,22 +9,24 @@ import './CampusPage.css'
 
 export default function CampusPage() {
   const stageRef = useRef(null)
-  const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState(false) // 3D 모델 준비 완료
+  const [revealed, setRevealed] = useState(false) // 로딩 화면이 끝나고 캠퍼스 등장
   const [dragging, setDragging] = useState(false)
   const [pointing, setPointing] = useState(false) // 건물 위에 마우스가 있음
   // 선택한 건물 (대화창 디자인이 나오면 여기서 대화창을 엽니다)
   const [, setSelectedBuilding] = useState(null)
 
   const handleReady = useCallback(() => setReady(true), [])
+  const handleLoaderDone = useCallback(() => setRevealed(true), [])
 
   // 등장 전 상태: 투명 + 살짝 작게
   useLayoutEffect(() => {
     gsap.set(stageRef.current, { opacity: 0, scale: 0.94 })
   }, [])
 
-  // 모델 준비 완료 → 부드럽게 등장
+  // 로딩 화면이 끝나면(최소 3초) → 부드럽게 등장
   useEffect(() => {
-    if (!ready) return
+    if (!revealed) return
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const tween = gsap.to(stageRef.current, {
       opacity: 1,
@@ -33,7 +35,7 @@ export default function CampusPage() {
       ease: 'expo.out',
     })
     return () => tween.kill()
-  }, [ready])
+  }, [revealed])
 
   return (
     <main className="campus">
@@ -59,7 +61,7 @@ export default function CampusPage() {
         </Canvas>
       </div>
 
-      <CampusLoader visible={!ready} />
+      <CampusLoader ready={ready} hidden={revealed} onDone={handleLoaderDone} />
     </main>
   )
 }

@@ -52,14 +52,17 @@
   font-size: 0; /* h1 기본 글자 크기가 레이아웃에 영향 주지 않도록 */
 }
 
-/* 별: 회전 중심을 가운데로 */
-.start__star {
+/* 떠다니는 장식(별·발바닥): 회전 중심을 가운데로 */
+.start__float {
   transform-origin: 50% 50%;
   will-change: transform;
 }
 
 /* 발바닥: 마우스가 있는 기기에서만 hover 반응 */
 .start__paw {
+  display: block;
+  width: 100%;
+  height: auto;
   transition: transform 0.35s var(--ease-out-expo);
 }
 @media (hover: hover) and (pointer: fine) {

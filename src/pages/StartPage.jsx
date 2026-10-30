@@ -7,14 +7,19 @@ import './StartPage.css'
 // BASE_URL: 로컬에선 '/', GitHub Pages에선 '/hnu-cat-website/'
 const IMG = `${import.meta.env.BASE_URL}images`
 
+// 둥둥 떠다니는 장식 (w·h: 크기, dur: 왕복 시간(초), delay: 시작 지연, rot: 회전 방향)
 const STARS = [
-  { name: 'star-big', x: 159, y: 177, w: 254, rot: 5, dur: 3.6, delay: 0 },
-  { name: 'star-small', x: 1114, y: 195, w: 110, rot: -5, dur: 3.2, delay: 0.6 },
-  { name: 'star-filled', x: 298, y: 541, w: 90, rot: 5, dur: 3.0, delay: 1.1 },
-  { name: 'sparkle-left', x: 201, y: 447, w: 90, rot: -5, dur: 3.8, delay: 0.3 },
-  { name: 'sparkle-right', x: 1144, y: 322, w: 155, rot: 5, dur: 3.4, delay: 0.9 },
+  { name: 'star-big', x: 159, y: 177, w: 254, h: 251, rot: 1, dur: 3.0, delay: 0 },
+  { name: 'star-small', x: 1114, y: 195, w: 110, h: 109, rot: -1, dur: 2.6, delay: 0.5 },
+  { name: 'star-filled', x: 298, y: 541, w: 90, h: 87, rot: 1, dur: 2.4, delay: 0.9 },
+  { name: 'sparkle-left', x: 201, y: 447, w: 90, h: 120, rot: -1, dur: 3.2, delay: 0.3 },
+  { name: 'sparkle-right', x: 1144, y: 322, w: 155, h: 147, rot: 1, dur: 2.8, delay: 0.7 },
 ]
-const PAW = { x: 1154, y: 476, w: 134 }
+const PAW = { x: 1154, y: 476, w: 134, h: 131, rot: -1, dur: 3.4, delay: 1.2 }
+
+// 흔들림 크기 (Figma px 기준 → 화면 크기에 맞춰 함께 커지고 작아짐)
+const FLOAT_Y = 12 // 위아래 ±12px
+const FLOAT_ROT = 10 // 회전 ±10도
 
 // 위치값을 CSS 변수로 넘기는 헬퍼
 const pos = ({ x, y, w }) => ({ '--x': x, '--y': y, '--w': w })
@@ -44,18 +49,21 @@ export default function StartPage({ onEnterCampus }) {
 
       if (reduce) return
 
-      // 별: 각자 다른 주기·지연으로 ±4px, ±5도 흔들림
+      // 별·반짝이·발바닥: 각자 다른 주기·지연으로 위아래 흔들림 + 회전
       // 처음엔 원래 위치(0)에서 출발해 끊김 없이 반복으로 이어집니다.
-      gsap.utils.toArray('.start__star').forEach((el, i) => {
-        const s = STARS[i]
+      // yPercent(요소 높이 대비 %)를 써서 화면 크기가 바뀌어도 비율이 유지됩니다.
+      const floaters = [...STARS, PAW]
+      gsap.utils.toArray('.start__float').forEach((el, i) => {
+        const f = floaters[i]
         const dir = i % 2 === 0 ? 1 : -1
+        const amp = (FLOAT_Y / f.h) * 100 // f.h = Figma px 높이
         gsap
-          .timeline({ delay: s.delay })
-          .to(el, { y: 4 * dir, rotation: s.rot, duration: s.dur / 2, ease: 'sine.out' })
+          .timeline({ delay: f.delay })
+          .to(el, { yPercent: amp * dir, rotation: FLOAT_ROT * f.rot, duration: f.dur / 2, ease: 'sine.out' })
           .to(el, {
-            y: -4 * dir,
-            rotation: -s.rot,
-            duration: s.dur,
+            yPercent: -amp * dir,
+            rotation: -FLOAT_ROT * f.rot,
+            duration: f.dur,
             ease: 'sine.inOut',
             repeat: -1,
             yoyo: true,
@@ -105,13 +113,16 @@ export default function StartPage({ onEnterCampus }) {
           {STARS.map((s) => (
             <img
               key={s.name}
-              className="start__layer start__star"
+              className="start__layer start__star start__float"
               src={`${IMG}/deco/${s.name}.png`}
               alt=""
               style={pos(s)}
             />
           ))}
-          <img className="start__layer start__paw" src={`${IMG}/deco/paw.png`} alt="" style={pos(PAW)} />
+          {/* 발바닥: 바깥 상자는 둥둥, 안쪽 이미지는 마우스 hover 반응 */}
+          <div className="start__layer start__float start__paw-wrap" style={pos(PAW)}>
+            <img className="start__paw" src={`${IMG}/deco/paw.png`} alt="" />
+          </div>
         </div>
 
         {/* 타이틀 */}

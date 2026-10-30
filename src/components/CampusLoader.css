@@ -16,7 +16,6 @@
 }
 .campus__loader.is-hidden {
   opacity: 0;
-  transition-delay: 0.35s; /* 고양이가 다 채워진 모습을 잠깐 보여준 뒤 사라짐 */
 }
 
 /* 고양이 실루엣: 연한 바탕 위로 진한 색이 아래부터 차오름 */
@@ -35,5 +34,5 @@
   opacity: 0.2;
 }
 .campus__loader-cat-fill {
-  transition: clip-path 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: clip-path 0.25s ease-out;
 }
