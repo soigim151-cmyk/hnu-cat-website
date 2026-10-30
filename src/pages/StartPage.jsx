@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import './StartPage.css'
+import { VIEW_MODE } from '../components/viewMode.js'
 
 // Figma 프레임(1440 × 1014) 기준 좌표입니다. 단위는 Figma px.
 // 화면 크기에 맞춰 CSS 변수 --u 로 한꺼번에 확대·축소됩니다.
@@ -77,7 +78,8 @@ export default function StartPage({ onEnterCampus }) {
   // 시작 화면을 보는 동안 백그라운드에서 다운로드합니다.
   useEffect(() => {
     const t = setTimeout(() => {
-      import('../components/campusModel.js').then((m) => m.preloadCampus())
+      if (VIEW_MODE === 'map') import('../components/mapAssets.js').then((m) => m.loadMapAssets())
+      else import('../components/campusModel.js').then((m) => m.preloadCampus())
     }, 1200)
     return () => clearTimeout(t)
   }, [])

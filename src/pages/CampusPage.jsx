@@ -3,6 +3,8 @@ import { Canvas } from '@react-three/fiber'
 import { NoToneMapping } from 'three'
 import gsap from 'gsap'
 import CampusScene from '../components/CampusScene.jsx'
+import MapScene from '../components/MapScene.jsx'
+import { VIEW_MODE } from '../components/viewMode.js'
 import { CAMPUS_MODEL_URL } from '../components/campusModel.js'
 import CampusLoader from '../components/CampusLoader.jsx'
 import './CampusPage.css'
@@ -49,14 +51,24 @@ export default function CampusPage() {
           resize={{ offsetSize: true }} // 등장 애니메이션의 scale 이 캔버스 크기 계산에 끼어들지 않도록
         >
           <Suspense fallback={null}>
-            <CampusScene
-              url={CAMPUS_MODEL_URL}
-              onReady={handleReady}
-              onDragChange={setDragging}
-              dragging={dragging}
-              onSelectBuilding={setSelectedBuilding}
-              onPointingChange={setPointing}
-            />
+            {VIEW_MODE === 'map' ? (
+              <MapScene
+                onReady={handleReady}
+                onDragChange={setDragging}
+                dragging={dragging}
+                onSelectBuilding={setSelectedBuilding}
+                onPointingChange={setPointing}
+              />
+            ) : (
+              <CampusScene
+                url={CAMPUS_MODEL_URL}
+                onReady={handleReady}
+                onDragChange={setDragging}
+                dragging={dragging}
+                onSelectBuilding={setSelectedBuilding}
+                onPointingChange={setPointing}
+              />
+            )}
           </Suspense>
         </Canvas>
       </div>
