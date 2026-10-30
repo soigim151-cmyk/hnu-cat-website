@@ -39,14 +39,23 @@
   scale: 1.15;
 }
 
-/* 이름표: 평소엔 숨어 있다가 구역/마커에 마우스를 올리면 핀 위에 나타남 */
+/* 이름표: 평소엔 숨어 있다가 구역/마커에 마우스를 올리면 핀 위에 나타남
+   디자이너 이름표(120×23px) 기준: 배경 #6290ED, 흰 글자 Pretendard SemiBold 13px, 좌우 여백 8.5px */
 .map-marker__label {
   position: absolute;
   left: 50%;
   bottom: calc(100% + 8px);
-  width: clamp(96px, 8.4vw, 120px); /* 원본 120px 이하로 → 흐려지지 않게 */
-  max-width: none;
-  height: auto;
+  font-size: clamp(11px, 0.9vw, 13px);
+  height: 1.77em; /* 23px */
+  padding: 0 0.65em; /* 8.5px */
+  display: flex;
+  align-items: center;
+  background: #6290ed;
+  color: #fff;
+  font-family: var(--font-base);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
   opacity: 0;
   transform: translate(-50%, 6px);
   transition:
@@ -54,7 +63,6 @@
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
   user-select: none;
-  -webkit-user-drag: none;
 }
 
 .map-marker.is-hovered .map-marker__label {

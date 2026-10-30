@@ -1,6 +1,6 @@
 // 캠퍼스에서 클릭할 수 있는 장소 목록
 // - name, characters: 화면에 보일 이름 → 자유롭게 고쳐도 됩니다.
-// - label: 마우스를 올렸을 때 마커 위에 뜨는 이름표 이미지 (public/ 기준 경로, 없으면 생략)
+// - number: 건물 번호 (있으면 이름표에 "이름 (번호번)" 으로 표시)
 // - footprint, yMin, yMax: 3D 모델 위 위치(자동 계산값) → 직접 고치지 마세요.
 //   디자이너가 Figma 캠퍼스 이미지에 그린 윤곽선을 3D 모델 좌표로 옮긴 값입니다.
 //   footprint = 위에서 본 바닥 윤곽 [x, z], yMin~yMax = 높이 범위
@@ -17,7 +17,6 @@ export const BUILDINGS = [
     id: 'insarye-hall',
     name: '인사례교양동',
     number: 11,
-    label: 'images/label_insarye.png', // 마우스를 올리면 마커 위에 뜨는 이름표
     characters: ['김시유'],
     yMin: -0.0495,
     yMax: 0.0144,

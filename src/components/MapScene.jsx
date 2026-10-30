@@ -87,6 +87,9 @@ function makeReliefGeometry(width, height, depth, [sx, sy]) {
   return g
 }
 
+// 마우스를 올렸을 때 마커 위에 뜨는 이름표 문구
+const labelText = (b) => (b.number ? `${b.name} (${b.number}번)` : b.name)
+
 // 그림 좌표(px) → 3D 위치 (판을 만들 때와 같은 방식)
 function imageToWorld(px, py, width, height, depth, mean, lift = 0) {
   const n = sampleDepth(depth, px / width, py / height)
@@ -335,14 +338,9 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
             >
               {/* 이름표와 핀이 함께 둥실거림 */}
               <span className="map-marker__float">
-                {BUILDINGS[i].label && (
-                  <img
-                    className="map-marker__label"
-                    src={`${import.meta.env.BASE_URL}${BUILDINGS[i].label}`}
-                    alt=""
-                    draggable="false"
-                  />
-                )}
+                <span className="map-marker__label" aria-hidden="true">
+                  {labelText(BUILDINGS[i])}
+                </span>
                 <img className="map-marker__pin" src={MARKER_IMG} alt="" draggable="false" />
               </span>
             </button>
