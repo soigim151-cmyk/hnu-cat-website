@@ -45,7 +45,7 @@ src/
 | 시작 페이지 요소 위치 | `src/pages/StartPage.jsx` | `STARS`, `PAW`, `pos({...})` (Figma 1440×1014 좌표) |
 | 카메라 각도·회전 범위 | `src/components/CampusScene.jsx` | `VIEW` |
 | 장소 이름·캐릭터 | `src/data/buildings.js` | `name`, `characters` |
-| 2.5D 지도 입체감·회전 범위 | `src/components/MapScene.jsx` | `MAP` (`depthRange`, `azimuthRange`, `polarRange`) |
+| 2.5D 지도 입체감·회전 범위 | `src/components/MapScene.jsx` | `MAP` (`depthRange`, `azimuthRange`, `polarDown`, `polarUp`) |
 | 2.5D 외곽선 색·두께 | `src/components/MapScene.jsx` | `OUTLINE_COLOR`, `OUTLINE_RADIUS` |
 
 ## 모바일용 모델 다시 만들기

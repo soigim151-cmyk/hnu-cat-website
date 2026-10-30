@@ -26,8 +26,10 @@ const MAP = {
   cameraDistance: 3600, // 그림 픽셀 단위
   depthRange: 850, // 깊이 지도 흰색~검은색의 실제 거리 (클수록 입체감 ↑, 늘어짐 ↑)
   segments: [360, 171], // 그림을 나눈 격자 수 (클수록 높낮이가 촘촘)
-  azimuthRange: deg(8), // 좌우 회전 ±8°
-  polarRange: deg(5), // 상하 회전 ±5°
+  azimuthRange: deg(12), // 좌우 회전 ±12°
+  // 상하 회전: 방향마다 다르게 (사진 한 장이라 위에서 내려다보는 쪽으로 많이 돌리면 건물이 뭉개짐)
+  polarDown: deg(6), // 낮게 눕혀 보는 쪽 (자연스러움)
+  polarUp: deg(4), // 위에서 내려다보는 쪽
   fill: 0.88, // 처음 화면에서 그림이 차지하는 비율
 }
 const OUTLINE_COLOR = '#0225ff'
@@ -267,8 +269,8 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         autoRotate={false}
         minAzimuthAngle={-MAP.azimuthRange}
         maxAzimuthAngle={MAP.azimuthRange}
-        minPolarAngle={Math.PI / 2 - MAP.polarRange}
-        maxPolarAngle={Math.PI / 2 + MAP.polarRange}
+        minPolarAngle={Math.PI / 2 - MAP.polarUp}
+        maxPolarAngle={Math.PI / 2 + MAP.polarDown}
         mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: null, RIGHT: null }}
         touches={{ ONE: TOUCH.ROTATE, TWO: null }}
         onStart={() => onDragChange?.(true)}
