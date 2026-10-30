@@ -14,7 +14,7 @@ export const GALLERY = [
   { id: 'cat_10', type: 'image', w: 1280, h: 1707, caption: 'CAT 10' },
   { id: 'cat_11', type: 'image', w: 1280, h: 1706, caption: 'CAT 11' },
   { id: 'cat_12', type: 'image', w: 1280, h: 1706, caption: 'CAT 12' },
-  { id: 'cat_video', type: 'video', w: 1280, h: 720, caption: 'CAT VIDEO' },
+  { id: 'cat_video', type: 'video', w: 720, h: 1280, caption: 'CAT VIDEO' },
   { id: 'cat_13', type: 'image', w: 1280, h: 1706, caption: 'CAT 13' },
   { id: 'cat_14', type: 'image', w: 1280, h: 1706, caption: 'CAT 14' },
   { id: 'cat_15', type: 'image', w: 1280, h: 1707, caption: 'CAT 15' },

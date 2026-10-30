@@ -3,28 +3,43 @@
    사진 세로 길이를 모두 같게 맞추고 옆으로 계속 흘러감
    ───────────────────────────────────────── */
 .gallery {
-  --row-h: clamp(110px, 19vh, 210px); /* 모든 사진의 세로 길이 */
+  --gap: clamp(10px, 1.2vw, 20px);
+  --caption: 22px; /* 캡션 높이 */
+  --row-h: calc((100dvh - 2 * clamp(16px, 3vh, 36px) - 36px - 2 * var(--gap)) / 3 - var(--caption));
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: clamp(16px, 4vh, 48px);
-  z-index: 0; /* 지도(캔버스) 뒤 */
+  inset: 0;
+  z-index: 0; /* 지도(캔버스) 뒤에 화면 전체로 깔림 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(16px, 3vh, 36px) 0;
+  overflow: hidden;
   color: #fff;
-  pointer-events: none; /* 클릭은 CampusPage 가 받아서 전달 */
+  pointer-events: none; /* 클릭은 CampusPage 가 받아서 전달 (지도 옆 빈 곳) */
 }
 
 .gallery__title {
-  margin: 0 0 12px clamp(16px, 3vw, 48px);
+  height: 36px;
+  margin: 0 0 0 clamp(16px, 3vw, 48px);
   font-size: clamp(13px, 1.1vw, 16px);
   font-weight: 500;
   letter-spacing: 0.02em;
 }
 
+.gallery__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
 .gallery__track {
   display: flex;
-  gap: clamp(12px, 1.4vw, 24px);
+  gap: var(--gap);
   width: max-content;
-  animation: gallery-flow 120s linear infinite;
+  animation: gallery-flow var(--dur, 100s) linear infinite;
+}
+.gallery__track.is-reverse {
+  animation-direction: reverse;
 }
 .gallery__track.is-paused {
   animation-play-state: paused;
@@ -34,7 +49,7 @@
     transform: translateX(0);
   }
   to {
-    transform: translateX(calc(-50% - clamp(12px, 1.4vw, 24px) / 2)); /* 목록 한 바퀴 */
+    transform: translateX(calc(-50% - var(--gap) / 2)); /* 한 줄 한 바퀴 */
   }
 }
 
@@ -81,7 +96,8 @@
 }
 
 .gallery__caption {
-  margin-top: 8px;
+  height: var(--caption);
+  padding-top: 6px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -91,7 +107,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gallery__track {
-    animation-duration: 600s;
+    animation-duration: 900s;
   }
 }
 

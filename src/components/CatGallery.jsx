@@ -8,7 +8,11 @@ const DIR = `${import.meta.env.BASE_URL}images/gallery/`
 const thumbSrc = (it) => `${DIR}${it.id}_s.webp`
 const largeSrc = (it) => (it.type === 'video' ? `${DIR}${it.id}.mp4` : `${DIR}${it.id}_l.webp`)
 
-// 지도 아래쪽에 깔리는 갤러리 띠: 사진이 옆으로 계속 흘러감 (모든 사진 세로 길이 동일)
+// 사진을 3줄로 나눔 (0,3,6… / 1,4,7… / 2,5,8…)
+const ROWS = [0, 1, 2].map((r) => GALLERY.map((_, i) => i).filter((i) => i % 3 === r))
+const ROW_SECONDS = [90, 110, 100] // 줄마다 한 바퀴 도는 시간 (조금씩 달라서 단조롭지 않게)
+
+// 화면 전체에 3줄로 깔리는 갤러리: 사진이 옆으로 계속 흘러감 (모든 사진 세로 길이 동일)
 // 지도가 앞에 겹쳐 있어서 클릭은 CampusPage 가 대신 받아 openAt(x, y) 로 전달합니다.
 export default function CatGallery({ apiRef }) {
   const [open, setOpen] = useState(-1) // 크게 보는 사진 번호 (-1 = 닫힘)
@@ -44,30 +48,37 @@ export default function CatGallery({ apiRef }) {
   // 마우스를 올리면 흐름 멈춤, 크게 보는 동안에도 멈춤
   const paused = hover >= 0 || open >= 0
 
-  // 같은 목록을 두 번 이어 붙여서 끊김 없이 반복
-  const loop = [...GALLERY, ...GALLERY]
-
   return (
     <section className="gallery" aria-label="한남대 고양이 사진">
       <h2 className="gallery__title">(HNU CATS)</h2>
-      <div className={`gallery__track${paused ? ' is-paused' : ''}`} ref={trackRef}>
-        {loop.map((it, k) => {
-          const i = k % GALLERY.length
-          return (
-            <figure
-              key={`${it.id}-${k}`}
-              className={`gallery__item${hover === i ? ' is-hover' : ''}`}
-              data-index={i}
-              aria-hidden={k >= GALLERY.length}
-            >
-              <div className="gallery__thumb">
-                <img src={thumbSrc(it)} alt={k < GALLERY.length ? it.caption : ''} style={{ aspectRatio: `${it.w} / ${it.h}` }} />
-                {it.type === 'video' && <span className="gallery__play" aria-hidden="true" />}
-              </div>
-              <figcaption className="gallery__caption">{it.caption}</figcaption>
-            </figure>
-          )
-        })}
+      <div className="gallery__rows" ref={trackRef}>
+        {ROWS.map((row, r) => (
+          // 같은 줄을 두 번 이어 붙여서 끊김 없이 반복, 가운데 줄은 반대 방향
+          <div
+            key={r}
+            className={`gallery__track${r % 2 ? ' is-reverse' : ''}${paused ? ' is-paused' : ''}`}
+            style={{ '--dur': `${ROW_SECONDS[r]}s` }}
+          >
+            {[...row, ...row].map((i, k) => {
+              const it = GALLERY[i]
+              const copy = k >= row.length
+              return (
+                <figure
+                  key={`${it.id}-${k}`}
+                  className={`gallery__item${hover === i ? ' is-hover' : ''}`}
+                  data-index={i}
+                  aria-hidden={copy}
+                >
+                  <div className="gallery__thumb">
+                    <img src={thumbSrc(it)} alt={copy ? '' : it.caption} style={{ aspectRatio: `${it.w} / ${it.h}` }} />
+                    {it.type === 'video' && <span className="gallery__play" aria-hidden="true" />}
+                  </div>
+                  <figcaption className="gallery__caption">{it.caption}</figcaption>
+                </figure>
+              )
+            })}
+          </div>
+        ))}
       </div>
 
       {/* 크게 보기는 지도보다 위에 떠야 하므로 화면 맨 위층(body)에 띄움 */}
