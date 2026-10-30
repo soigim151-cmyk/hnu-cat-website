@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Box3, MathUtils, MOUSE, TOUCH, Vector3 } from 'three'
+import CampusBuildings from './CampusBuildings.jsx'
 
 const deg = MathUtils.degToRad
 
@@ -55,12 +56,21 @@ function fitDistance(pts, azimuth, polar, fovDeg, aspect, ndcY0, fill) {
   return d
 }
 
-export default function CampusScene({ url, onReady, onDragChange }) {
+export default function CampusScene({ url, onReady, onDragChange, dragging, onSelectBuilding, onPointingChange }) {
   const { scene } = useGLTF(url)
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
   const controlsRef = useRef(null)
+
+  // 캠퍼스 모델의 메시 (건물 외곽선 계산에 사용)
+  const campusMesh = useMemo(() => {
+    let found = null
+    scene.traverse((o) => {
+      if (o.isMesh && !found) found = o
+    })
+    return found
+  }, [scene])
 
   // 1) 모델의 Bounding Box 중심 = 회전 중심
   const { center, points } = useMemo(() => {
@@ -119,7 +129,17 @@ export default function CampusScene({ url, onReady, onDragChange }) {
           고른 환경광 위주 + 약한 직사광으로 원본 색을 살립니다 */}
       <ambientLight intensity={2.6} />
       <directionalLight position={[2, 4, 3]} intensity={0.8} />
+      {/* 외곽선 효과를 쓰면 캔버스가 불투명해지므로 배경색을 직접 지정 (페이지 배경과 동일) */}
+      <color attach="background" args={['#f1edea']} />
       <primitive object={scene} />
+
+      {/* 클릭 가능한 건물 + 외곽선 */}
+      <CampusBuildings
+        mesh={campusMesh}
+        dragging={dragging}
+        onSelect={onSelectBuilding}
+        onPointingChange={onPointingChange}
+      />
 
       <OrbitControls
         ref={controlsRef}

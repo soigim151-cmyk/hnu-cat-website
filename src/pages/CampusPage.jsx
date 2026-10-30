@@ -11,6 +11,9 @@ export default function CampusPage() {
   const stageRef = useRef(null)
   const [ready, setReady] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const [pointing, setPointing] = useState(false) // 건물 위에 마우스가 있음
+  // 선택한 건물 (대화창 디자인이 나오면 여기서 대화창을 엽니다)
+  const [, setSelectedBuilding] = useState(null)
 
   const handleReady = useCallback(() => setReady(true), [])
 
@@ -34,7 +37,7 @@ export default function CampusPage() {
 
   return (
     <main className="campus">
-      <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}`}>
+      <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}`}>
         <Canvas
           frameloop="demand" // 움직임이 있을 때만 다시 그림 (배터리·발열 절약)
           dpr={[1, 1.75]} // 고해상도 화면에서도 최대 1.75배까지만
@@ -44,7 +47,14 @@ export default function CampusPage() {
           resize={{ offsetSize: true }} // 등장 애니메이션의 scale 이 캔버스 크기 계산에 끼어들지 않도록
         >
           <Suspense fallback={null}>
-            <CampusScene url={CAMPUS_MODEL_URL} onReady={handleReady} onDragChange={setDragging} />
+            <CampusScene
+              url={CAMPUS_MODEL_URL}
+              onReady={handleReady}
+              onDragChange={setDragging}
+              dragging={dragging}
+              onSelectBuilding={setSelectedBuilding}
+              onPointingChange={setPointing}
+            />
           </Suspense>
         </Canvas>
       </div>

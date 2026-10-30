@@ -13,6 +13,9 @@
   cursor: grab;
   will-change: transform, opacity;
 }
+.campus__stage.is-pointing {
+  cursor: pointer; /* 클릭할 수 있는 건물 위 */
+}
 .campus__stage.is-dragging {
   cursor: grabbing;
 }

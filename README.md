@@ -25,6 +25,8 @@ src/
   pages/CampusPage.jsx   3D 캠퍼스 페이지 (+ CampusPage.css)
   components/CampusScene.jsx  3D 장면: 카메라 구도, 회전 제한, 조명
   components/campusModel.js   기기별 모델 파일 선택
+  components/CampusBuildings.jsx  클릭 가능한 건물 + 외곽선
+  data/buildings.js      장소 이름·캐릭터·3D 위치
   styles/global.css      색상·폰트 등 디자인 토큰
 ```
 
@@ -35,6 +37,8 @@ src/
 | 색상 | `src/styles/global.css` | `:root` |
 | 시작 페이지 요소 위치 | `src/pages/StartPage.jsx` | `STARS`, `PAW`, `pos({...})` (Figma 1440×1014 좌표) |
 | 카메라 각도·회전 범위 | `src/components/CampusScene.jsx` | `VIEW` |
+| 장소 이름·캐릭터 | `src/data/buildings.js` | `name`, `characters` |
+| 외곽선 색·진하기 | `src/components/CampusBuildings.jsx` | `OUTLINE_COLOR`, `OUTLINE_STRENGTH` |
 
 ## 모바일용 모델 다시 만들기
 
