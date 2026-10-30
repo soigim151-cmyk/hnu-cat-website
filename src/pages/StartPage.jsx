@@ -225,7 +225,6 @@ export default function StartPage({ onEnterCampus }) {
 
         {/* 버튼 */}
         <nav className={`start__actions${entered ? '' : ' is-locked'}`} aria-hidden={!entered}>
-          <PressButton className="start__btn start__btn--story">스토리</PressButton>
           <PressButton className="start__btn start__btn--school" onClick={handleEnter}>
             등교하기
           </PressButton>

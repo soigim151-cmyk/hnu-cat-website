@@ -89,11 +89,8 @@
   pointer-events: auto;
   transition: transform 0.3s var(--ease-out-expo);
 }
-.start__btn--story {
-  left: calc(280 * var(--u));
-}
 .start__btn--school {
-  left: calc(763 * var(--u));
+  left: calc(538 * var(--u)); /* (1440 - 364) / 2 → 가운데 */
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -125,17 +122,14 @@
     mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
   }
   .start__btn {
-    left: calc(440 * var(--u));
+    left: calc(310 * var(--u)); /* (1180 - 560) / 2 → 가운데 */
     width: calc(560 * var(--u));
     height: calc(140 * var(--u));
     border-radius: calc(32 * var(--u));
     font-size: calc(46 * var(--u));
   }
-  .start__btn--story {
-    top: calc(760 * var(--u));
-  }
   .start__btn--school {
-    top: calc(930 * var(--u));
+    top: calc(800 * var(--u));
   }
 }
 
@@ -157,9 +151,9 @@
 .start__gate-wrap {
   position: absolute;
   left: 50%;
-  bottom: 0;
+  top: 54%; /* 화면 가운데보다 살짝 아래 */
   width: max(100vw, 115vh); /* 세로로 긴 화면에서도 정문이 너무 작지 않게 (양옆은 잘림) */
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 5;
   pointer-events: none;
 }
@@ -178,12 +172,11 @@
   bottom: 22px;
   z-index: 6;
   transform: translateX(-50%);
-  color: #fff;
+  color: #0225ff; /* 정문 그림과 같은 파란색 */
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  text-shadow: 0 0 6px rgba(2, 37, 255, 0.6);
   pointer-events: none;
   animation: start-hint-bob 1.6s ease-in-out infinite alternate;
 }
