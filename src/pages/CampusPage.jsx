@@ -7,6 +7,7 @@ import MapScene from '../components/MapScene.jsx'
 import { VIEW_MODE } from '../components/viewMode.js'
 import { CAMPUS_MODEL_URL } from '../components/campusModel.js'
 import CampusLoader from '../components/CampusLoader.jsx'
+import CatGallery from '../components/CatGallery.jsx'
 import './CampusPage.css'
 
 export default function CampusPage() {
@@ -41,6 +42,8 @@ export default function CampusPage() {
 
   return (
     <main className="campus">
+      {/* 첫 화면: 캠퍼스 지도 */}
+      <section className="campus__map">
       <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}`}>
         <Canvas
           frameloop="demand" // 움직임이 있을 때만 다시 그림 (배터리·발열 절약)
@@ -74,6 +77,18 @@ export default function CampusPage() {
       </div>
 
       <CampusLoader ready={ready} hidden={revealed} onDone={handleLoaderDone} />
+
+      {/* 아래로 내려가면 고양이 갤러리 */}
+      <button
+        type="button"
+        className={`campus__to-gallery${revealed ? ' is-shown' : ''}`}
+        onClick={() => document.getElementById('cat-gallery')?.scrollIntoView({ behavior: 'smooth' })}
+      >
+        고양이 사진 보기 ↓
+      </button>
+      </section>
+
+      {revealed && <CatGallery />}
     </main>
   )
 }
