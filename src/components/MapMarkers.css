@@ -3,7 +3,7 @@
    핀 끝이 장소 위 기준점에 오도록 배치하고, 위아래로 둥실둥실
    ───────────────────────────────────────── */
 .map-marker {
-  --marker-w: clamp(26px, 2.6vw, 44px);
+  --marker-w: clamp(30px, 3vw, 50px);
   position: absolute;
   left: 0;
   top: 0;
