@@ -4,56 +4,26 @@
 .campus {
   position: fixed;
   inset: 0;
-  background: var(--color-bg); /* 시작 페이지와 같은 아이보리 → 전환 시 배경색 유지 */
-}
-
-.campus {
-  overflow-x: hidden;
-  overflow-y: auto; /* 지도 아래 갤러리까지 스크롤 */
-  overscroll-behavior: contain;
+  background: #000; /* 들어올 때 아이보리 → 검정으로 바뀜 (CampusPage.jsx) */
 }
 
 .campus__map {
   position: relative;
-  height: 100vh;
-  height: 100dvh;
-}
-
-.campus__to-gallery {
-  position: absolute;
-  left: 50%;
-  bottom: 20px;
-  z-index: 3;
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: rgba(98, 144, 237, 0.92);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(-50%);
-  transition:
-    opacity 0.6s ease 0.8s,
-    visibility 0.6s 0.8s;
-}
-.campus__to-gallery.is-shown {
-  opacity: 1;
-  visibility: visible;
-}
-.campus__to-gallery:focus-visible {
-  outline: 2px solid #0225ff;
-  outline-offset: 3px;
+  height: 100%;
 }
 
 .campus__stage {
   position: absolute;
   inset: 0;
+  z-index: 1; /* 갤러리 띠보다 앞 */
   cursor: grab;
   will-change: transform, opacity;
 }
 .campus__stage.is-pointing {
   cursor: pointer; /* 클릭할 수 있는 건물 위 */
+}
+.campus__stage.is-gallery {
+  cursor: zoom-in; /* 뒤에 깔린 갤러리 사진 위 */
 }
 .campus__stage.is-dragging {
   cursor: grabbing;

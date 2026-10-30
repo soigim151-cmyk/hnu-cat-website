@@ -19,6 +19,32 @@ export default function CampusPage() {
   // 선택한 건물 (대화창 디자인이 나오면 여기서 대화창을 엽니다)
   const [, setSelectedBuilding] = useState(null)
 
+  const mainRef = useRef(null)
+  const hitTestRef = useRef(null) // 지도 그림 위인지 판정 (MapScene 제공)
+  const galleryRef = useRef(null) // 갤러리 hover/열기 (CatGallery 제공)
+  const downRef = useRef(null)
+  const [overGallery, setOverGallery] = useState(false)
+
+  // 배경: 시작 페이지 아이보리 → 검정으로 부드럽게
+  useLayoutEffect(() => {
+    const t = gsap.fromTo(mainRef.current, { backgroundColor: '#f1edea' }, { backgroundColor: '#000000', duration: 1.2, ease: 'power2.inOut' })
+    return () => t.kill()
+  }, [])
+
+  // 지도는 앞, 갤러리는 뒤에 겹쳐 있어서 "지도 그림이 없는 곳"의 마우스 동작을 갤러리로 전달
+  const overMap = (e) => e.target.closest?.('.map-marker') || pointing || hitTestRef.current?.(e.clientX, e.clientY)
+  const handleMove = (e) => {
+    if (e.pointerType !== 'mouse' || dragging) return
+    const g = overMap(e) ? galleryRef.current?.hoverAt(null) : galleryRef.current?.hoverAt(e.clientX, e.clientY)
+    setOverGallery(!!g)
+  }
+  const handleClick = (e) => {
+    const d = downRef.current
+    if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) return // 드래그였음
+    if (overMap(e)) return
+    galleryRef.current?.openAt(e.clientX, e.clientY)
+  }
+
   const handleReady = useCallback(() => setReady(true), [])
   const handleLoaderDone = useCallback(() => setRevealed(true), [])
 
@@ -41,10 +67,24 @@ export default function CampusPage() {
   }, [revealed])
 
   return (
-    <main className="campus">
-      {/* 첫 화면: 캠퍼스 지도 */}
+    <main className="campus" ref={mainRef}>
       <section className="campus__map">
-      <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}`}>
+      {/* 고양이 갤러리 띠: 지도 아래쪽에 겹쳐서 뒤에 깔림 */}
+      {revealed && <CatGallery apiRef={galleryRef} />}
+
+      <div
+        ref={stageRef}
+        className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}${
+          overGallery && !dragging ? ' is-gallery' : ''
+        }`}
+        onPointerDown={(e) => (downRef.current = { x: e.clientX, y: e.clientY })}
+        onPointerMove={handleMove}
+        onPointerLeave={() => {
+          galleryRef.current?.hoverAt(null)
+          setOverGallery(false)
+        }}
+        onClick={handleClick}
+      >
         <Canvas
           frameloop="demand" // 움직임이 있을 때만 다시 그림 (배터리·발열 절약)
           dpr={[1, 1.75]} // 고해상도 화면에서도 최대 1.75배까지만
@@ -61,6 +101,7 @@ export default function CampusPage() {
                 dragging={dragging}
                 onSelectBuilding={setSelectedBuilding}
                 onPointingChange={setPointing}
+                hitTestRef={hitTestRef}
               />
             ) : (
               <CampusScene
@@ -78,17 +119,7 @@ export default function CampusPage() {
 
       <CampusLoader ready={ready} hidden={revealed} onDone={handleLoaderDone} />
 
-      {/* 아래로 내려가면 고양이 갤러리 */}
-      <button
-        type="button"
-        className={`campus__to-gallery${revealed ? ' is-shown' : ''}`}
-        onClick={() => document.getElementById('cat-gallery')?.scrollIntoView({ behavior: 'smooth' })}
-      >
-        고양이 사진 보기 ↓
-      </button>
       </section>
-
-      {revealed && <CatGallery />}
     </main>
   )
 }

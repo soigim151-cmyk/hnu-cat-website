@@ -10,7 +10,7 @@
   --color-button-text: #f1edea;
   --color-accent: #5f8ef5;    /* 타이틀 파란색: 포커스 표시용 */
 
-  /* 폰트 */
+  /* 폰트: 한글·영어 모두 Pretendard 하나로 통일 (갤러리 영문 캡션도 동일) */
   --font-base: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
     system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
 

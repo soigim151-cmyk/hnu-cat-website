@@ -175,13 +175,15 @@ const fragmentShader = /* glsl */ `
   }
 `
 
-export default function MapScene({ onReady, onDragChange, dragging, onSelectBuilding, onPointingChange }) {
+export default function MapScene({ onReady, onDragChange, dragging, onSelectBuilding, onPointingChange, hitTestRef }) {
   const assets = readMapAssets()
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   const gl = useThree((s) => s.gl)
   const invalidate = useThree((s) => s.invalidate)
   const controlsRef = useRef(null)
+  const pickRef = useRef(null)
+  const raycaster = useThree((s) => s.raycaster)
 
   const width = assets.image.naturalWidth
   const height = assets.image.naturalHeight
@@ -299,6 +301,27 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     onSelectBuilding?.(BUILDINGS[id - 1])
   }
 
+  // 화면 좌표에 지도 그림이 있는지 (투명한 곳이면 false) → 뒤에 깔린 갤러리 클릭 판정용
+  useEffect(() => {
+    if (!hitTestRef) return
+    hitTestRef.current = (clientX, clientY) => {
+      const mesh = pickRef.current
+      if (!mesh) return false
+      const rect = gl.domElement.getBoundingClientRect()
+      const ndc = {
+        x: ((clientX - rect.left) / rect.width) * 2 - 1,
+        y: -((clientY - rect.top) / rect.height) * 2 + 1,
+      }
+      raycaster.setFromCamera(ndc, camera)
+      const hit = raycaster.intersectObject(mesh)[0]
+      if (!hit?.uv) return false
+      const { width: w, height: h, data } = assets.alpha
+      const x = Math.min(w - 1, Math.max(0, Math.floor(hit.uv.x * w)))
+      const y = Math.min(h - 1, Math.max(0, Math.floor((1 - hit.uv.y) * h)))
+      return data[(y * w + x) * 4 + 3] > 128
+    }
+  }, [hitTestRef, gl, raycaster, camera, assets])
+
   useEffect(() => {
     onReady?.()
   }, [onReady])
@@ -307,6 +330,7 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     <>
       <mesh geometry={geometry} material={material} raycast={() => null} />
       <mesh
+        ref={pickRef}
         geometry={pickGeometry}
         material={INVISIBLE}
         onPointerMove={(e) => {

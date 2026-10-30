@@ -1,62 +1,62 @@
 /* ─────────────────────────────────────────
-   고양이 갤러리 (참고 이미지: 검은 배경 + 흩뿌린 사진 + 작은 캡션)
+   고양이 갤러리 띠 (캠퍼스 지도 아래쪽, 지도와 겹쳐서 뒤에 깔림)
+   사진 세로 길이를 모두 같게 맞추고 옆으로 계속 흘러감
    ───────────────────────────────────────── */
 .gallery {
-  position: relative;
-  background: #0b0b0b;
+  --row-h: clamp(110px, 19vh, 210px); /* 모든 사진의 세로 길이 */
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(16px, 4vh, 48px);
+  z-index: 0; /* 지도(캔버스) 뒤 */
   color: #fff;
-  padding: clamp(64px, 9vw, 140px) clamp(16px, 4vw, 64px) clamp(80px, 10vw, 160px);
+  pointer-events: none; /* 클릭은 CampusPage 가 받아서 전달 */
 }
 
 .gallery__title {
-  margin-bottom: clamp(40px, 6vw, 96px);
-  text-align: center;
-  font-size: clamp(18px, 1.8vw, 26px);
+  margin: 0 0 12px clamp(16px, 3vw, 48px);
+  font-size: clamp(13px, 1.1vw, 16px);
   font-weight: 500;
   letter-spacing: 0.02em;
 }
 
-.gallery__grid {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: clamp(12px, 1.6vw, 28px);
-  row-gap: clamp(40px, 5vw, 80px);
-  align-items: start;
+.gallery__track {
+  display: flex;
+  gap: clamp(12px, 1.4vw, 24px);
+  width: max-content;
+  animation: gallery-flow 120s linear infinite;
+}
+.gallery__track.is-paused {
+  animation-play-state: paused;
+}
+@keyframes gallery-flow {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - clamp(12px, 1.4vw, 24px) / 2)); /* 목록 한 바퀴 */
+  }
 }
 
 .gallery__item {
-  grid-column: var(--col) / span var(--span);
-  transform: translateY(var(--shift));
+  flex: none;
+  margin: 0;
 }
 
 .gallery__thumb {
   position: relative;
-  display: block;
-  width: 100%;
-  padding: 0;
-  background: #1a1a1a;
-  border: 0;
+  height: var(--row-h);
   overflow: hidden;
-  cursor: zoom-in;
+  background: #1a1a1a;
 }
 .gallery__thumb img {
   display: block;
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  transition:
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.4s ease;
+  height: 100%;
+  width: auto;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@media (hover: hover) and (pointer: fine) {
-  .gallery__thumb:hover img {
-    transform: scale(1.04);
-  }
-}
-.gallery__thumb:focus-visible {
-  outline: 2px solid #6290ed;
-  outline-offset: 4px;
+.gallery__item.is-hover .gallery__thumb img {
+  transform: scale(1.05);
 }
 
 /* 동영상 표시 ▶ */
@@ -64,8 +64,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
   transform: translate(-50%, -50%);
@@ -73,15 +73,14 @@
 .gallery__play::after {
   content: '';
   position: absolute;
-  left: 17px;
-  top: 13px;
+  left: 15px;
+  top: 11px;
   border-style: solid;
   border-width: 9px 0 9px 14px;
   border-color: transparent transparent transparent #fff;
 }
 
 .gallery__caption {
-  display: block;
   margin-top: 8px;
   font-size: 10px;
   font-weight: 600;
@@ -90,35 +89,9 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* 태블릿: 6칸 */
-@media (max-width: 900px) {
-  .gallery__grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-  .gallery__item {
-    grid-column: auto / span 3;
-    transform: none;
-  }
-  .gallery__item:nth-child(3n + 1) {
-    grid-column: auto / span 4;
-  }
-  .gallery__item:nth-child(3n + 2) {
-    grid-column: auto / span 2;
-  }
-}
-/* 휴대폰: 2열 */
-@media (max-width: 560px) {
-  .gallery__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 28px;
-  }
-  .gallery__item,
-  .gallery__item:nth-child(3n + 1),
-  .gallery__item:nth-child(3n + 2) {
-    grid-column: auto / span 1;
-  }
-  .gallery__item:nth-child(even) {
-    transform: translateY(28px);
+@media (prefers-reduced-motion: reduce) {
+  .gallery__track {
+    animation-duration: 600s;
   }
 }
 

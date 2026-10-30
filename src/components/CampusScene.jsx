@@ -131,7 +131,7 @@ export default function CampusScene({ url, onReady, onDragChange, dragging, onSe
       <ambientLight intensity={2.6} />
       <directionalLight position={[2, 4, 3]} intensity={0.8} />
       {/* 외곽선 효과를 쓰면 캔버스가 불투명해지므로 배경색을 직접 지정 (페이지 배경과 동일) */}
-      <color attach="background" args={['#f1edea']} />
+      <color attach="background" args={['#000000']} />
       <primitive object={scene} />
 
       {/* 클릭 가능한 건물 + 외곽선 */}

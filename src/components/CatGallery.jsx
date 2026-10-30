@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { GALLERY } from '../data/gallery.js'
 import './CatGallery.css'
@@ -7,63 +8,70 @@ const DIR = `${import.meta.env.BASE_URL}images/gallery/`
 const thumbSrc = (it) => `${DIR}${it.id}_s.webp`
 const largeSrc = (it) => (it.type === 'video' ? `${DIR}${it.id}.mp4` : `${DIR}${it.id}_l.webp`)
 
-// 참고 이미지처럼 "흩뿌린" 배치: 12칸 격자에서 칸 위치·폭·위아래 어긋남을 정해 둔 패턴
-// [시작 칸(1~12), 폭(칸 수), 위아래 어긋남(px)]
-const PATTERN = [
-  [1, 2, 0], [4, 2, 60], [7, 3, -20], [11, 2, 30],
-  [2, 3, 10], [6, 2, 70], [9, 2, -10], [11, 2, 50],
-  [1, 2, 40], [3, 3, -10], [8, 2, 30], [10, 3, 0],
-  [2, 2, -20], [5, 3, 40], [9, 2, 10], [11, 2, -30],
-]
-
-export default function CatGallery() {
+// 지도 아래쪽에 깔리는 갤러리 띠: 사진이 옆으로 계속 흘러감 (모든 사진 세로 길이 동일)
+// 지도가 앞에 겹쳐 있어서 클릭은 CampusPage 가 대신 받아 openAt(x, y) 로 전달합니다.
+export default function CatGallery({ apiRef }) {
   const [open, setOpen] = useState(-1) // 크게 보는 사진 번호 (-1 = 닫힘)
-  const sectionRef = useRef(null)
+  const [hover, setHover] = useState(-1)
+  const trackRef = useRef(null)
 
-  // 스크롤해서 보이면 사진이 하나씩 떠오르며 나타남
-  useEffect(() => {
-    const items = sectionRef.current.querySelectorAll('.gallery__item')
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    gsap.set(items, { opacity: 0, y: 30 })
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (!e.isIntersecting) return
-          gsap.to(e.target, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out' })
-          io.unobserve(e.target)
-        })
-      },
-      { threshold: 0.15 },
-    )
-    items.forEach((el) => io.observe(el))
-    return () => io.disconnect()
+  // 화면 좌표에 있는 사진 번호 찾기 (없으면 -1)
+  const indexAt = useCallback((x, y) => {
+    // 갤러리는 pointer-events: none 이라 위치를 직접 비교
+    for (const el of trackRef.current?.querySelectorAll('.gallery__thumb') ?? []) {
+      const r = el.getBoundingClientRect()
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return Number(el.parentElement.dataset.index)
+    }
+    return -1
   }, [])
 
+  useEffect(() => {
+    if (!apiRef) return
+    apiRef.current = {
+      hoverAt: (x, y) => {
+        const i = x === null ? -1 : indexAt(x, y)
+        setHover(i)
+        return i >= 0
+      },
+      openAt: (x, y) => {
+        const i = indexAt(x, y)
+        if (i >= 0) setOpen(i)
+        return i >= 0
+      },
+    }
+  }, [apiRef, indexAt])
+
+  // 마우스를 올리면 흐름 멈춤, 크게 보는 동안에도 멈춤
+  const paused = hover >= 0 || open >= 0
+
+  // 같은 목록을 두 번 이어 붙여서 끊김 없이 반복
+  const loop = [...GALLERY, ...GALLERY]
+
   return (
-    <section className="gallery" id="cat-gallery" ref={sectionRef} aria-labelledby="gallery-title">
-      <h2 className="gallery__title" id="gallery-title">
-        (HNU CATS)
-      </h2>
-      <ul className="gallery__grid">
-        {GALLERY.map((it, i) => {
-          const [col, span, shift] = PATTERN[i % PATTERN.length]
+    <section className="gallery" aria-label="한남대 고양이 사진">
+      <h2 className="gallery__title">(HNU CATS)</h2>
+      <div className={`gallery__track${paused ? ' is-paused' : ''}`} ref={trackRef}>
+        {loop.map((it, k) => {
+          const i = k % GALLERY.length
           return (
-            <li
-              key={it.id}
-              className="gallery__item"
-              style={{ '--col': col, '--span': span, '--shift': `${shift}px` }}
+            <figure
+              key={`${it.id}-${k}`}
+              className={`gallery__item${hover === i ? ' is-hover' : ''}`}
+              data-index={i}
+              aria-hidden={k >= GALLERY.length}
             >
-              <button type="button" className="gallery__thumb" onClick={() => setOpen(i)} aria-label={`${it.caption} 크게 보기`}>
-                <img src={thumbSrc(it)} alt="" loading="lazy" style={{ aspectRatio: `${it.w} / ${it.h}` }} />
+              <div className="gallery__thumb">
+                <img src={thumbSrc(it)} alt={k < GALLERY.length ? it.caption : ''} style={{ aspectRatio: `${it.w} / ${it.h}` }} />
                 {it.type === 'video' && <span className="gallery__play" aria-hidden="true" />}
-              </button>
-              <span className="gallery__caption">{it.caption}</span>
-            </li>
+              </div>
+              <figcaption className="gallery__caption">{it.caption}</figcaption>
+            </figure>
           )
         })}
-      </ul>
+      </div>
 
-      {open >= 0 && <Lightbox index={open} onChange={setOpen} onClose={() => setOpen(-1)} />}
+      {/* 크게 보기는 지도보다 위에 떠야 하므로 화면 맨 위층(body)에 띄움 */}
+      {open >= 0 && createPortal(<Lightbox index={open} onChange={setOpen} onClose={() => setOpen(-1)} />, document.body)}
     </section>
   )
 }
@@ -93,14 +101,7 @@ function Lightbox({ index, onChange, onClose }) {
       else if (e.key === 'ArrowLeft') go(-1)
     }
     window.addEventListener('keydown', onKey)
-    // 열려 있는 동안 뒤 페이지 스크롤 막기
-    const scroller = document.querySelector('.campus')
-    const prev = scroller?.style.overflowY
-    if (scroller) scroller.style.overflowY = 'hidden'
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      if (scroller) scroller.style.overflowY = prev
-    }
+    return () => window.removeEventListener('keydown', onKey)
   }, [go, onClose])
 
   // 휴대폰: 좌우로 밀어서 넘기기

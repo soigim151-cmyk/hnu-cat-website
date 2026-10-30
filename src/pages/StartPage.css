@@ -161,7 +161,7 @@
   display: block;
   width: 100%;
   height: auto;
-  transform-origin: 51.3% 76.3%; /* 도로 끝(소실점) 쪽으로 다가가는 느낌 */
+  transform-origin: 50.8% 58%; /* 두 기둥 사이 도로 끝 쪽으로 다가가는 느낌 */
   will-change: transform, opacity;
 }
 

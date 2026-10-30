@@ -37,12 +37,12 @@ async function blobToImage(blob) {
   return img
 }
 
-function imageToPixels(img) {
+function imageToPixels(img, shrink = 1) {
   const canvas = document.createElement('canvas')
-  canvas.width = img.naturalWidth
-  canvas.height = img.naturalHeight
+  canvas.width = Math.round(img.naturalWidth / shrink)
+  canvas.height = Math.round(img.naturalHeight / shrink)
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  ctx.drawImage(img, 0, 0)
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
   return ctx.getImageData(0, 0, canvas.width, canvas.height)
 }
 
@@ -63,7 +63,13 @@ export function loadMapAssets() {
     ),
   ).then(([image, depth, ids, hover]) => {
     setDownloadProgress(1)
-    result = { image, depth: imageToPixels(depth), ids: imageToPixels(ids), hover: imageToPixels(hover) }
+    result = {
+      image,
+      depth: imageToPixels(depth),
+      ids: imageToPixels(ids),
+      hover: imageToPixels(hover),
+      alpha: imageToPixels(image, 4), // 그림이 있는 곳/투명한 곳 판정용 (1/4 크기)
+    }
     return result
   })
   return promise
