@@ -151,7 +151,7 @@
 .start__gate-wrap {
   position: absolute;
   left: 50%;
-  top: 54%; /* 화면 가운데보다 살짝 아래 */
+  top: 62%; /* 화면 가운데보다 아래 */
   width: max(78vw, 92vh); /* 화면보다 조금 작게 (세로로 긴 화면에서는 양옆이 살짝 잘림) */
   transform: translate(-50%, -50%);
   z-index: 5;
