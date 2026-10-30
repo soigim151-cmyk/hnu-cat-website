@@ -16,7 +16,8 @@ npm run dev     # 개발 서버 → http://localhost:5173
 ```
 public/
   images/          Figma에서 내보낸 원본 이미지
-    map_image.png  캠퍼스 지도 원본 (화면에는 압축한 map_image.webp 사용)
+    map_image.png  캠퍼스 지도 원본 (화면에는 압축한 map_image.webp 사용, 왼쪽 아래 휜 도로만 곧게 보정)
+    map_depth_ai.webp  Depth Anything V2 결과 원본 (색 표시)
     map_depth.png  깊이 지도 (흰색 = 가까움). 더 정확한 지도로 같은 이름으로 교체 가능
     map_ids.png    건물 위치 지도 (픽셀 값 1~5 = data/buildings.js 순서)
     deco/          Decorations.png를 요소별로 자른 이미지 (별·반짝이·발바닥)

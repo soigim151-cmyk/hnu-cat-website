@@ -1,13 +1,14 @@
 import { setDownloadProgress } from './downloadProgress.js'
 
 // 2.5D 지도에 필요한 파일
-// - image: 캠퍼스 그림 (디자이너 제공 map_image.png 를 WebP로 압축)
+// - image: 캠퍼스 그림 (디자이너 제공 map_image.png 를 WebP로 압축,
+//          왼쪽 아래 도로가 위로 휘어 그려진 부분만 곧게 보정)
 // - depth: 깊이 지도 (흰색 = 가까움, 검은색 = 멂)
 //          디자이너가 Depth Anything V2로 만든 map_depth_ai.webp(색 표시)를 흑백으로 변환한 파일
 // - ids:   건물 위치 지도 (픽셀 값 1~5 = BUILDINGS 순서, 0 = 건물 아님)
 const BASE = `${import.meta.env.BASE_URL}images/`
 const FILES = [
-  { key: 'image', url: `${BASE}map_image.webp`, bytes: 529000 },
+  { key: 'image', url: `${BASE}map_image.webp`, bytes: 528944 },
   { key: 'depth', url: `${BASE}map_depth.png`, bytes: 56000 },
   { key: 'ids', url: `${BASE}map_ids.png`, bytes: 2000 },
 ]

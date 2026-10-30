@@ -24,7 +24,7 @@ const deg = MathUtils.degToRad
 const MAP = {
   fov: 30,
   cameraDistance: 3600, // 그림 픽셀 단위
-  depthRange: 650, // 깊이 지도 흰색~검은색의 실제 거리 (클수록 입체감 ↑, 늘어짐 ↑)
+  depthRange: 850, // 깊이 지도 흰색~검은색의 실제 거리 (클수록 입체감 ↑, 늘어짐 ↑)
   segments: [360, 171], // 그림을 나눈 격자 수 (클수록 높낮이가 촘촘)
   azimuthRange: deg(8), // 좌우 회전 ±8°
   polarRange: deg(5), // 상하 회전 ±5°
