@@ -1,10 +1,10 @@
 import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { useProgress } from '@react-three/drei'
 import { NoToneMapping } from 'three'
 import gsap from 'gsap'
 import CampusScene from '../components/CampusScene.jsx'
 import { CAMPUS_MODEL_URL } from '../components/campusModel.js'
+import CampusLoader from '../components/CampusLoader.jsx'
 import './CampusPage.css'
 
 export default function CampusPage() {
@@ -59,20 +59,7 @@ export default function CampusPage() {
         </Canvas>
       </div>
 
-      <Loader visible={!ready} />
+      <CampusLoader visible={!ready} />
     </main>
-  )
-}
-
-// 간결한 로딩 표시
-function Loader({ visible }) {
-  const { progress } = useProgress()
-  return (
-    <div className={`campus__loader${visible ? '' : ' is-hidden'}`} role="status" aria-live="polite">
-      <span className="campus__loader-bar">
-        <span style={{ transform: `scaleX(${progress / 100})` }} />
-      </span>
-      <span className="campus__loader-text">캠퍼스로 등교 중 {Math.round(progress)}%</span>
-    </div>
   )
 }

@@ -3,6 +3,7 @@ import { useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Box3, MathUtils, MOUSE, TOUCH, Vector3 } from 'three'
 import CampusBuildings from './CampusBuildings.jsx'
+import { trackDownload } from './campusModel.js'
 
 const deg = MathUtils.degToRad
 
@@ -57,7 +58,7 @@ function fitDistance(pts, azimuth, polar, fovDeg, aspect, ndcY0, fill) {
 }
 
 export default function CampusScene({ url, onReady, onDragChange, dragging, onSelectBuilding, onPointingChange }) {
-  const { scene } = useGLTF(url)
+  const { scene } = useGLTF(url, true, true, trackDownload)
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
   const invalidate = useThree((s) => s.invalidate)
