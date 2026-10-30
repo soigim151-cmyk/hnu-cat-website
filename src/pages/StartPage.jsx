@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import './StartPage.css'
 import { VIEW_MODE } from '../components/viewMode.js'
@@ -25,6 +25,14 @@ const FLOAT_ROT = 10 // 회전 ±10도
 // 위치값을 CSS 변수로 넘기는 헬퍼
 const pos = ({ x, y, w }) => ({ '--x': x, '--y': y, '--w': w })
 
+// 정문 들어가기 설정
+const GATE = {
+  zoom: 3, // 정문이 다가오는 정도 (확대 배율)
+  wheelDistance: 1400, // 정문을 다 지나는 데 필요한 휠 양 (px)
+  touchDistance: 650, // 휴대폰에서 필요한 쓸어 올리기 거리 (px)
+}
+const IS_TOUCH = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+
 const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -32,22 +40,90 @@ export default function StartPage({ onEnterCampus }) {
   const rootRef = useRef(null)
   const titleRef = useRef(null)
   const leavingRef = useRef(false) // 중복 클릭 방지
+  const gateRef = useRef(null)
+  const contentRef = useRef(null)
+  const hintRef = useRef(null)
+  const [entered, setEntered] = useState(false) // 정문을 다 지났는지
+
+  // ── 정문 들어가기: 휠(터치·키보드)로 정문이 다가오며 사라지고, 안쪽 화면이 나타남 ──
+  useLayoutEffect(() => {
+    const reduce = prefersReducedMotion()
+    const gate = gateRef.current
+    const tl = gsap.timeline({ paused: true })
+    tl.fromTo(gate, { scale: 1 }, { scale: GATE.zoom, ease: 'power2.in', duration: 1 }, 0)
+      .to(gate, { opacity: 0, ease: 'power1.in', duration: 0.45 }, 0.5)
+      .fromTo(
+        contentRef.current,
+        { scale: 0.86, opacity: 0 },
+        { scale: 1, opacity: 1, ease: 'power2.out', duration: 0.6 },
+        0.4,
+      )
+      .to(hintRef.current, { opacity: 0, duration: 0.08 }, 0)
+
+    const state = { p: 0 }
+    let target = 0
+    let done = false
+    const follow = gsap.quickTo(state, 'p', {
+      duration: reduce ? 0.3 : 0.8,
+      ease: 'power3.out',
+      onUpdate: () => {
+        tl.progress(state.p)
+        gate.style.visibility = state.p > 0.995 ? 'hidden' : 'visible'
+      },
+    })
+    const advance = (delta) => {
+      if (done) return
+      target = Math.min(1, Math.max(0, target + (reduce && delta > 0 ? 1 : delta)))
+      follow(target)
+      if (target >= 1) {
+        done = true
+        setEntered(true)
+      }
+    }
+
+    const onWheel = (e) => {
+      if (done) return
+      e.preventDefault()
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1
+      advance((e.deltaY * unit) / GATE.wheelDistance)
+    }
+    let lastY = null
+    const onTouchStart = (e) => (lastY = e.touches[0].clientY)
+    const onTouchMove = (e) => {
+      if (done || lastY === null) return
+      const y = e.touches[0].clientY
+      advance((lastY - y) / GATE.touchDistance) // 위로 쓸어 올리면 앞으로
+      lastY = y
+    }
+    const onKey = (e) => {
+      if (done) return
+      if (['ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
+        e.preventDefault()
+        advance(0.25)
+      } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+        e.preventDefault()
+        advance(-0.25)
+      }
+    }
+
+    const root = rootRef.current
+    root.addEventListener('wheel', onWheel, { passive: false })
+    root.addEventListener('touchstart', onTouchStart, { passive: true })
+    root.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('keydown', onKey)
+    return () => {
+      root.removeEventListener('wheel', onWheel)
+      root.removeEventListener('touchstart', onTouchStart)
+      root.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('keydown', onKey)
+      tl.kill()
+    }
+  }, [])
 
   // ── 등장 애니메이션 + 별 둥둥 ─────────────────────
   useLayoutEffect(() => {
     const reduce = prefersReducedMotion()
     const ctx = gsap.context(() => {
-      // 타이틀: 아래 25px에서 떠오르며 나타남
-      gsap.from(titleRef.current, {
-        y: reduce ? 0 : 25,
-        opacity: 0,
-        duration: reduce ? 0.3 : 0.9,
-        ease: 'expo.out',
-        delay: 0.2,
-      })
-      // 서브타이틀은 타이틀을 따라 살짝 늦게 나타남 (투명도만)
-      gsap.from('.start__sub', { opacity: 0, duration: 0.6, ease: 'power2.out', delay: 0.5 })
-
       if (reduce) return
 
       // 별·반짝이·발바닥: 각자 다른 주기·지연으로 위아래 흔들림 + 회전
@@ -110,6 +186,8 @@ export default function StartPage({ onEnterCampus }) {
           <img className="start__layer" src={`${IMG}/Grid.png`} alt="" style={pos({ x: 60, y: 72, w: 1323 })} />
         </div>
 
+        {/* 정문을 지나면 나타나는 안쪽 화면 (장식 + 타이틀) */}
+        <div className="start__content" ref={contentRef}>
         {/* 장식: 별 + 발바닥 (개별 요소) */}
         <div className="start__deco" aria-hidden="true">
           {STARS.map((s) => (
@@ -143,15 +221,24 @@ export default function StartPage({ onEnterCampus }) {
           alt="The cat at Hannam University became a student."
           style={pos({ x: 539.5, y: 661, w: 361 })}
         />
+        </div>
 
         {/* 버튼 */}
-        <nav className="start__actions">
+        <nav className={`start__actions${entered ? '' : ' is-locked'}`} aria-hidden={!entered}>
           <PressButton className="start__btn start__btn--story">스토리</PressButton>
           <PressButton className="start__btn start__btn--school" onClick={handleEnter}>
             등교하기
           </PressButton>
         </nav>
       </div>
+
+      {/* 정문: 맨 앞에서 시작해 휠을 내리면 다가오며 사라짐 */}
+      <div className="start__gate-wrap" aria-hidden="true">
+        <img ref={gateRef} className="start__gate" src={`${IMG}/gate.webp`} alt="" />
+      </div>
+      <p className="start__hint" ref={hintRef}>
+        {IS_TOUCH ? '위로 밀어서 정문으로 들어가기' : '스크롤해서 정문으로 들어가기'}
+      </p>
     </main>
   )
 }

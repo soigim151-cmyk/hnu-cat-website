@@ -145,3 +145,67 @@
     transition: none;
   }
 }
+
+/* ── 정문 들어가기 ───────────────────────────── */
+.start__content {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 55%;
+  opacity: 0; /* 정문을 지나면서 나타남 */
+}
+
+.start__gate-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: max(100vw, 115vh); /* 세로로 긴 화면에서도 정문이 너무 작지 않게 (양옆은 잘림) */
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none;
+}
+.start__gate {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 51.3% 76.3%; /* 도로 끝(소실점) 쪽으로 다가가는 느낌 */
+  will-change: transform, opacity;
+}
+
+/* 안내 문구 */
+.start__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  z-index: 6;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(2, 37, 255, 0.6);
+  pointer-events: none;
+  animation: start-hint-bob 1.6s ease-in-out infinite alternate;
+}
+@keyframes start-hint-bob {
+  to {
+    translate: 0 -5px;
+  }
+}
+
+/* 정문을 다 지나기 전에는 버튼 숨김 */
+.start__actions {
+  transition:
+    opacity 0.6s ease,
+    visibility 0.6s;
+}
+.start__actions.is-locked {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start__hint {
+    animation: none;
+  }
+}
