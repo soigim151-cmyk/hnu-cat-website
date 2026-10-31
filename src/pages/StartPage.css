@@ -152,7 +152,7 @@
   position: absolute;
   left: 50%;
   top: 62%; /* 화면 가운데보다 아래 */
-  width: max(78vw, 92vh); /* 화면보다 조금 작게 (세로로 긴 화면에서는 양옆이 살짝 잘림) */
+  width: max(100vw, 115vh); /* 화면 너비에 꽉 차게 (세로로 긴 화면에서는 양옆이 잘림) */
   transform: translate(-50%, -50%);
   z-index: 5;
   pointer-events: none;
