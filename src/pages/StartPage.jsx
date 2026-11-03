@@ -170,16 +170,11 @@ export default function StartPage({ onEnterCampus }) {
     gsap
       .timeline({ defaults: { duration: d, ease: 'power2.inOut' }, onComplete: onEnterCampus })
       .to(titleRef.current, { opacity: 0, scale: 1.05, overwrite: 'auto' }, 0)
-      .to(q('.start__sub, .start__actions, .start__deco, .start__bg, .start__stage--cover'), { opacity: 0 }, 0)
+      .to(q('.start__sub, .start__actions, .start__deco, .start__bg'), { opacity: 0 }, 0)
   }
 
   return (
     <main className="start" ref={rootRef}>
-      {/* 흐린 발바닥: 화면 비율이 달라도 가장자리가 잘려 보이지 않도록 화면 전체를 덮는 별도 무대 */}
-      <div className="start__stage start__stage--cover" aria-hidden="true">
-        <img className="start__layer start__blur" src={`${IMG}/Decorations2.png`} alt="" style={pos({ x: 0, y: 87, w: 1440 })} />
-      </div>
-
       <div className="start__stage">
         {/* 배경: 격자 */}
         <div className="start__bg" aria-hidden="true">
