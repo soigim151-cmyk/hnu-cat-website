@@ -40,9 +40,9 @@ const OUTLINE_COLOR = '#0225ff'
 const TONE = {
   ink: '#0225ff', // 진한 파랑 (정문 잉크색)
   paper: '#f1edea', // 아이보리 (종이색)
-  halftone: 0.7, // 점 무늬 세기 (0 = 매끈한 2색, 1 = 완전한 점 무늬)
-  dotSize: 5, // 점 간격 (그림 px, 작을수록 섬세)
-  colorKeep: 0.12, // 원래 사진 색을 남기는 정도 (0 = 완전 2색)
+  halftone: 0.35, // 점 무늬 세기 (0 = 매끈한 2색, 1 = 완전한 점 무늬)
+  dotSize: 4, // 점 간격 (그림 px, 작을수록 섬세)
+  colorKeep: 0.5, // 원래 사진 색을 남기는 정도 (0 = 완전 2색)
 }
 const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker_outline.png`
 const MARKER_LIFT = 40 // 마커를 땅보다 카메라 쪽으로 띄우는 거리 (회전할 때 떠 있는 느낌)
@@ -95,6 +95,18 @@ function makeReliefGeometry(width, height, depth, [sx, sy]) {
   g.computeBoundingSphere()
   g.userData.mean = mean
   return g
+}
+
+// 카메라에 확대 배율과 확대 중심(마우스 위치)을 반영
+function applyZoom(camera, z, size) {
+  // 확대된 만큼만 옆으로 움직일 수 있게 제한 (지도가 화면 밖으로 사라지지 않도록)
+  const limX = ((z.k - 1) * size.width) / 2
+  const limY = ((z.k - 1) * size.height) / 2
+  z.ox = Math.max(-limX, Math.min(limX, z.ox))
+  z.oy = Math.max(-limY, Math.min(limY, z.oy))
+  camera.zoom = z.base * z.k
+  camera.setViewOffset(size.width, size.height, z.ox, -z.shift + z.oy, size.width, size.height)
+  camera.updateProjectionMatrix()
 }
 
 // 마우스를 올렸을 때 마커 위에 뜨는 이름표 문구
@@ -213,7 +225,7 @@ const fragmentShader = /* glsl */ `
   }
 `
 
-export default function MapScene({ onReady, onDragChange, dragging, onSelectBuilding, onPointingChange, hitTestRef }) {
+export default function MapScene({ onReady, onDragChange, dragging, onSelectBuilding, onPointingChange }) {
   const assets = readMapAssets()
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
@@ -221,7 +233,8 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
   const invalidate = useThree((s) => s.invalidate)
   const controlsRef = useRef(null)
   const pickRef = useRef(null)
-  const zoomRef = useRef({ base: 1, k: 1, target: 1 }) // k = 확대 배율 (1 ~ MAP.maxZoom)
+  // 확대 상태: k = 배율 (1 ~ MAP.maxZoom), ox/oy = 확대 중심 이동(px), shift = 지도 세로 위치 보정
+  const zoomRef = useRef({ base: 1, k: 1, target: 1, ox: 0, oy: 0, shift: 0, anchor: null })
   const raycaster = useThree((s) => s.raycaster)
 
   const width = assets.image.naturalWidth
@@ -294,12 +307,10 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     camera.near = D / 20
     camera.far = D * 4
     zoomRef.current.base = Math.min(zoomW, zoomH)
-    camera.zoom = zoomRef.current.base * zoomRef.current.k
+    zoomRef.current.shift = (c - 0.5) * size.height
     camera.position.set(0, 0, D)
     camera.lookAt(0, 0, 0)
-    const shift = (c - 0.5) * size.height
-    camera.setViewOffset(size.width, size.height, 0, -shift, size.width, size.height)
-    camera.updateProjectionMatrix()
+    applyZoom(camera, zoomRef.current, size)
 
     const controls = controlsRef.current
     if (controls) {
@@ -347,12 +358,37 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     onSelectBuilding?.(BUILDINGS[id - 1])
   }
 
-  // ── 확대/축소: 휠 위로 = 확대, 아래로 = 축소 (원래 크기에서 더 내리면 페이지가 스크롤됨)
+  // ── 확대/축소: 마우스가 지도 위에 있을 때만 휠로 확대·축소 (마우스 위치를 중심으로)
+  //    지도 바깥 빈 곳에서 휠을 굴리면 평소처럼 아래 페이지로 스크롤
   //    휴대폰은 두 손가락 벌리기/오므리기
   useEffect(() => {
     const el = gl.domElement.parentElement ?? gl.domElement // 마커 위에서도 휠이 먹도록 캔버스를 감싼 상자에
     const z = zoomRef.current
-    const zoomTo = (target) => {
+
+    // 화면 좌표에 지도 그림이 있는지 (투명한 곳이면 false)
+    const overMap = (clientX, clientY) => {
+      const mesh = pickRef.current
+      if (!mesh) return false
+      const rect = gl.domElement.getBoundingClientRect()
+      raycaster.setFromCamera(
+        { x: ((clientX - rect.left) / rect.width) * 2 - 1, y: -((clientY - rect.top) / rect.height) * 2 + 1 },
+        camera,
+      )
+      const hit = raycaster.intersectObject(mesh)[0]
+      if (!hit?.uv) return false
+      const { width: w, height: h, data } = assets.alpha
+      const x = Math.min(w - 1, Math.max(0, Math.floor(hit.uv.x * w)))
+      const y = Math.min(h - 1, Math.max(0, Math.floor((1 - hit.uv.y) * h)))
+      return data[(y * w + x) * 4 + 3] > 128
+    }
+
+    // (clientX, clientY) 지점을 고정한 채로 배율을 target 으로
+    const zoomTo = (target, clientX, clientY) => {
+      const rect = gl.domElement.getBoundingClientRect()
+      const sx = clientX - rect.left - rect.width / 2
+      const sy = clientY - rect.top - rect.height / 2
+      // 지금 배율에서 그 지점이 가리키는 "배율 1 기준 좌표"
+      z.anchor = { sx, sy, wx: (sx + z.ox) / z.k, wy: (sy + z.oy) / z.k }
       z.target = Math.min(MAP.maxZoom, Math.max(1, target))
       gsap.to(z, {
         k: z.target,
@@ -360,37 +396,34 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         ease: 'power3.out',
         overwrite: true,
         onUpdate: () => {
-          camera.zoom = z.base * z.k
-          camera.updateProjectionMatrix()
+          const a = z.anchor
+          z.ox = z.k * a.wx - a.sx
+          z.oy = z.k * a.wy - a.sy
+          applyZoom(camera, z, size)
           invalidate()
         },
       })
     }
-    let lastZoomAt = 0
+
     const onWheel = (e) => {
-      const zoomingIn = e.deltaY < 0
-      if (!zoomingIn && z.target <= 1.001) {
-        // 원래 크기 → 페이지 스크롤. 단, 막 축소를 끝낸 직후엔 한 박자 쉬어서 갤러리로 튀지 않게
-        if (performance.now() - lastZoomAt < 450) {
-          e.preventDefault()
-          lastZoomAt = performance.now()
-        }
-        return
-      }
-      e.preventDefault()
-      lastZoomAt = performance.now()
+      const onMarker = e.target.closest?.('.map-marker')
+      if (!onMarker && !overMap(e.clientX, e.clientY)) return // 지도 바깥 → 페이지 스크롤
+      e.preventDefault() // 지도 위 → 확대·축소만 (아래 페이지로 넘어가지 않음)
       const unit = e.deltaMode === 1 ? 16 : 1
-      zoomTo(z.target * Math.exp(-e.deltaY * unit * 0.0015))
+      zoomTo(z.target * Math.exp(-e.deltaY * unit * 0.0015), e.clientX, e.clientY)
     }
+
     let pinch = null
     const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    const mid = (t) => [(t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2]
     const onTouchStart = (e) => {
       if (e.touches.length === 2) pinch = { d: dist(e.touches), k: z.target }
     }
     const onTouchMove = (e) => {
       if (!pinch || e.touches.length !== 2) return
       e.preventDefault()
-      zoomTo(pinch.k * (dist(e.touches) / pinch.d))
+      const [mx, my] = mid(e.touches)
+      zoomTo(pinch.k * (dist(e.touches) / pinch.d), mx, my)
     }
     const onTouchEnd = (e) => {
       if (e.touches.length < 2) pinch = null
@@ -406,28 +439,8 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
       el.removeEventListener('touchend', onTouchEnd)
       gsap.killTweensOf(z)
     }
-  }, [gl, camera, invalidate])
+  }, [gl, camera, invalidate, raycaster, assets, size])
 
-  // 화면 좌표에 지도 그림이 있는지 (투명한 곳이면 false) → 뒤에 깔린 갤러리 클릭 판정용
-  useEffect(() => {
-    if (!hitTestRef) return
-    hitTestRef.current = (clientX, clientY) => {
-      const mesh = pickRef.current
-      if (!mesh) return false
-      const rect = gl.domElement.getBoundingClientRect()
-      const ndc = {
-        x: ((clientX - rect.left) / rect.width) * 2 - 1,
-        y: -((clientY - rect.top) / rect.height) * 2 + 1,
-      }
-      raycaster.setFromCamera(ndc, camera)
-      const hit = raycaster.intersectObject(mesh)[0]
-      if (!hit?.uv) return false
-      const { width: w, height: h, data } = assets.alpha
-      const x = Math.min(w - 1, Math.max(0, Math.floor(hit.uv.x * w)))
-      const y = Math.min(h - 1, Math.max(0, Math.floor((1 - hit.uv.y) * h)))
-      return data[(y * w + x) * 4 + 3] > 128
-    }
-  }, [hitTestRef, gl, raycaster, camera, assets])
 
   useEffect(() => {
     onReady?.()
