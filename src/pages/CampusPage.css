@@ -112,9 +112,10 @@
 .campus__deco-cat {
   --mw: min(88vw, 150vh);
   position: absolute;
-  left: calc(50% - var(--mw) * 0.6);
-  top: calc(58% - var(--mw) * 0.47);
-  width: calc(var(--mw) * 0.84);
+  /* 왼쪽 위 모서리에 붙여서 꼬리가 잘리지 않고, 지도에 덜 가려지게 */
+  left: max(12px, calc(50% - var(--mw) * 0.6));
+  top: max(16px, 3vh);
+  width: calc(var(--mw) * 0.64);
   height: auto;
   pointer-events: none;
   user-select: none;
