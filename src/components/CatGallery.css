@@ -58,8 +58,6 @@
 .gallery__item {
   flex: none;
   margin: 0;
-  /* 콜라주: 사진마다 살짝 다른 기울기 */
-  rotate: -2deg;
   transition: margin 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -67,35 +65,24 @@
   position: relative;
   display: block;
   height: var(--row-h);
-  padding: 5px; /* 콜라주: 사진 둘레 흰 테두리 */
+  padding: 0;
   border: 0;
-  background: #fff;
-  box-shadow: 0 6px 14px rgba(0, 10, 60, 0.28);
+  background: rgba(255, 255, 255, 0.12);
   cursor: zoom-in;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .gallery__thumb img {
   display: block;
   height: 100%;
-  box-sizing: border-box;
   width: auto;
 }
-.gallery__item:nth-child(3n + 2) {
-  rotate: 1.5deg;
-  translate: 0 6px;
-}
-.gallery__item:nth-child(3n) {
-  rotate: -0.5deg;
-  translate: 0 -4px;
-}
-
 /* 마우스를 올리면 사진이 살짝 커지고, 양옆 사진이 그만큼 밀려남 (흐름은 그대로) */
 @media (hover: hover) and (pointer: fine) {
   .gallery__item:hover {
     margin-inline: calc(var(--row-h) * 0.06);
   }
   .gallery__item:hover .gallery__thumb {
-    transform: scale(1.1) rotate(0deg);
+    transform: scale(1.1);
     z-index: 1;
   }
 }
