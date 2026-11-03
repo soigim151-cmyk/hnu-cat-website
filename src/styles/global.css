@@ -6,9 +6,13 @@
 :root {
   /* 색상 */
   --color-bg: #f1edea;        /* 아이보리 배경 (두 페이지 공통) */
-  --color-button: #8a855f;    /* 버튼 올리브색 */
-  --color-button-text: #f1edea;
-  --color-accent: #5f8ef5;    /* 타이틀 파란색: 포커스 표시용 */
+  /* 파랑은 3단계로만 사용 */
+  --blue-ink: #0225ff;        /* 진한 파랑: 정문 잉크색 · 외곽선 · 갤러리 배경 */
+  --blue: #5f8cf7;            /* 기본 파랑: 타이틀 · 마커 · 이름표 · 버튼 */
+  --blue-soft: #dce5fd;       /* 연한 파랑: 보조 */
+  --color-button: var(--blue);
+  --color-button-text: #fff;
+  --color-accent: var(--blue-ink); /* 포커스 표시 */
 
   /* 폰트: 한글·영어 모두 Pretendard 하나로 통일 (갤러리 영문 캡션도 동일) */
   --font-base: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,

@@ -47,7 +47,8 @@ src/
 
 | 무엇 | 파일 | 위치 |
 |---|---|---|
-| 색상 | `src/styles/global.css` | `:root` |
+| 색상 (파랑 3단계: `--blue-ink`, `--blue`, `--blue-soft`) | `src/styles/global.css` | `:root` |
+| 지도 파란 톤·하프톤 세기 | `src/components/MapScene.jsx` | `TONE` |
 | 시작 페이지 요소 위치 | `src/pages/StartPage.jsx` | `STARS`, `PAW`, `pos({...})` (Figma 1440×1014 좌표) |
 | 카메라 각도·회전 범위 | `src/components/CampusScene.jsx` | `VIEW` |
 | 갤러리 사진 설명(캡션)·순서 | `src/data/gallery.js` | `caption` |

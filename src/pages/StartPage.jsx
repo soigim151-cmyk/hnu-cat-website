@@ -31,6 +31,7 @@ const GATE = {
   wheelDistance: 1400, // 정문을 다 지나는 데 필요한 휠 양 (px)
   touchDistance: 650, // 휴대폰에서 필요한 쓸어 올리기 거리 (px)
 }
+const TITLE_HOLD = 1600 // ms: 정문을 지난 뒤 타이틀을 보여주는 시간
 const IS_TOUCH = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
 const prefersReducedMotion = () =>
@@ -44,6 +45,7 @@ export default function StartPage({ onEnterCampus }) {
   const contentRef = useRef(null)
   const hintRef = useRef(null)
   const [entered, setEntered] = useState(false) // 정문을 다 지났는지
+  const handleEnterRef = useRef(null)
 
   // ── 정문 들어가기: 휠(터치·키보드)로 정문이 다가오며 사라지고, 안쪽 화면이 나타남 ──
   useLayoutEffect(() => {
@@ -160,7 +162,14 @@ export default function StartPage({ onEnterCampus }) {
     return () => clearTimeout(t)
   }, [])
 
-  // ── 등교하기: 퇴장 애니메이션 후 페이지 전환 ────────
+  // ── 정문을 다 지나면 타이틀을 잠깐 보여준 뒤 자동으로 캠퍼스로 ──
+  useEffect(() => {
+    if (!entered) return
+    const t = setTimeout(() => handleEnterRef.current(), TITLE_HOLD)
+    return () => clearTimeout(t)
+  }, [entered])
+
+  // ── 캠퍼스로: 퇴장 애니메이션 후 페이지 전환 ────────
   const handleEnter = () => {
     if (leavingRef.current) return
     leavingRef.current = true
@@ -170,8 +179,11 @@ export default function StartPage({ onEnterCampus }) {
     gsap
       .timeline({ defaults: { duration: d, ease: 'power2.inOut' }, onComplete: onEnterCampus })
       .to(titleRef.current, { opacity: 0, scale: 1.05, overwrite: 'auto' }, 0)
-      .to(q('.start__sub, .start__actions, .start__deco, .start__bg'), { opacity: 0 }, 0)
+      .to(q('.start__sub, .start__deco, .start__bg'), { opacity: 0 }, 0)
   }
+  useEffect(() => {
+    handleEnterRef.current = handleEnter
+  })
 
   return (
     <main className="start" ref={rootRef}>
@@ -218,12 +230,6 @@ export default function StartPage({ onEnterCampus }) {
         />
         </div>
 
-        {/* 버튼 */}
-        <nav className={`start__actions${entered ? '' : ' is-locked'}`} aria-hidden={!entered}>
-          <PressButton className="start__btn start__btn--school" onClick={handleEnter}>
-            등교하기
-          </PressButton>
-        </nav>
       </div>
 
       {/* 정문: 맨 앞에서 시작해 휠을 내리면 다가오며 사라짐 */}
@@ -237,21 +243,3 @@ export default function StartPage({ onEnterCampus }) {
   )
 }
 
-// 키보드(Enter/Space)로 눌러도 마우스 클릭과 같은 눌림 효과가 보이는 버튼
-function PressButton({ className, children, onClick }) {
-  const press = (on) => (e) => {
-    if (e.key === 'Enter' || e.key === ' ') e.currentTarget.classList.toggle('is-pressed', on)
-  }
-  return (
-    <button
-      type="button"
-      className={className}
-      onClick={onClick}
-      onKeyDown={press(true)}
-      onKeyUp={press(false)}
-      onBlur={(e) => e.currentTarget.classList.remove('is-pressed')}
-    >
-      {children}
-    </button>
-  )
-}

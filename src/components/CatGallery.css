@@ -9,7 +9,7 @@
   position: relative;
   height: 100vh;
   height: 100dvh; /* 지도 아래 한 화면 */
-  background: #000;
+  background: var(--blue-ink); /* 진한 파랑 (정문 잉크색) */
   z-index: 2; /* 지도 화면 위를 덮으며 올라옴 */
   box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08); /* 덮는 느낌이 나도록 윗 경계에 옅은 그림자 */
   display: flex;
@@ -67,7 +67,7 @@
   height: var(--row-h);
   padding: 0;
   border: 0;
-  background: #1a1a1a;
+  background: rgba(255, 255, 255, 0.12);
   cursor: zoom-in;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -87,7 +87,7 @@
   }
 }
 .gallery__thumb:focus-visible {
-  outline: 2px solid #6290ed;
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
 
@@ -193,7 +193,7 @@
 }
 .lightbox__nav:focus-visible,
 .lightbox__close:focus-visible {
-  outline: 2px solid #6290ed;
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 .lightbox__nav--prev {

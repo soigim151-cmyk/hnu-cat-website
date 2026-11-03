@@ -20,8 +20,11 @@
 .map-marker__float {
   position: relative;
   display: block;
-  animation: map-marker-bob 2.4s ease-in-out infinite alternate;
-  animation-delay: var(--bob-delay, 0s);
+}
+/* 평소엔 가만히, 마우스를 올렸거나 선택된 장소만 둥실둥실 */
+.map-marker.is-hovered .map-marker__float,
+.map-marker.is-active .map-marker__float {
+  animation: map-marker-bob 0.9s ease-in-out infinite alternate;
 }
 
 .map-marker__pin {
@@ -40,7 +43,7 @@
 }
 
 /* 이름표: 평소엔 숨어 있다가 구역/마커에 마우스를 올리면 핀 위에 나타남
-   디자이너 이름표(120×23px) 기준: 배경 #6290ED, 흰 글자 Pretendard SemiBold 13px, 좌우 여백 8.5px */
+   디자이너 이름표(120×23px) 기준: 배경 var(--blue) (원본 #6290ED 와 거의 같은 색으로 통일), 흰 글자 Pretendard SemiBold 13px, 좌우 여백 8.5px */
 .map-marker__label {
   position: absolute;
   left: 50%;
@@ -50,7 +53,7 @@
   padding: 0 0.65em; /* 8.5px */
   display: flex;
   align-items: center;
-  background: #6290ed;
+  background: var(--blue);
   color: #fff;
   font-family: var(--font-base);
   font-weight: 600;

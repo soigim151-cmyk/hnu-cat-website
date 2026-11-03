@@ -19,6 +19,23 @@ export default function CampusPage() {
   // 선택한 건물 (대화창 디자인이 나오면 여기서 대화창을 엽니다)
   const [, setSelectedBuilding] = useState(null)
 
+  // 드래그 안내: 캠퍼스가 나타나면 잠깐 보여주고, 처음 드래그하거나 6초 지나면 사라짐
+  const [dragHint, setDragHint] = useState(false)
+  useEffect(() => {
+    if (!revealed) return
+    const show = setTimeout(() => setDragHint(true), 900)
+    const hide = setTimeout(() => setDragHint(false), 6900)
+    return () => {
+      clearTimeout(show)
+      clearTimeout(hide)
+    }
+  }, [revealed])
+  // 드래그를 시작하면 안내 숨김
+  const handleDragChange = useCallback((d) => {
+    setDragging(d)
+    if (d) setDragHint(false)
+  }, [])
+
   const handleReady = useCallback(() => setReady(true), [])
   const handleLoaderDone = useCallback(() => setRevealed(true), [])
 
@@ -56,7 +73,7 @@ export default function CampusPage() {
             {VIEW_MODE === 'map' ? (
               <MapScene
                 onReady={handleReady}
-                onDragChange={setDragging}
+                onDragChange={handleDragChange}
                 dragging={dragging}
                 onSelectBuilding={setSelectedBuilding}
                 onPointingChange={setPointing}
@@ -65,7 +82,7 @@ export default function CampusPage() {
               <CampusScene
                 url={CAMPUS_MODEL_URL}
                 onReady={handleReady}
-                onDragChange={setDragging}
+                onDragChange={handleDragChange}
                 dragging={dragging}
                 onSelectBuilding={setSelectedBuilding}
                 onPointingChange={setPointing}
@@ -76,6 +93,17 @@ export default function CampusPage() {
       </div>
 
       <CampusLoader ready={ready} hidden={revealed} onDone={handleLoaderDone} />
+
+      <div className={`campus__drag-hint${dragHint ? ' is-shown' : ''}`} aria-hidden="true">
+        <span className="campus__drag-icon">
+          <span>‹</span>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0V12m0-.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-1.5a6 6 0 0 1-4.6-2.2L5 16.5a1.6 1.6 0 0 1 2.4-2.1L8 15" />
+          </svg>
+          <span>›</span>
+        </span>
+        드래그해서 둘러보기
+      </div>
 
       {/* 아래 화면(고양이 갤러리)으로 이동 */}
       <button

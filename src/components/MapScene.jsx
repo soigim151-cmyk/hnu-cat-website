@@ -34,6 +34,14 @@ const MAP = {
   fill: 0.88, // 처음 화면에서 그림이 차지하는 비율
 }
 const OUTLINE_COLOR = '#0225ff'
+// 지도 색감: 정문 일러스트(진한 파랑 하프톤)와 이어지도록
+const TONE = {
+  ink: '#0225ff', // 진한 파랑
+  paper: '#f1edea', // 아이보리
+  tint: 0.22, // 파란 톤 세기 (0 = 원본 사진색, 1 = 완전 파랑·아이보리 두 색)
+  halftone: 0.28, // 하프톤 점 진하기
+  dotSize: 7, // 하프톤 점 간격 (그림 px)
+}
 const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker_outline.png`
 const MARKER_LIFT = 40 // 마커를 땅보다 카메라 쪽으로 띄우는 거리 (회전할 때 떠 있는 느낌)
 const MARKER_DEPTH = 0.3 // 핀 끝이 가리키는 지점: 구역 위쪽 끝(0) ~ 아래쪽 끝(1) 사이
@@ -149,6 +157,12 @@ const fragmentShader = /* glsl */ `
   uniform float activeId;
   uniform float radius;
   uniform vec3 outlineColor;
+  uniform vec3 inkColor;    // 진한 파랑 (정문 잉크색)
+  uniform vec3 paperColor;  // 아이보리 (배경)
+  uniform vec2 imageSize;   // 그림 크기 (px)
+  uniform float tint;       // 파란 톤 세기 (0~1)
+  uniform float halftone;   // 하프톤 점 세기 (0~1)
+  uniform float dotSize;    // 하프톤 점 간격 (그림 px)
   varying vec2 vUv;
 
   float idAt(vec2 uv) {
@@ -158,6 +172,21 @@ const fragmentShader = /* glsl */ `
   void main() {
     vec4 color = texture2D(map, vUv);
     if (color.a < 0.5) discard;
+
+    // ── 정문 일러스트와 같은 세계처럼: 파란 톤 + 하프톤 질감 ──
+    float lum = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+    // 1) 어두운 곳은 진한 파랑, 밝은 곳은 아이보리 쪽으로 살짝 당김
+    vec3 duo = mix(inkColor, paperColor, smoothstep(0.0, 0.85, lum));
+    color.rgb = mix(color.rgb, duo, tint);
+    // 2) 인쇄물 같은 하프톤 점 (그림에 붙어 있어서 회전해도 같이 움직임, 45° 기울임)
+    vec2 p = vUv * imageSize / dotSize;
+    p = mat2(0.7071, -0.7071, 0.7071, 0.7071) * p;
+    vec2 cell = fract(p) - 0.5;
+    float r = sqrt(clamp(1.0 - lum * 1.6, 0.0, 1.0)) * 0.48; // 어두울수록 큰 점
+    float d = length(cell);
+    float aa = fwidth(d) * 1.2;
+    float dotMask = 1.0 - smoothstep(r - aa, r + aa, d);
+    color.rgb = mix(color.rgb, inkColor, dotMask * halftone);
 
     if (activeId > 0.5 && idAt(vUv) != activeId) {
       float near = 0.0;
@@ -227,6 +256,12 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         activeId: { value: 0 },
         radius: { value: OUTLINE_RADIUS },
         outlineColor: { value: new Color(OUTLINE_COLOR) },
+        inkColor: { value: new Color(TONE.ink) },
+        paperColor: { value: new Color(TONE.paper) },
+        imageSize: { value: [assets.image.naturalWidth, assets.image.naturalHeight] },
+        tint: { value: TONE.tint },
+        halftone: { value: TONE.halftone },
+        dotSize: { value: TONE.dotSize },
       },
       vertexShader,
       fragmentShader,

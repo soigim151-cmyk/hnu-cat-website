@@ -175,7 +175,7 @@
   bottom: 22px;
   z-index: 6;
   transform: translateX(-50%);
-  color: #0225ff; /* 정문 그림과 같은 파란색 */
+  color: var(--blue-ink); /* 정문 그림과 같은 파란색 */
   font-size: 14px;
   font-weight: 600;
   letter-spacing: -0.01em;
