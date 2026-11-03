@@ -16,6 +16,7 @@ import {
   TOUCH,
 } from 'three'
 import { BUILDINGS } from '../data/buildings.js'
+import gsap from 'gsap'
 import { readMapAssets } from './mapAssets.js'
 import './MapMarkers.css'
 
@@ -32,6 +33,7 @@ const MAP = {
   polarDown: deg(5), // 낮게 눕혀 보는 쪽 (자연스러움)
   polarUp: deg(3), // 위에서 내려다보는 쪽
   fill: 0.88, // 처음 화면에서 그림이 차지하는 비율
+  maxZoom: 1.6, // 확대 한계 (처음 크기의 1.6배)
 }
 const OUTLINE_COLOR = '#0225ff'
 // 지도 색감: 정문 일러스트(진한 파랑 하프톤)와 이어지도록
@@ -212,6 +214,7 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
   const invalidate = useThree((s) => s.invalidate)
   const controlsRef = useRef(null)
   const pickRef = useRef(null)
+  const zoomRef = useRef({ base: 1, k: 1, target: 1 }) // k = 확대 배율 (1 ~ MAP.maxZoom)
   const raycaster = useThree((s) => s.raycaster)
 
   const width = assets.image.naturalWidth
@@ -283,7 +286,8 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     camera.fov = MAP.fov
     camera.near = D / 20
     camera.far = D * 4
-    camera.zoom = Math.min(zoomW, zoomH)
+    zoomRef.current.base = Math.min(zoomW, zoomH)
+    camera.zoom = zoomRef.current.base * zoomRef.current.k
     camera.position.set(0, 0, D)
     camera.lookAt(0, 0, 0)
     const shift = (c - 0.5) * size.height
@@ -335,6 +339,67 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
     setSelected(id)
     onSelectBuilding?.(BUILDINGS[id - 1])
   }
+
+  // ── 확대/축소: 휠 위로 = 확대, 아래로 = 축소 (원래 크기에서 더 내리면 페이지가 스크롤됨)
+  //    휴대폰은 두 손가락 벌리기/오므리기
+  useEffect(() => {
+    const el = gl.domElement.parentElement ?? gl.domElement // 마커 위에서도 휠이 먹도록 캔버스를 감싼 상자에
+    const z = zoomRef.current
+    const zoomTo = (target) => {
+      z.target = Math.min(MAP.maxZoom, Math.max(1, target))
+      gsap.to(z, {
+        k: z.target,
+        duration: 0.45,
+        ease: 'power3.out',
+        overwrite: true,
+        onUpdate: () => {
+          camera.zoom = z.base * z.k
+          camera.updateProjectionMatrix()
+          invalidate()
+        },
+      })
+    }
+    let lastZoomAt = 0
+    const onWheel = (e) => {
+      const zoomingIn = e.deltaY < 0
+      if (!zoomingIn && z.target <= 1.001) {
+        // 원래 크기 → 페이지 스크롤. 단, 막 축소를 끝낸 직후엔 한 박자 쉬어서 갤러리로 튀지 않게
+        if (performance.now() - lastZoomAt < 450) {
+          e.preventDefault()
+          lastZoomAt = performance.now()
+        }
+        return
+      }
+      e.preventDefault()
+      lastZoomAt = performance.now()
+      const unit = e.deltaMode === 1 ? 16 : 1
+      zoomTo(z.target * Math.exp(-e.deltaY * unit * 0.0015))
+    }
+    let pinch = null
+    const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    const onTouchStart = (e) => {
+      if (e.touches.length === 2) pinch = { d: dist(e.touches), k: z.target }
+    }
+    const onTouchMove = (e) => {
+      if (!pinch || e.touches.length !== 2) return
+      e.preventDefault()
+      zoomTo(pinch.k * (dist(e.touches) / pinch.d))
+    }
+    const onTouchEnd = (e) => {
+      if (e.touches.length < 2) pinch = null
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+      gsap.killTweensOf(z)
+    }
+  }, [gl, camera, invalidate])
 
   // 화면 좌표에 지도 그림이 있는지 (투명한 곳이면 false) → 뒤에 깔린 갤러리 클릭 판정용
   useEffect(() => {

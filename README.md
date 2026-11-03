@@ -54,7 +54,7 @@ src/
 | 갤러리 사진 설명(캡션)·순서 | `src/data/gallery.js` | `caption` |
 | 갤러리 줄 구성·흐르는 속도 | `src/components/CatGallery.jsx` | `ROWS`, `ROW_SECONDS` (초 = 한 바퀴) |
 | 장소 이름·캐릭터 | `src/data/buildings.js` | `name`, `characters` |
-| 2.5D 지도 입체감·회전 범위 | `src/components/MapScene.jsx` | `MAP` (`depthRange`, `azimuthRange`, `polarDown`, `polarUp`) |
+| 2.5D 지도 입체감·회전·확대 범위 | `src/components/MapScene.jsx` | `MAP` (`depthRange`, `azimuthRange`, `polarDown`, `polarUp`, `maxZoom`) |
 | 2.5D 외곽선 색·두께 | `src/components/MapScene.jsx` | `OUTLINE_COLOR`, `OUTLINE_RADIUS` |
 | 마커 위치·떠 있는 높이 | `src/components/MapScene.jsx` | `MARKER_DEPTH`, `MARKER_LIFT` |
 | 마커 크기·둥실거림 | `src/components/MapMarkers.css` | `--marker-w`, `map-marker-bob` |
