@@ -8,7 +8,7 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  color: rgba(255, 255, 255, 0.85); /* 검은 배경 위 */
+  color: var(--color-button);
   font-size: 14px;
   font-weight: 600;
   pointer-events: none;

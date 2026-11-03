@@ -4,7 +4,7 @@
 .campus {
   position: fixed;
   inset: 0;
-  background: #000; /* 들어올 때 아이보리 → 검정으로 바뀜 (CampusPage.jsx) */
+  background: var(--color-bg); /* 시작 페이지와 같은 아이보리 */
 }
 
 .campus {
@@ -14,9 +14,11 @@
 }
 
 .campus__map {
-  position: relative;
+  position: sticky; /* 스크롤해도 제자리 → 아래 갤러리 화면이 위로 올라오며 덮음 */
+  top: 0;
   height: 100vh;
   height: 100dvh;
+  z-index: 0;
 }
 
 .campus__to-gallery {

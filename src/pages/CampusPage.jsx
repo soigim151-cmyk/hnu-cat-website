@@ -19,13 +19,6 @@ export default function CampusPage() {
   // 선택한 건물 (대화창 디자인이 나오면 여기서 대화창을 엽니다)
   const [, setSelectedBuilding] = useState(null)
 
-  const mainRef = useRef(null)
-  // 배경: 시작 페이지 아이보리 → 검정으로 부드럽게
-  useLayoutEffect(() => {
-    const t = gsap.fromTo(mainRef.current, { backgroundColor: '#f1edea' }, { backgroundColor: '#000000', duration: 1.2, ease: 'power2.inOut' })
-    return () => t.kill()
-  }, [])
-
   const handleReady = useCallback(() => setReady(true), [])
   const handleLoaderDone = useCallback(() => setRevealed(true), [])
 
@@ -48,7 +41,7 @@ export default function CampusPage() {
   }, [revealed])
 
   return (
-    <main className="campus" ref={mainRef}>
+    <main className="campus">
       <section className="campus__map">
       <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}`}>
         <Canvas
