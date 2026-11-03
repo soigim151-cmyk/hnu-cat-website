@@ -61,6 +61,8 @@ export default function CampusPage() {
     <main className="campus">
       <section className="campus__map">
       <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}`}>
+        {/* 지도 뒤 고양이 장식 (지도와 함께 나타남) */}
+        <img className="campus__deco-cat" src={`${import.meta.env.BASE_URL}images/deco/map_deco1.webp`} alt="" aria-hidden="true" />
         <Canvas
           frameloop="demand" // 움직임이 있을 때만 다시 그림 (배터리·발열 절약)
           dpr={[1, 1.75]} // 고해상도 화면에서도 최대 1.75배까지만

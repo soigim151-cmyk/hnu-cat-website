@@ -106,3 +106,21 @@
     animation: none;
   }
 }
+
+/* 지도 뒤에 깔리는 하프톤 고양이 (지도 크기에 맞춰 함께 커지고 작아짐)
+   --mw: 지도의 대략적인 화면 너비 */
+.campus__deco-cat {
+  --mw: min(88vw, 150vh);
+  position: absolute;
+  left: calc(50% - var(--mw) * 0.6);
+  top: calc(58% - var(--mw) * 0.47);
+  width: calc(var(--mw) * 0.84);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+.campus__stage canvas {
+  position: relative;
+  z-index: 1;
+}
