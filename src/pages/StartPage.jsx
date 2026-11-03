@@ -195,6 +195,7 @@ export default function StartPage({ onEnterCampus }) {
 
         {/* 정문을 지나면 나타나는 안쪽 화면 (장식 + 타이틀) */}
         <div className="start__content" ref={contentRef}>
+        <div className="start__content-inner">
         {/* 장식: 별 + 발바닥 (개별 요소) */}
         <div className="start__deco" aria-hidden="true">
           {STARS.map((s) => (
@@ -228,6 +229,7 @@ export default function StartPage({ onEnterCampus }) {
           alt="The cat at Hannam University became a student."
           style={pos({ x: 539.5, y: 661, w: 361 })}
         />
+        </div>
         </div>
 
       </div>
