@@ -22,7 +22,7 @@ public/
     map_ids.png    건물 위치 지도 (픽셀 값 1~5 = data/buildings.js 순서) → 외곽선용
     map_hover.png  마우스 판정용 지도 (구역을 약 45px 넓힘, 서로 겹치지 않음)
     인사례교양동_marker.png  이름표 디자인 원본 (화면 이름표는 이 디자인을 HTML 글자로 재현)
-    정문_image.png  시작 페이지 정문 원본 (새 버전으로 교체, 화면에는 gate.webp 사용)
+    정문_image.png  시작 페이지 정문 원본 (새 버전으로 교체, 화면에는 양옆 빈 여백을 잘라낸 gate_v2.webp 사용)
     cat_image/     고양이 사진·동영상 원본 (업로드한 그대로)
     gallery/       갤러리용 변환본 (_s = 목록용 작은 사진, _l = 크게 보기용, cat_video.mp4 = H.264 변환)
     maker_image.png  장소 마커 원본 (화면에는 흰 테두리를 넣고 작게 줄인 marker_outline.png 사용)
