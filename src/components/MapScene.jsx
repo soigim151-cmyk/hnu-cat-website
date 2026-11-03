@@ -38,16 +38,16 @@ const MAP = {
 const OUTLINE_COLOR = '#0225ff'
 // 지도 색감: 정문 일러스트(진한 파랑 하프톤)와 이어지도록
 const TONE = {
-  ink: '#0225ff', // 진한 파랑
-  paper: '#f1edea', // 아이보리
-  tint: 0.22, // 파란 톤 세기 (0 = 원본 사진색, 1 = 완전 파랑·아이보리 두 색)
-  halftone: 0.28, // 하프톤 점 진하기
-  dotSize: 7, // 하프톤 점 간격 (그림 px)
+  ink: '#0225ff', // 진한 파랑 (정문 잉크색)
+  paper: '#f1edea', // 아이보리 (종이색)
+  halftone: 0.7, // 점 무늬 세기 (0 = 매끈한 2색, 1 = 완전한 점 무늬)
+  dotSize: 5, // 점 간격 (그림 px, 작을수록 섬세)
+  colorKeep: 0.12, // 원래 사진 색을 남기는 정도 (0 = 완전 2색)
 }
 const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker_outline.png`
 const MARKER_LIFT = 40 // 마커를 땅보다 카메라 쪽으로 띄우는 거리 (회전할 때 떠 있는 느낌)
 const MARKER_DEPTH = 0.3 // 핀 끝이 가리키는 지점: 구역 위쪽 끝(0) ~ 아래쪽 끝(1) 사이
-const OUTLINE_RADIUS = 3 // 외곽선 두께 (건물 위치 지도 픽셀 단위, 1칸 = 그림 2px)
+const OUTLINE_RADIUS = 4 // 외곽선 두께 (건물 위치 지도 픽셀 단위, 1칸 = 그림 2px)
 const DRAG_THRESHOLD = 6
 
 // 보이지 않지만 마우스·터치는 감지하는 재질
@@ -162,7 +162,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 inkColor;    // 진한 파랑 (정문 잉크색)
   uniform vec3 paperColor;  // 아이보리 (배경)
   uniform vec2 imageSize;   // 그림 크기 (px)
-  uniform float tint;       // 파란 톤 세기 (0~1)
+  uniform float colorKeep;  // 원래 사진 색을 남기는 정도 (0~1)
   uniform float halftone;   // 하프톤 점 세기 (0~1)
   uniform float dotSize;    // 하프톤 점 간격 (그림 px)
   varying vec2 vUv;
@@ -175,30 +175,37 @@ const fragmentShader = /* glsl */ `
     vec4 color = texture2D(map, vUv);
     if (color.a < 0.5) discard;
 
-    // ── 정문 일러스트와 같은 세계처럼: 파란 톤 + 하프톤 질감 ──
-    float lum = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
-    // 1) 어두운 곳은 진한 파랑, 밝은 곳은 아이보리 쪽으로 살짝 당김
-    vec3 duo = mix(inkColor, paperColor, smoothstep(0.0, 0.85, lum));
-    color.rgb = mix(color.rgb, duo, tint);
-    // 2) 인쇄물 같은 하프톤 점 (그림에 붙어 있어서 회전해도 같이 움직임, 45° 기울임)
+    // ── 정문 일러스트처럼: 원래 색 대신 진한 파랑 점 + 아이보리 종이 (2색 하프톤) ──
+    vec3 original = color.rgb;
+    float lum = dot(original, vec3(0.2126, 0.7152, 0.0722));
+    float l = smoothstep(0.06, 0.9, pow(lum, 1.0 / 2.2)); // 사람 눈 기준 밝기 + 대비
+    // 1) 연속 톤: 어두울수록 파랑, 밝을수록 아이보리
+    vec3 duo = mix(inkColor, paperColor, l);
+    // 2) 하프톤 점: 어두울수록 큰 점 (가장 어두운 곳은 점이 이어져 면이 됨), 45° 격자
     vec2 p = vUv * imageSize / dotSize;
     p = mat2(0.7071, -0.7071, 0.7071, 0.7071) * p;
-    vec2 cell = fract(p) - 0.5;
-    float r = sqrt(clamp(1.0 - lum * 1.6, 0.0, 1.0)) * 0.48; // 어두울수록 큰 점
-    float d = length(cell);
+    float d = length(fract(p) - 0.5);
+    float r = sqrt(1.0 - l) * 0.62;
     float aa = fwidth(d) * 1.2;
     float dotMask = 1.0 - smoothstep(r - aa, r + aa, d);
-    color.rgb = mix(color.rgb, inkColor, dotMask * halftone);
+    vec3 dots = mix(paperColor, inkColor, dotMask);
+    // 점 무늬와 연속 톤을 섞어서 과하지 않게, 원래 색은 아주 조금만
+    color.rgb = mix(duo, dots, halftone);
+    color.rgb = mix(color.rgb, original, colorKeep);
 
     if (activeId > 0.5 && idAt(vUv) != activeId) {
-      float near = 0.0;
+      // 구역 바로 바깥은 흰 선, 그 바깥은 진한 파랑 선 (파란 점 무늬 위에서도 또렷하게)
+      float nearInner = 0.0;
+      float nearOuter = 0.0;
       for (int i = 0; i < 16; i++) {
         float a = float(i) * 0.3926991; // 2π / 16
         vec2 dir = vec2(cos(a), sin(a)) * idTexel;
-        near = max(near, idAt(vUv + dir * radius) == activeId ? 1.0 : 0.0);
-        near = max(near, idAt(vUv + dir * radius * 0.5) == activeId ? 1.0 : 0.0);
+        nearInner = max(nearInner, idAt(vUv + dir * radius * 0.45) == activeId ? 1.0 : 0.0);
+        nearOuter = max(nearOuter, idAt(vUv + dir * radius) == activeId ? 1.0 : 0.0);
+        nearOuter = max(nearOuter, idAt(vUv + dir * radius * 0.75) == activeId ? 1.0 : 0.0);
       }
-      if (near > 0.5) color.rgb = outlineColor;
+      if (nearInner > 0.5) color.rgb = vec3(1.0);
+      else if (nearOuter > 0.5) color.rgb = outlineColor;
     }
 
     gl_FragColor = vec4(color.rgb, 1.0);
@@ -262,7 +269,7 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         inkColor: { value: new Color(TONE.ink) },
         paperColor: { value: new Color(TONE.paper) },
         imageSize: { value: [assets.image.naturalWidth, assets.image.naturalHeight] },
-        tint: { value: TONE.tint },
+        colorKeep: { value: TONE.colorKeep },
         halftone: { value: TONE.halftone },
         dotSize: { value: TONE.dotSize },
       },
