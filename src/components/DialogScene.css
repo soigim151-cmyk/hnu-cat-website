@@ -49,13 +49,12 @@
 }
 /* 누운 자세: 크게, 왼쪽 아래로 화면 밖까지 걸치게 (대화창에 일부 가려짐, 발은 안 보이게) */
 .dialog__char.is-lying {
-  left: calc(50% - 990 * var(--u));
-  bottom: calc(-120 * var(--u));
-  width: calc(900 * var(--u));
+  /* 크게 키워서 다리는 화면 아래·왼쪽 밖으로, 발 부분은 잘라냄 */
+  left: calc(50% - 1300 * var(--u));
+  bottom: calc(-494 * var(--u));
+  width: calc(1500 * var(--u));
   aspect-ratio: 1326 / 1043;
-  /* 왼쪽 아래(발) 쪽은 서서히 지움 */
-  -webkit-mask-image: linear-gradient(to top right, transparent 30%, #000 38%);
-  mask-image: linear-gradient(to top right, transparent 30%, #000 38%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 62% 100%, 54% 78%, 0 40%); /* 왼쪽 아래 신발 부분만 잘라냄 */
 }
 
 /* 자세·표정 이미지: 겹쳐 두고 지금 자세만 보이게 (크로스페이드) */

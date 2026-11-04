@@ -51,16 +51,11 @@ export default function CampusLoader({ ready = false, hidden = false, onDone }) 
 
   return (
     <div className={`campus__loader${hidden ? ' is-hidden' : ''}`} role="status" aria-live="polite">
-      <div className="campus__loader-cat" aria-hidden="true">
-        <img className="campus__loader-cat-empty" src={CAT} alt="" />
-        <img
-          className="campus__loader-cat-fill"
-          src={CAT}
-          alt=""
-          style={{ clipPath: `inset(${100 - percent}% 0 0 0)` }}
-        />
+      {/* 고양이 실루엣 모양 그대로 파랑이 아래부터 차오름 (글자 없음) */}
+      <div className="campus__loader-cat" style={{ '--cat': `url(${CAT})` }} aria-label={`등교 중 ${percent}%`}>
+        <span className="campus__loader-cat-empty" />
+        <span className="campus__loader-cat-fill" style={{ clipPath: `inset(${100 - percent}% 0 0 0)` }} />
       </div>
-      <span className="campus__loader-text">등교 중 {percent}%</span>
     </div>
   )
 }
