@@ -90,7 +90,6 @@ export default function DialogScene({ dialog, onClose }) {
         )}
 
         <div className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}`}>
-          <img className="dialog__box-img" src={`${BASE}talk/${line.who ? 'box-name' : 'box-plain'}.png`} alt="" />
           {line.who && <span className="dialog__name">{line.who}</span>}
           <p className="dialog__text" aria-live="polite">
             {full.slice(0, typed)}
