@@ -22,7 +22,7 @@ export const DIALOGUES = {
   'insarye-hall': {
     place: '11번 건물 앞, 햇볕이 잘 드는 벤치',
     bg: `${T}bg-insarye.webp`,
-    character: { folder: `${T}siyu/`, fallback: `${T}char-siyu.webp` },
+    character: { folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp` },
     typeSpeed: 35, // ms/글자
     gap: 0.3, // 클릭 후 다음 대사까지 기본 텀 (초)
     lines: [
