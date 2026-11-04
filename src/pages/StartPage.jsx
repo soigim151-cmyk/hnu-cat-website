@@ -220,10 +220,15 @@ export default function StartPage({ onEnterCampus }) {
         <h1 className="start__title-wrap">
           <img
             ref={titleRef}
-            className="start__layer start__title"
+            className={`start__layer start__title${entered ? ' is-clickable' : ''}`}
             src={`${IMG}/Main_Title_v2.png`}
             alt="한남대 고양이가 학생이 되었다."
             style={pos({ x: 230, y: 322, w: 985 })}
+            // 정문을 지난 뒤 타이틀을 누르면 바로 캠퍼스로
+            role={entered ? 'button' : undefined}
+            tabIndex={entered ? 0 : -1}
+            onClick={() => entered && handleEnterRef.current?.()}
+            onKeyDown={(e) => entered && (e.key === 'Enter' || e.key === ' ') && handleEnterRef.current?.()}
           />
         </h1>
         <img

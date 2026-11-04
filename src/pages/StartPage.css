@@ -51,6 +51,21 @@
 .start__title-wrap {
   font-size: 0; /* h1 기본 글자 크기가 레이아웃에 영향 주지 않도록 */
 }
+/* 정문을 지난 뒤: 타이틀을 누르면 캠퍼스로 */
+.start__title.is-clickable {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: filter 0.25s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .start__title.is-clickable:hover {
+    filter: brightness(1.08) drop-shadow(0 6px 14px rgba(2, 37, 255, 0.25));
+  }
+}
+.start__title.is-clickable:focus-visible {
+  outline: 3px solid var(--blue-ink);
+  outline-offset: 6px;
+}
 
 /* 타이틀 화면 장식 */
 .start__content-inner {
