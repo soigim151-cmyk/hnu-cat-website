@@ -8,19 +8,28 @@ import { VIEW_MODE } from '../components/viewMode.js'
 // BASE_URL: 로컬에선 '/', GitHub Pages에선 '/hnu-cat-website/'
 const IMG = `${import.meta.env.BASE_URL}images`
 
-// 둥둥 떠다니는 장식 (w·h: 크기, dur: 왕복 시간(초), delay: 시작 지연, rot: 회전 방향)
-const STARS = [
-  { name: 'star-big', x: 159, y: 177, w: 254, h: 251, rot: 1, dur: 3.0, delay: 0 },
-  { name: 'star-small', x: 1114, y: 195, w: 110, h: 109, rot: -1, dur: 2.6, delay: 0.5 },
-  { name: 'star-filled', x: 298, y: 541, w: 90, h: 87, rot: 1, dur: 2.4, delay: 0.9 },
-  { name: 'sparkle-left', x: 201, y: 447, w: 90, h: 120, rot: -1, dur: 3.2, delay: 0.3 },
-  { name: 'sparkle-right', x: 1144, y: 322, w: 155, h: 147, rot: 1, dur: 2.8, delay: 0.7 },
+// 타이틀 화면 장식 (디자이너 시안 기준, Figma 1440 × 1014 좌표)
+// - x, y, w: 위치·폭 / rot: 기울기(도)
+// - from: 튀어 들어오는 방향 ('pop' = 제자리에서 톡 튀어나옴, 'left'·'right'·'top'·'bottom' = 화면 밖에서 날아옴)
+// - float: 들어온 뒤 살짝 둥둥 떠 있을지
+// 배열 순서 = 겹치는 순서 (뒤 → 앞), 등장 순서
+const S2 = `${IMG}/start2`
+const DECO = [
+  { src: 'halftone', x: 574, y: 245, w: 534, rot: 0, from: 'fade' },
+  { src: 'tape-check', x: -71, y: -83, w: 1080, rot: -12, from: 'top' },
+  { src: 'tape-white', x: -134, y: 637, w: 560, rot: 30, from: 'left' },
+  { src: 'tape-blue', x: 930, y: 700, w: 520, rot: -14, from: 'right' },
+  { src: 'burst', x: -95, y: 570, w: 507, rot: 0, from: 'pop', float: true },
+  { src: 'burst-check', x: -9, y: 213, w: 432, rot: 0, from: 'pop', float: true },
+  { src: 'cat-face', x: 255, y: 160, w: 149, rot: 0, from: 'pop', float: true },
+  { src: 'hnu', x: 582, y: 241, w: 267, rot: 0, from: 'pop' },
+  { src: 'star-white', x: 1189, y: 236, w: 210, rot: 0, from: 'pop', float: true },
+  { src: 'star-filled', x: 1116, y: 189, w: 146, rot: -8, from: 'pop', float: true },
+  { src: 'star-yellow', x: 1205, y: 793, w: 89, rot: 0, from: 'pop', float: true },
+  { src: 'star-blue', x: 1276, y: 819, w: 120, rot: 0, from: 'pop', float: true },
 ]
-const PAW = { x: 1154, y: 476, w: 134, h: 131, rot: -1, dur: 3.4, delay: 1.2 }
-
-// 흔들림 크기 (Figma px 기준 → 화면 크기에 맞춰 함께 커지고 작아짐)
-const FLOAT_Y = 12 // 위아래 ±12px
-const FLOAT_ROT = 10 // 회전 ±10도
+const decoSrc = (d) =>
+  d.src === 'star-white' ? `${IMG}/deco/star-big.png` : d.src === 'star-filled' ? `${IMG}/deco/star-filled.png` : `${S2}/${d.src}.webp`
 
 // 위치값을 CSS 변수로 넘기는 헬퍼
 const pos = ({ x, y, w }) => ({ '--x': x, '--y': y, '--w': w })
@@ -31,7 +40,7 @@ const GATE = {
   wheelDistance: 1400, // 정문을 다 지나는 데 필요한 휠 양 (px)
   touchDistance: 650, // 휴대폰에서 필요한 쓸어 올리기 거리 (px)
 }
-const TITLE_HOLD = 1600 // ms: 정문을 지난 뒤 타이틀을 보여주는 시간
+const TITLE_HOLD = 3200 // ms: 정문을 지난 뒤 타이틀을 보여주는 시간
 const IS_TOUCH = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
 const prefersReducedMotion = () =>
@@ -70,6 +79,7 @@ export default function StartPage({ onEnterCampus }) {
       ease: 'power3.out',
       onUpdate: () => {
         tl.progress(state.p)
+        if (state.p > 0.55 && popRef.current && !popRef.current.isActive() && popRef.current.progress() === 0) popRef.current.play()
         gate.style.visibility = state.p > 0.995 ? 'hidden' : 'visible'
       },
     })
@@ -122,32 +132,31 @@ export default function StartPage({ onEnterCampus }) {
     }
   }, [])
 
-  // ── 등장 애니메이션 + 별 둥둥 ─────────────────────
+  // ── 장식이 튀어 들어오기: 정문을 절반쯤 지나면 시작 ──────
+  const popRef = useRef(null)
   useLayoutEffect(() => {
     const reduce = prefersReducedMotion()
     const ctx = gsap.context(() => {
-      if (reduce) return
-
-      // 별·반짝이·발바닥: 각자 다른 주기·지연으로 위아래 흔들림 + 회전
-      // 처음엔 원래 위치(0)에서 출발해 끊김 없이 반복으로 이어집니다.
-      // yPercent(요소 높이 대비 %)를 써서 화면 크기가 바뀌어도 비율이 유지됩니다.
-      const floaters = [...STARS, PAW]
-      gsap.utils.toArray('.start__float').forEach((el, i) => {
-        const f = floaters[i]
-        const dir = i % 2 === 0 ? 1 : -1
-        const amp = (FLOAT_Y / f.h) * 100 // f.h = Figma px 높이
-        gsap
-          .timeline({ delay: f.delay })
-          .to(el, { yPercent: amp * dir, rotation: FLOAT_ROT * f.rot, duration: f.dur / 2, ease: 'sine.out' })
-          .to(el, {
-            yPercent: -amp * dir,
-            rotation: -FLOAT_ROT * f.rot,
-            duration: f.dur,
-            ease: 'sine.inOut',
-            repeat: -1,
-            yoyo: true,
-          })
+      const els = gsap.utils.toArray('.start__pop')
+      const tl = gsap.timeline({ paused: true })
+      els.forEach((el, i) => {
+        const d = DECO[i]
+        gsap.set(el, { rotation: d.rot, transformOrigin: '50% 50%' })
+        const at = 0.08 * i
+        if (reduce || d.from === 'fade') {
+          tl.from(el, { opacity: 0, duration: 0.6, ease: 'power2.out' }, at)
+        } else if (d.from === 'pop') {
+          tl.from(el, { scale: 0, opacity: 0, rotation: d.rot - 35, duration: 0.7, ease: 'back.out(2.6)' }, at)
+        } else {
+          const off = { left: { xPercent: -120 }, right: { xPercent: 120 }, top: { yPercent: -160 }, bottom: { yPercent: 160 } }[d.from]
+          tl.from(el, { ...off, rotation: d.rot + (d.from === 'right' ? 18 : -18), duration: 0.75, ease: 'back.out(1.6)' }, at)
+        }
+        // 들어온 뒤 살짝 둥둥
+        if (d.float && !reduce) {
+          tl.to(el, { y: i % 2 ? -8 : 8, rotation: d.rot + (i % 2 ? 4 : -4), duration: 2.2 + (i % 3) * 0.4, ease: 'sine.inOut', repeat: -1, yoyo: true }, at + 0.7)
+        }
       })
+      popRef.current = tl
     }, rootRef)
     return () => ctx.revert()
   }, [])
@@ -196,21 +205,11 @@ export default function StartPage({ onEnterCampus }) {
         {/* 정문을 지나면 나타나는 안쪽 화면 (장식 + 타이틀) */}
         <div className="start__content" ref={contentRef}>
         <div className="start__content-inner">
-        {/* 장식: 별 + 발바닥 (개별 요소) */}
+        {/* 장식: 시안대로 배치, 정문을 지나면 하나씩 튀어 들어옴 */}
         <div className="start__deco" aria-hidden="true">
-          {STARS.map((s) => (
-            <img
-              key={s.name}
-              className="start__layer start__star start__float"
-              src={`${IMG}/deco/${s.name}.png`}
-              alt=""
-              style={pos(s)}
-            />
+          {DECO.map((d) => (
+            <img key={d.src} className="start__layer start__pop" src={decoSrc(d)} alt="" style={pos(d)} />
           ))}
-          {/* 발바닥: 바깥 상자는 둥둥, 안쪽 이미지는 마우스 hover 반응 */}
-          <div className="start__layer start__float start__paw-wrap" style={pos(PAW)}>
-            <img className="start__paw" src={`${IMG}/deco/paw.png`} alt="" />
-          </div>
         </div>
 
         {/* 타이틀 */}
@@ -220,14 +219,14 @@ export default function StartPage({ onEnterCampus }) {
             className="start__layer start__title"
             src={`${IMG}/Main_Title.png`}
             alt="한남대 고양이가 학생이 되었다."
-            style={pos({ x: 262.5, y: 245, w: 915 })}
+            style={pos({ x: 234, y: 328, w: 979 })}
           />
         </h1>
         <img
           className="start__layer start__sub"
           src={`${IMG}/sub_Title.png`}
           alt="The cat at Hannam University became a student."
-          style={pos({ x: 539.5, y: 661, w: 361 })}
+          style={pos({ x: 536, y: 749, w: 361 })}
         />
         </div>
         </div>

@@ -49,6 +49,7 @@ src/
 |---|---|---|
 | 색상 (파랑 3단계: `--blue-ink`, `--blue`, `--blue-soft`) | `src/styles/global.css` | `:root` |
 | 지도 2색 하프톤 (점 세기·간격·원래 색 남기기) | `src/components/MapScene.jsx` | `TONE` |
+| 타이틀 화면 장식 (위치·튀어 들어오는 방향) | `src/pages/StartPage.jsx` | `DECO` (원본: `deco_start2/`, 화면용: `public/images/start2/`) |
 | 시작 페이지 요소 위치 | `src/pages/StartPage.jsx` | `STARS`, `PAW`, `pos({...})` (Figma 1440×1014 좌표) |
 | 카메라 각도·회전 범위 | `src/components/CampusScene.jsx` | `VIEW` |
 | 갤러리 사진 설명(캡션)·순서 | `src/data/gallery.js` | `caption` |

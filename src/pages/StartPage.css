@@ -52,6 +52,15 @@
   font-size: 0; /* h1 기본 글자 크기가 레이아웃에 영향 주지 않도록 */
 }
 
+/* 타이틀 화면 장식 */
+.start__content-inner {
+  position: absolute;
+  inset: 0;
+}
+.start__pop {
+  will-change: transform, opacity;
+}
+
 /* 떠다니는 장식(별·발바닥): 회전 중심을 가운데로 */
 .start__float {
   transform-origin: 50% 50%;
@@ -146,18 +155,6 @@
   inset: 0;
   transform-origin: 50% 55%;
   opacity: 0; /* 정문을 지나면서 나타남 */
-}
-/* 타이틀·별·부제를 한 덩어리로 키우고 위로 (짧게 보이므로 잘 보이게) */
-.start__content-inner {
-  position: absolute;
-  inset: 0;
-  transform: translateY(-7%) scale(1.15);
-  transform-origin: 50% 45%;
-}
-@media (max-aspect-ratio: 4/5) {
-  .start__content-inner {
-    transform: translateY(-6%); /* 세로 화면은 이미 꽉 차서 키우지 않음 */
-  }
 }
 
 .start__gate-wrap {
