@@ -56,6 +56,20 @@
   height: auto;
 }
 
+/* 보조 인물 실루엣: 크게, 화면 오른쪽 밖으로 잘려서 일부만 보이게 */
+.dialog__extra {
+  position: absolute;
+  pointer-events: none;
+}
+.dialog__extra--student {
+  /* 세 명 중 오른쪽 한 명 반 정도만 화면 오른쪽 끝에 걸쳐 보이게 */
+  right: calc(-1500 * var(--u));
+  bottom: calc(256 * var(--u)); /* 아래 끝은 대화 상자 테두리 뒤에 숨김 */
+  height: calc(860 * var(--u));
+  width: auto;
+  max-width: none;
+}
+
 /* 대화 상자: 반투명 파랑 + 흰 테두리, 화면 아래에 붙음 */
 .dialog__box {
   position: absolute;

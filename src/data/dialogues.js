@@ -12,6 +12,7 @@
 //   { rename: 이름, dur: 초 }      이름표 바꾸기 (이후 계속 그 이름)
 //   { exit: px, dur: 초 }          캐릭터가 옆으로 이동하며 사라짐
 //   { close: 초 }                  대화창 페이드 아웃 후 지도로
+//   { enter: 보조인물, dur } / { leave: 보조인물, dur }   실루엣이 화면 가장자리에서 들어오고 나감
 //   { look: true }                 두리번거리듯 화면이 좌우로 살짝 움직임
 //   { rise: 자세, dur: 초 }         누워 있다가 벌떡 일어나는 느낌으로 자세 교체
 //
@@ -25,6 +26,8 @@ export const DIALOGUES = {
     place: '11번 건물 앞, 햇볕이 잘 드는 벤치',
     bg: `${T}bg-insarye.webp`,
     character: { folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp` },
+    // 보조 인물 (실루엣): 화면 오른쪽 가장자리에 크게, 일부만 보이게
+    extras: { student: `${T}student.webp` },
     typeSpeed: 35, // ms/글자
     gap: 0.3, // 클릭 후 다음 대사까지 기본 텀 (초)
     lines: [
@@ -49,11 +52,11 @@ export const DIALOGUES = {
       { who: '???', text: '응. 여기 오후에 햇빛 잘 들거든. 사람만 좀 덜 지나가면 딱인데.', before: [W(0.5)], after: [W(1.2)] },
       // SCENE 03. 이름 공개 (학생은 목소리만)
       // 학생이 말을 걸자 벌떡 일어남
-      { who: '학생', text: '어, 시유야. 여기 있었네?', after: [W(0.2), { rise: 'voice', dur: 0.35 }] },
+      { who: '학생', text: '어, 시유야. 여기 있었네?', before: [{ enter: 'student', dur: 0.5 }], after: [W(0.2), { rise: 'voice', dur: 0.35 }] },
       { who: '???', text: '어. 수업 끝났어?' },
       { who: '학생', text: '응. 너 또 여기서 자고 있었냐?' },
       { who: '???', text: '안 잤거든.', before: [W(0.3), P('frown')] },
-      { who: '학생', text: '알았어, 알았어. 나 먼저 간다.' },
+      { who: '학생', text: '알았어, 알았어. 나 먼저 간다.', after: [W(0.3), { leave: 'student', dur: 0.6 }] },
       { who: '???', text: '어.' },
       { who: '나', text: '시유 씨라고 하시는군요.', before: [W(0.6), P('look')] },
       { who: '???', text: '응. 김시유. 넌?', after: [W(0.3), { rename: '김시유', dur: 0.2 }] },
