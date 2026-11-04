@@ -42,10 +42,24 @@
 /* 캐릭터: 대화 상자 바로 위에 서 있도록 아래 기준 */
 .dialog__char {
   position: absolute;
-  left: max(calc(91 * var(--u)), calc(50% - 780 * var(--u))); /* 왼쪽 쪽으로 */
+  left: max(calc(91 * var(--u)), calc(50% - 780 * var(--u)));
   bottom: calc(262 * var(--u));
   width: calc(636 * var(--u));
+  aspect-ratio: 1393 / 1125;
+}
+/* 자세·표정 이미지: 겹쳐 두고 지금 자세만 보이게 (크로스페이드) */
+.dialog__pose {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
   height: auto;
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: ease-out;
+}
+.dialog__pose.is-on {
+  opacity: 1;
 }
 
 /* 대화 상자: 반투명 파랑 + 흰 테두리, 화면 아래에 붙음 */
