@@ -38,10 +38,10 @@ const pos = ({ x, y, w }) => ({ '--x': x, '--y': y, '--w': w })
 // 정문 들어가기 설정
 const GATE = {
   zoom: 3, // 정문이 다가오는 정도 (확대 배율)
-  wheelDistance: 1400, // 정문을 다 지나는 데 필요한 휠 양 (px)
-  touchDistance: 650, // 휴대폰에서 필요한 쓸어 올리기 거리 (px)
+  wheelDistance: 800, // 정문을 다 지나는 데 필요한 휠 양 (px)
+  touchDistance: 380, // 휴대폰에서 필요한 쓸어 올리기 거리 (px)
 }
-const TITLE_HOLD = 4200 // ms: 정문을 지난 뒤 타이틀·장식을 보여주는 시간
+const TITLE_HOLD = 7000 // ms: 정문을 지난 뒤 타이틀·장식을 보여주는 시간
 const IS_TOUCH = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
 const prefersReducedMotion = () =>
@@ -64,13 +64,13 @@ export default function StartPage({ onEnterCampus }) {
     const tl = gsap.timeline({ paused: true })
     // 1) 정문이 다가오며 완전히 사라진 다음 (0 ~ 0.7)
     // 2) 안쪽(격자 배경 + 타이틀)이 나타남 (0.72 ~ 1)  ← 두 구간이 겹치지 않게
-    tl.fromTo(gate, { scale: 1 }, { scale: GATE.zoom, ease: 'power2.in', duration: 0.7 }, 0)
-      .to(gate, { opacity: 0, ease: 'power1.in', duration: 0.3 }, 0.4)
+    tl.fromTo(gate, { scale: 1 }, { scale: GATE.zoom, ease: 'power2.in', duration: 0.6 }, 0)
+      .to(gate, { opacity: 0, ease: 'power1.in', duration: 0.25 }, 0.35)
       .fromTo(
         contentRef.current,
         { scale: 0.92, opacity: 0 },
-        { scale: 1, opacity: 1, ease: 'power2.out', duration: 0.28 },
-        0.72,
+        { scale: 1, opacity: 1, ease: 'power2.out', duration: 0.36 },
+        0.62,
       )
       .to(hintRef.current, { opacity: 0, duration: 0.08 }, 0)
 
@@ -78,7 +78,7 @@ export default function StartPage({ onEnterCampus }) {
     let target = 0
     let done = false
     const follow = gsap.quickTo(state, 'p', {
-      duration: reduce ? 0.3 : 0.8,
+      duration: reduce ? 0.3 : 0.6,
       ease: 'power3.out',
       onUpdate: () => {
         tl.progress(state.p)
@@ -89,6 +89,7 @@ export default function StartPage({ onEnterCampus }) {
     const advance = (delta) => {
       if (done) return
       target = Math.min(1, Math.max(0, target + (reduce && delta > 0 ? 1 : delta)))
+      if (target >= 0.6) target = 1 // 정문이 사라지면 나머지(타이틀 등장)는 스크롤을 멈춰도 자동으로
       follow(target)
       if (target >= 1) {
         done = true

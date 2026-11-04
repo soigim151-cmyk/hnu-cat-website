@@ -160,8 +160,8 @@
 .start__gate-wrap {
   position: absolute;
   left: 50%;
-  top: 71%; /* 화면 가운데보다 아래 */
-  width: max(102vw, 78vh); /* 정문 양쪽 끝이 화면 가장자리에 닿도록 (빈 여백 없이, 휴대폰 세로는 양끝만 살짝 잘림) */
+  top: 76%; /* 화면 가운데보다 아래 */
+  width: max(82vw, 66vh); /* 정문 양쪽 끝이 화면 가장자리에 닿도록 (빈 여백 없이, 휴대폰 세로는 양끝만 살짝 잘림) */
   transform: translate(-50%, -50%);
   z-index: 5;
   pointer-events: none;
