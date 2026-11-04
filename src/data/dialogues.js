@@ -7,7 +7,7 @@
 //   page   : true 면 앞 줄과 같은 말의 다음 페이지 (이름표·이미지 그대로)
 // 연출 명령
 //   { wait: 초 }                  정적
-//   { show: 자세, dur: 초 }        캐릭터 페이드 인
+//   { show: 자세, dur: 초, from }  캐릭터 등장 (from: 'bottom' 이면 아래에서 위로 올라옴)
 //   { pose: 자세, dur: 초 }        자세·표정 이미지 교체
 //   { rename: 이름, dur: 초 }      이름표 바꾸기 (이후 계속 그 이름)
 //   { exit: px, dur: 초 }          캐릭터가 옆으로 이동하며 사라짐
@@ -36,7 +36,7 @@ export const DIALOGUES = {
       { text: '11번 건물 앞을 지나가던 중, 어디선가 낯선 목소리가 들려온다.' },
       { who: '???', text: '너 지금 내 일조권 침해 중이야.', after: [W(0.7)] },
       { who: '나', text: '?', after: [W(0.5), { look: true }] },
-      { who: '나', text: '어디서 나는 소리지?', after: [W(0.6), { show: 'lying2', dur: 0.4 }] },
+      { who: '나', text: '어디서 나는 소리지?', after: [W(0.6), { show: 'lying3', dur: 0.6, from: 'bottom' }] },
       { who: '???', text: '옆으로 좀 가봐.' },
       { who: '나', text: '아, 제가 햇빛을 가리고 있었네요. 여기면 괜찮으세요?' },
       { who: '???', text: '어. 이제 됐어.', before: [W(0.5)] },
@@ -88,7 +88,8 @@ export const DIALOGUES = {
 
 // 시유 자세·표정 이미지 목록 (public/talk/siyu/ 에 같은 이름의 PNG 를 올리면 바로 적용)
 export const SIYU_POSES = {
-  lying2: '벤치에 누워 있음 (눕시유 (2), 학생이 말 걸기 전까지)',
+  lying3: '벤치에 엎드려 누워 있음 (눕시유 (2) 1, 학생이 말 걸기 전까지)',
+  lying2: '벤치에 누워 있음 (눕시유 (2), 예비)',
   lying: '벤치에 누워 있음 (예비)',
   look: '나를 바라봄',
   closed: '눈을 감음',

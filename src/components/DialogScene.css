@@ -47,14 +47,12 @@
   width: calc(636 * var(--u));
   aspect-ratio: 1393 / 1125;
 }
-/* 누운 자세: 크게, 왼쪽 아래로 화면 밖까지 걸치게 (대화창에 일부 가려짐, 발은 안 보이게) */
+/* 누운 자세 (엎드림): 대화창 위에 걸쳐서, 몸 아래쪽은 대화창 뒤로 */
 .dialog__char.is-lying {
-  /* 크게 키워서 다리는 화면 아래·왼쪽 밖으로, 발 부분은 잘라냄 */
-  left: calc(50% - 1300 * var(--u));
-  bottom: calc(-494 * var(--u));
-  width: calc(1500 * var(--u));
-  aspect-ratio: 1326 / 1043;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 62% 100%, 54% 78%, 0 40%); /* 왼쪽 아래 신발 부분만 잘라냄 */
+  left: calc(50% - 61 * var(--u));
+  bottom: calc(77 * var(--u));
+  width: calc(779 * var(--u));
+  aspect-ratio: 829 / 422;
 }
 
 /* 자세·표정 이미지: 겹쳐 두고 지금 자세만 보이게 (크로스페이드) */

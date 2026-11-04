@@ -72,7 +72,14 @@ export default function DialogScene({ dialog, onClose }) {
         else if (a.show) {
           setPoseDur(a.dur ?? 0.4)
           setPose(a.show)
-          await sleep(a.dur ?? 0.4)
+          if (a.from === 'bottom') {
+            // 아래에서 위로 쑥 올라오며 등장
+            await gsap.fromTo(
+              charRef.current,
+              { yPercent: 70, opacity: 0 },
+              { yPercent: 0, opacity: 1, duration: a.dur ?? 0.6, ease: 'back.out(1.4)' },
+            )
+          } else await sleep(a.dur ?? 0.4)
         } else if (a.pose) {
           setPoseDur(a.dur ?? 0.3)
           setPose(a.pose)
