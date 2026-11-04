@@ -42,7 +42,7 @@
 /* 캐릭터: 대화 상자 바로 위에 서 있도록 아래 기준 */
 .dialog__char {
   position: absolute;
-  left: max(calc(91 * var(--u)), calc(50% - 629 * var(--u)));
+  left: max(calc(91 * var(--u)), calc(50% - 780 * var(--u))); /* 왼쪽 쪽으로 */
   bottom: calc(262 * var(--u));
   width: calc(636 * var(--u));
   height: auto;
@@ -72,7 +72,7 @@
   background: #fff;
   border-top-right-radius: calc(24 * var(--u));
   color: #2f4be0;
-  font-size: calc(30 * var(--u));
+  font-size: calc(36 * var(--u));
   line-height: 1;
 }
 
@@ -80,11 +80,12 @@
   position: absolute;
   left: calc(103 * var(--u));
   right: calc(143 * var(--u));
-  top: calc(48 * var(--u));
+  top: 50%;
+  transform: translateY(-50%); /* 상자 세로 가운데 */
   margin: 0;
   color: #fff;
-  font-size: calc(30 * var(--u));
-  line-height: 1.7;
+  font-size: calc(38 * var(--u));
+  line-height: 1.6;
   letter-spacing: 0.02em;
   word-break: keep-all;
 }
@@ -95,7 +96,7 @@
   top: 50%;
   transform: translateY(-50%);
   text-align: center;
-  font-size: calc(34 * var(--u));
+  font-size: calc(44 * var(--u));
 }
 /* 아직 안 나온 글자도 자리를 차지해서 줄바꿈이 흔들리지 않게 */
 .dialog__ghost {
@@ -106,15 +107,11 @@
 .dialog__next {
   position: absolute;
   right: calc(49 * var(--u));
-  bottom: calc(70 * var(--u));
+  top: 50%;
+  transform: translateY(-50%);
   width: calc(44 * var(--u));
   image-rendering: pixelated;
   animation: dialog-next 0.9s steps(2, jump-none) infinite;
-}
-.dialog__box.is-place .dialog__next {
-  top: 50%;
-  bottom: auto;
-  transform: translateY(-50%);
 }
 @keyframes dialog-next {
   50% {
