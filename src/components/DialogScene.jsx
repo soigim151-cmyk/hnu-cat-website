@@ -226,7 +226,7 @@ export default function DialogScene({ dialog, onClose }) {
         ))}
 
         {/* 캐릭터: 이전 그림은 그대로 두고 새 그림만 위에 페이드 인 (중간에 비치거나 깜빡이지 않게) */}
-        <div className="dialog__char" ref={charRef}>
+        <div className={`dialog__char${pose?.startsWith('lying') ? ' is-lying' : ''}`} ref={charRef}>
           {curSrc && <PoseLayer src={curSrc} dur={poseDur} />}
         </div>
 
