@@ -161,8 +161,8 @@
   position: absolute;
   left: 50%;
   bottom: 0; /* 새 정문 그림은 화면 아래에 붙여서 전체 폭으로 */
-  width: max(100vw, 140vh);
-  transform: translateX(-50%);
+  width: max(120vw, 140vh); /* 문을 가운데로 옮겨도 양옆이 비지 않게 조금 크게 */
+  transform: translateX(-43%); /* 정문(그림의 43% 지점)을 화면 가운데로 */
   z-index: 5;
   pointer-events: none;
 }
@@ -209,12 +209,5 @@
 @media (prefers-reduced-motion: reduce) {
   .start__hint {
     animation: none;
-  }
-}
-
-/* 휴대폰 세로: 정문 길(그림의 43% 지점)이 화면 가운데에 오도록 */
-@media (max-aspect-ratio: 4/5) {
-  .start__gate-wrap {
-    transform: translateX(-43%);
   }
 }
