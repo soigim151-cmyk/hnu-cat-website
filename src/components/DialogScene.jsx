@@ -77,7 +77,7 @@ export default function DialogScene({ dialog, onClose }) {
           await sleep(a.dur ?? 0.3)
         } else if (a.enter) {
           const el = rootRef.current.querySelector(`[data-extra="${a.enter}"]`)
-          if (el) await gsap.fromTo(el, { xPercent: 18, opacity: 0 }, { xPercent: 0, opacity: 1, duration: a.dur ?? 0.5, ease: 'power2.out' })
+          if (el) await gsap.fromTo(el, { xPercent: 18, opacity: 0 }, { xPercent: 0, opacity: Number(el.dataset.opacity || 1), duration: a.dur ?? 0.5, ease: 'power2.out' })
         } else if (a.leave) {
           const el = rootRef.current.querySelector(`[data-extra="${a.leave}"]`)
           if (el) await gsap.to(el, { xPercent: 22, opacity: 0, duration: a.dur ?? 0.6, ease: 'power2.in' })
@@ -213,8 +213,16 @@ export default function DialogScene({ dialog, onClose }) {
         <img className="dialog__bg" src={BASE + dialog.bg} alt="" />
 
         {/* 보조 인물 실루엣 (처음엔 숨김, enter 로 등장) */}
-        {Object.entries(dialog.extras || {}).map(([key, src]) => (
-          <img key={key} data-extra={key} className={`dialog__extra dialog__extra--${key}`} src={BASE + src} alt="" style={{ opacity: 0 }} />
+        {Object.entries(dialog.extras || {}).map(([key, ex]) => (
+          <img
+            key={key}
+            data-extra={key}
+            data-opacity={ex.opacity ?? 1}
+            className={`dialog__extra dialog__extra--${key}`}
+            src={BASE + ex.src}
+            alt=""
+            style={{ opacity: 0 }}
+          />
         ))}
 
         {/* 캐릭터: 이전 그림은 그대로 두고 새 그림만 위에 페이드 인 (중간에 비치거나 깜빡이지 않게) */}

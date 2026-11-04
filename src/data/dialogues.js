@@ -27,7 +27,7 @@ export const DIALOGUES = {
     bg: `${T}bg-insarye.webp`,
     character: { folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp` },
     // 보조 인물 (실루엣): 화면 오른쪽 가장자리에 크게, 일부만 보이게
-    extras: { student: `${T}student.webp` },
+    extras: { student: { src: `${T}student.webp`, opacity: 0.55 } },
     typeSpeed: 35, // ms/글자
     gap: 0.3, // 클릭 후 다음 대사까지 기본 텀 (초)
     lines: [

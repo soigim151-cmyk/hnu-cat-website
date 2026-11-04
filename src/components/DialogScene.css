@@ -64,8 +64,8 @@
 .dialog__extra--student {
   /* 세 명 중 오른쪽 한 명 반 정도만 화면 오른쪽 끝에 걸쳐 보이게 */
   right: calc(-1500 * var(--u));
-  bottom: calc(256 * var(--u)); /* 아래 끝은 대화 상자 테두리 뒤에 숨김 */
-  height: calc(860 * var(--u));
+  bottom: 0; /* 화면 아래까지 꽉 채움 */
+  height: calc(1080 * var(--u));
   width: auto;
   max-width: none;
 }
