@@ -54,6 +54,7 @@ src/
 | 카메라 각도·회전 범위 | `src/components/CampusScene.jsx` | `VIEW` |
 | 갤러리 사진 설명(캡션)·순서 | `src/data/gallery.js` | `caption` |
 | 갤러리 줄 구성·흐르는 속도 | `src/components/CatGallery.jsx` | `ROWS`, `ROW_SECONDS` (초 = 한 바퀴) |
+| 장소별 대화 내용·배경·캐릭터 | `src/data/dialogues.js` | `DIALOGUES` (이미지: `public/talk/`) |
 | 장소 이름·캐릭터 | `src/data/buildings.js` | `name`, `characters` |
 | 2.5D 지도 입체감·회전·확대 범위 | `src/components/MapScene.jsx` | `MAP` (`depthRange`, `azimuthRange`, `polarDown`, `polarUp`, `maxZoom`) |
 | 2.5D 외곽선 색·두께 | `src/components/MapScene.jsx` | `OUTLINE_COLOR`, `OUTLINE_RADIUS` |

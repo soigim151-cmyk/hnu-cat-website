@@ -8,6 +8,8 @@ import { VIEW_MODE } from '../components/viewMode.js'
 import { CAMPUS_MODEL_URL } from '../components/campusModel.js'
 import CampusLoader from '../components/CampusLoader.jsx'
 import CatGallery from '../components/CatGallery.jsx'
+import DialogScene from '../components/DialogScene.jsx'
+import { DIALOGUES } from '../data/dialogues.js'
 import './CampusPage.css'
 
 export default function CampusPage() {
@@ -16,8 +18,11 @@ export default function CampusPage() {
   const [revealed, setRevealed] = useState(false) // 로딩 화면이 끝나고 캠퍼스 등장
   const [dragging, setDragging] = useState(false)
   const [pointing, setPointing] = useState(false) // 건물 위에 마우스가 있음
-  // 선택한 건물 (대화창 디자인이 나오면 여기서 대화창을 엽니다)
-  const [, setSelectedBuilding] = useState(null)
+  // 선택한 장소 → 대화가 준비된 장소면 대화 화면을 엶
+  const [talk, setTalk] = useState(null)
+  const setSelectedBuilding = useCallback((b) => {
+    if (b && DIALOGUES[b.id]) setTalk(DIALOGUES[b.id])
+  }, [])
 
   // 드래그 안내: 캠퍼스가 나타나면 잠깐 보여주고, 처음 드래그하거나 6초 지나면 사라짐
   const [dragHint, setDragHint] = useState(false)
@@ -116,6 +121,8 @@ export default function CampusPage() {
       </section>
 
       {revealed && <CatGallery />}
+
+      {talk && <DialogScene dialog={talk} onClose={() => setTalk(null)} />}
     </main>
   )
 }
