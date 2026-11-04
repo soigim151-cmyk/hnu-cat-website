@@ -23,6 +23,12 @@
   position: relative;
   height: clamp(110px, 18vh, 180px);
   aspect-ratio: 642 / 1222;
+  /* 고양이 그림의 무게중심이 오른쪽(61.7%)에 있어서, 눈으로 보기에 가운데가 되도록 살짝 왼쪽으로 */
+  transform: translateX(-11.7%);
+}
+/* 숫자가 바뀌어도 글자가 좌우로 흔들리지 않도록 같은 폭 숫자 */
+.campus__loader-text {
+  font-variant-numeric: tabular-nums;
 }
 .campus__loader-cat img {
   position: absolute;

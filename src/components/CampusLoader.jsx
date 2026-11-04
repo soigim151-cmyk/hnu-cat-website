@@ -60,7 +60,7 @@ export default function CampusLoader({ ready = false, hidden = false, onDone }) 
           style={{ clipPath: `inset(${100 - percent}% 0 0 0)` }}
         />
       </div>
-      <span className="campus__loader-text">캠퍼스로 등교 중 {percent}%</span>
+      <span className="campus__loader-text">등교 중 {percent}%</span>
     </div>
   )
 }
