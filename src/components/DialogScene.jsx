@@ -105,12 +105,18 @@ export default function DialogScene({ dialog, onClose }) {
             .to('.dialog__bg', { x: 26, duration: 1.4, ease: 'sine.inOut' }, '+=0.35')
             .to('.dialog__bg', { x: 0, duration: 0.9, ease: 'sine.inOut' }, '+=0.3')
         } else if (a.rise) {
-          // 벌떡 일어나기: 살짝 아래로 눌렸다가 튀어 오르며 자세 교체
+          // 벌떡 일어나기: 누운 그림은 제자리에서 아래로 쑥 사라지고,
+          // 선 그림이 원래 자리에서 튀어 오르듯 나타남 (누운 그림이 옆으로 미끄러지지 않게)
           const el = charRef.current
-          await gsap.to(el, { y: 14, scaleY: 0.96, transformOrigin: '50% 100%', duration: 0.1, ease: 'power1.in' })
-          setPoseDur(0.08)
+          await gsap.to(el, { y: 40, opacity: 0, duration: 0.18, ease: 'power2.in' })
+          setPoseDur(0)
           setPose(a.rise)
-          await gsap.to(el, { y: 0, scaleY: 1, duration: a.dur ?? 0.35, ease: 'back.out(2.4)' })
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))) // 자리 바뀐 뒤
+          await gsap.fromTo(
+            el,
+            { y: 60, opacity: 0, scaleY: 0.94, transformOrigin: '50% 100%' },
+            { y: 0, opacity: 1, scaleY: 1, duration: a.dur ?? 0.35, ease: 'back.out(2.2)' },
+          )
         } else if (a.rename) {
           const el = nameRef.current
           await gsap.to(el, { opacity: 0, duration: (a.dur ?? 0.2) / 2 })
