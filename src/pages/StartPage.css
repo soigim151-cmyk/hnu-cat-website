@@ -193,7 +193,7 @@
 .start__hint {
   position: absolute;
   left: 50%;
-  bottom: 22px;
+  top: 14%; /* 정문 위 하늘(빈 곳)에 */
   z-index: 6;
   transform: translateX(-50%);
   color: var(--blue-ink); /* 정문 그림과 같은 파란색 */
