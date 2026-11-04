@@ -167,3 +167,50 @@
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+
+/* ── 아이템 획득 ('휙득!') ── */
+.dialog__reward {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(28 * var(--u));
+  background: rgba(2, 37, 255, 0.35);
+}
+.dialog__reward-shine {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(1100 * var(--u));
+  height: calc(1100 * var(--u));
+  margin: calc(-550 * var(--u)) 0 0 calc(-550 * var(--u));
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 255, 255, 0.55) 0 10deg, transparent 10deg 24deg);
+  -webkit-mask: radial-gradient(circle, #000 15%, transparent 68%);
+  mask: radial-gradient(circle, #000 15%, transparent 68%);
+}
+.dialog__reward-label {
+  position: relative;
+  margin: 0;
+  padding: calc(10 * var(--u)) calc(30 * var(--u));
+  background: #fff;
+  color: var(--blue-ink);
+  font-size: calc(46 * var(--u));
+  border: calc(5 * var(--u)) solid var(--blue-ink);
+}
+.dialog__reward-card {
+  position: relative;
+  width: calc(640 * var(--u));
+  height: auto;
+  filter: drop-shadow(0 calc(16 * var(--u)) calc(24 * var(--u)) rgba(0, 10, 80, 0.45));
+}
+.dialog__reward-hint {
+  position: relative;
+  margin: 0;
+  color: #fff;
+  font-size: calc(26 * var(--u));
+  animation: dialog-next 0.9s steps(2, jump-none) infinite;
+}

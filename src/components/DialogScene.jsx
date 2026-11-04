@@ -20,6 +20,8 @@ export default function DialogScene({ dialog, onClose }) {
   const aliveRef = useRef(true)
   const nameMapRef = useRef({}) // '???' → '김시유' 처럼 공개된 이름
 
+  const [reward, setReward] = useState(null) // 획득 아이템
+  const rewardDoneRef = useRef(null)
   const [step, setStep] = useState(-1) // -1 = 장소 안내
   const [typed, setTyped] = useState(0)
   const [box, setBox] = useState(false) // 대화창 보임
@@ -75,6 +77,12 @@ export default function DialogScene({ dialog, onClose }) {
           setPoseDur(a.dur ?? 0.3)
           setPose(a.pose)
           await sleep(a.dur ?? 0.3)
+        } else if (a.reward) {
+          // 아이템 획득: 대화창을 치우고 튀어나오고, 한 번 누르면 다음으로
+          await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25, ease: 'power2.in' })
+          setReward({ src: a.reward, label: a.label })
+          await new Promise((res) => (rewardDoneRef.current = res))
+          await gsap.to('.dialog__reward', { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in' })
         } else if (a.enter) {
           const el = rootRef.current.querySelector(`[data-extra="${a.enter}"]`)
           if (el) await gsap.fromTo(el, { xPercent: 18, opacity: 0 }, { xPercent: 0, opacity: Number(el.dataset.opacity || 1), duration: a.dur ?? 0.5, ease: 'power2.out' })
@@ -85,9 +93,10 @@ export default function DialogScene({ dialog, onClose }) {
           // 두리번: 배경이 좌우로 살짝
           await gsap
             .timeline()
-            .to('.dialog__bg', { x: -26, duration: 0.35, ease: 'sine.inOut' })
-            .to('.dialog__bg', { x: 22, duration: 0.5, ease: 'sine.inOut' })
-            .to('.dialog__bg', { x: 0, duration: 0.35, ease: 'sine.inOut' })
+            // 천천히 왼쪽을 보고 → 잠깐 멈췄다가 → 오른쪽을 보고 → 제자리 (도리도리가 아니라 둘러보는 느낌)
+            .to('.dialog__bg', { x: -30, duration: 1.0, ease: 'sine.inOut' })
+            .to('.dialog__bg', { x: 26, duration: 1.4, ease: 'sine.inOut' }, '+=0.35')
+            .to('.dialog__bg', { x: 0, duration: 0.9, ease: 'sine.inOut' }, '+=0.3')
         } else if (a.rise) {
           // 벌떡 일어나기: 살짝 아래로 눌렸다가 튀어 오르며 자세 교체
           const el = charRef.current
@@ -170,6 +179,11 @@ export default function DialogScene({ dialog, onClose }) {
   }, [onClose])
 
   const next = useCallback(() => {
+    if (rewardDoneRef.current) {
+      const done = rewardDoneRef.current
+      rewardDoneRef.current = null
+      return done()
+    }
     if (finishRef.current) return finishRef.current() // 타이핑 중이면 한 번에 다 보여주기
     if (busyRef.current) return // 자동 연출 중
     if (step + 1 < lines.length) play(step + 1)
@@ -248,6 +262,8 @@ export default function DialogScene({ dialog, onClose }) {
         )}
       </div>
 
+      {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
+
       <button
         type="button"
         className="dialog__close"
@@ -298,5 +314,35 @@ function PoseLayer({ src, dur }) {
       <img className="dialog__pose" src={base} alt="" />
       {top && <img key={top} ref={topRef} className="dialog__pose" src={top} alt="" style={{ opacity: 0 }} />}
     </>
+  )
+}
+
+// '휙득!' 아이템 등장: 빙글 돌며 크게 튀어나오고, 빛이 뒤에서 돌며, 글자가 톡 튐
+function RewardPop({ src, label }) {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const q = gsap.utils.selector(ref)
+    const tl = gsap.timeline()
+    tl.fromTo(ref.current, { opacity: 0 }, { opacity: 1, duration: 0.2 })
+      .fromTo(q('.dialog__reward-shine'), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.8)' }, 0)
+      .fromTo(
+        q('.dialog__reward-card'),
+        { scale: 0.1, rotation: -540, y: 120, opacity: 0 },
+        { scale: 1, rotation: -4, y: 0, opacity: 1, duration: 0.75, ease: 'back.out(1.6)' },
+        0.05,
+      )
+      .fromTo(q('.dialog__reward-label'), { scale: 0, y: 20 }, { scale: 1, y: 0, duration: 0.45, ease: 'back.out(3)' }, 0.55)
+      .fromTo(q('.dialog__reward-hint'), { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.1)
+    gsap.to(q('.dialog__reward-shine'), { rotation: 360, duration: 8, ease: 'none', repeat: -1 })
+    gsap.to(q('.dialog__reward-card'), { y: -8, duration: 1.4, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 0.8 })
+    return () => tl.kill()
+  }, [])
+  return (
+    <div className="dialog__reward" ref={ref}>
+      <div className="dialog__reward-shine" />
+      <p className="dialog__reward-label">{label}</p>
+      <img className="dialog__reward-card" src={src} alt={label} />
+      <p className="dialog__reward-hint">눌러서 계속</p>
+    </div>
   )
 }
