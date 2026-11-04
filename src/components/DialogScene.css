@@ -54,12 +54,6 @@
   bottom: 0;
   width: 100%;
   height: auto;
-  opacity: 0;
-  transition-property: opacity;
-  transition-timing-function: ease-out;
-}
-.dialog__pose.is-on {
-  opacity: 1;
 }
 
 /* 대화 상자: 반투명 파랑 + 흰 테두리, 화면 아래에 붙음 */

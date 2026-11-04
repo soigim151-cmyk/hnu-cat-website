@@ -27,7 +27,7 @@ export default function DialogScene({ dialog, onClose }) {
   const [pose, setPose] = useState(null) // 지금 자세 (null = 캐릭터 없음)
   const [poseDur, setPoseDur] = useState(0.3)
   const [name, setName] = useState('')
-  const [missing, setMissing] = useState({}) // 아직 없는 자세 이미지
+  const [srcs, setSrcs] = useState({}) // 자세 → 실제로 불러온 이미지 주소 (없으면 기본 이미지)
 
   const lines = dialog.lines
   const line = step < 0 ? { text: dialog.place, place: true } : lines[step]
@@ -168,25 +168,33 @@ export default function DialogScene({ dialog, onClose }) {
   }, [next, close])
 
   const ch = dialog.character
-  const poseSrc = (p) => (missing[p] ? BASE + ch.fallback : `${BASE}${ch.folder}${p}.png`)
+
+  // 자세 이미지를 미리 확인해서, 없는 건 기본 이미지로 (불러오다 실패하며 비는 순간이 없도록)
+  useEffect(() => {
+    let off = false
+    Object.keys(seenPoses(lines)).forEach((p) => {
+      const url = `${BASE}${ch.folder}${p}.png`
+      const img = new Image()
+      img.onload = () => !off && setSrcs((m) => ({ ...m, [p]: url }))
+      img.onerror = () => !off && setSrcs((m) => ({ ...m, [p]: BASE + ch.fallback }))
+      img.src = url
+    })
+    return () => {
+      off = true
+    }
+  }, [lines, ch.folder, ch.fallback])
+
+  // 지금 보여줄 이미지 (확인 전이면 기본 이미지)
+  const curSrc = pose ? srcs[pose] || BASE + ch.fallback : null
 
   return createPortal(
     <div className="dialog" ref={rootRef} role="dialog" aria-modal="true" aria-label={dialog.place} onClick={next}>
       <div className="dialog__stage">
         <img className="dialog__bg" src={BASE + dialog.bg} alt="" />
 
-        {/* 캐릭터: 자세 이미지들을 겹쳐 두고 지금 자세만 보이게 (교체 시 크로스페이드) */}
+        {/* 캐릭터: 이전 그림은 그대로 두고 새 그림만 위에 페이드 인 (중간에 비치거나 깜빡이지 않게) */}
         <div className="dialog__char" ref={charRef}>
-          {Object.keys(seenPoses(lines)).map((p) => (
-            <img
-              key={p}
-              src={poseSrc(p)}
-              alt=""
-              className={`dialog__pose${pose === p ? ' is-on' : ''}`}
-              style={{ transitionDuration: `${poseDur}s` }}
-              onError={() => setMissing((m) => (m[p] ? m : { ...m, [p]: true }))}
-            />
-          ))}
+          {curSrc && <PoseLayer src={curSrc} dur={poseDur} />}
         </div>
 
         {box && (
@@ -232,4 +240,29 @@ function seenPoses(lines) {
       if (a.show) set[a.show] = true
     }
   return set
+}
+
+// 그림이 바뀔 때: 아래에는 이전 그림을 불투명하게 두고, 새 그림만 위에서 서서히 나타남.
+// 같은 그림이면 아무 전환도 하지 않음.
+function PoseLayer({ src, dur }) {
+  const [base, setBase] = useState(src)
+  const topRef = useRef(null)
+  const top = src !== base ? src : null // 새로 나타날 그림
+
+  useLayoutEffect(() => {
+    if (!top || !topRef.current) return
+    const t = gsap.fromTo(
+      topRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: dur, ease: 'power1.out', onComplete: () => setBase(top) },
+    )
+    return () => t.kill()
+  }, [top, dur])
+
+  return (
+    <>
+      <img className="dialog__pose" src={base} alt="" />
+      {top && <img key={top} ref={topRef} className="dialog__pose" src={top} alt="" style={{ opacity: 0 }} />}
+    </>
+  )
 }
