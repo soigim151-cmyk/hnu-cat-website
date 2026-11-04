@@ -4,7 +4,9 @@
    화면에 꽉 차도록 비율을 유지한 채 확대·축소합니다.
    --u = Figma 1px 이 화면에서 차지하는 크기
    ───────────────────────────────────────── */
+/* 화면 어디를 눌러도 들어감 */
 .start {
+  cursor: pointer;
   position: fixed;
   inset: 0;
   overflow: hidden;
@@ -154,28 +156,8 @@
   position: absolute;
   inset: 0;
   transform-origin: 50% 55%;
-  opacity: 0; /* 정문을 지나면서 나타남 */
 }
 
-.start__gate-wrap {
-  position: absolute;
-  left: 50%;
-  top: 66%; /* 화면 가운데보다 아래 */
-  width: max(102vw, 78vh); /* 정문 양쪽 끝이 화면 가장자리에 닿도록 (빈 여백 없이, 휴대폰 세로는 양끝만 살짝 잘림) */
-  transform: translate(-50%, -50%);
-  z-index: 5;
-  pointer-events: none;
-}
-.start__gate {
-  display: block;
-  width: 100%;
-  height: auto;
-  transform-origin: 49% 58%; /* 두 기둥 사이 도로 끝 쪽으로 다가가는 느낌 */
-  /* 앞쪽 도로가 뚝 끊겨 보이지 않도록 아래로 갈수록 서서히 사라짐 */
-  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 96%);
-  mask-image: linear-gradient(to bottom, #000 58%, transparent 96%);
-  will-change: transform, opacity;
-}
 
 /* 안내 문구 */
 .start__hint {
@@ -183,6 +165,9 @@
   left: 50%;
   bottom: 22px;
   z-index: 6;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(241, 237, 234, 0.9);
   transform: translateX(-50%);
   color: var(--blue-ink); /* 정문 그림과 같은 파란색 */
   font-size: 14px;
