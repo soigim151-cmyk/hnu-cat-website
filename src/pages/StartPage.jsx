@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import './StartPage.css'
 import { VIEW_MODE } from '../components/viewMode.js'
@@ -35,7 +35,13 @@ const decoSrc = (d) => (d.src === 'star-white' ? `${IMG}/deco/star-big.png` : `$
 // 위치값을 CSS 변수로 넘기는 헬퍼
 const pos = ({ x, y, w }) => ({ '--x': x, '--y': y, '--w': w })
 
-const AUTO_ENTER = 6000 // ms: 아무 조작이 없으면 이 시간 뒤 자동으로 캠퍼스로
+// 정문 들어가기 설정
+const GATE = {
+  zoom: 3, // 정문이 다가오는 정도 (확대 배율)
+  wheelDistance: 1400, // 정문을 다 지나는 데 필요한 휠 양 (px)
+  touchDistance: 650, // 휴대폰에서 필요한 쓸어 올리기 거리 (px)
+}
+const TITLE_HOLD = 4200 // ms: 정문을 지난 뒤 타이틀·장식을 보여주는 시간
 const IS_TOUCH = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
 const prefersReducedMotion = () =>
@@ -45,44 +51,87 @@ export default function StartPage({ onEnterCampus }) {
   const rootRef = useRef(null)
   const titleRef = useRef(null)
   const leavingRef = useRef(false) // 중복 클릭 방지
+  const gateRef = useRef(null)
+  const contentRef = useRef(null)
+  const hintRef = useRef(null)
+  const [entered, setEntered] = useState(false) // 정문을 다 지났는지
   const handleEnterRef = useRef(null)
 
-  // ── 들어가기: 휠을 내리거나, 화면을 누르거나, 위로 쓸어 올리거나, 키를 누르면 캠퍼스로 ──
-  useEffect(() => {
-    const go = () => handleEnterRef.current?.()
-    const root = rootRef.current
-    const onWheel = (e) => {
-      e.preventDefault()
-      if (e.deltaY > 20) go()
-    }
-    let startY = null
-    const onTouchStart = (e) => (startY = e.touches[0].clientY)
-    const onTouchMove = (e) => {
-      if (startY !== null && startY - e.touches[0].clientY > 60) go()
-    }
-    const onKey = (e) => {
-      if (['ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
-        e.preventDefault()
-        go()
+  // ── 정문 들어가기: 휠(터치·키보드)로 정문이 다가오며 사라지고, 안쪽 화면이 나타남 ──
+  useLayoutEffect(() => {
+    const reduce = prefersReducedMotion()
+    const gate = gateRef.current
+    const tl = gsap.timeline({ paused: true })
+    // 1) 정문이 다가오며 완전히 사라진 다음 (0 ~ 0.7)
+    // 2) 안쪽(격자 배경 + 타이틀)이 나타남 (0.72 ~ 1)  ← 두 구간이 겹치지 않게
+    tl.fromTo(gate, { scale: 1 }, { scale: GATE.zoom, ease: 'power2.in', duration: 0.7 }, 0)
+      .to(gate, { opacity: 0, ease: 'power1.in', duration: 0.3 }, 0.4)
+      .fromTo(
+        contentRef.current,
+        { scale: 0.92, opacity: 0 },
+        { scale: 1, opacity: 1, ease: 'power2.out', duration: 0.28 },
+        0.72,
+      )
+      .to(hintRef.current, { opacity: 0, duration: 0.08 }, 0)
+
+    const state = { p: 0 }
+    let target = 0
+    let done = false
+    const follow = gsap.quickTo(state, 'p', {
+      duration: reduce ? 0.3 : 0.8,
+      ease: 'power3.out',
+      onUpdate: () => {
+        tl.progress(state.p)
+        if (state.p > 0.97 && popRef.current && !popRef.current.isActive() && popRef.current.progress() === 0) popRef.current.play()
+        gate.style.visibility = state.p > 0.995 ? 'hidden' : 'visible'
+      },
+    })
+    const advance = (delta) => {
+      if (done) return
+      target = Math.min(1, Math.max(0, target + (reduce && delta > 0 ? 1 : delta)))
+      follow(target)
+      if (target >= 1) {
+        done = true
+        setEntered(true)
       }
     }
-    // 장식이 다 들어온 뒤부터 입력을 받음 (실수로 바로 넘어가지 않게)
-    const arm = setTimeout(() => {
-      root.addEventListener('wheel', onWheel, { passive: false })
-      root.addEventListener('click', go)
-      root.addEventListener('touchstart', onTouchStart, { passive: true })
-      root.addEventListener('touchmove', onTouchMove, { passive: true })
-      window.addEventListener('keydown', onKey)
-    }, 1200)
-    const auto = setTimeout(go, AUTO_ENTER)
+
+    const onWheel = (e) => {
+      if (done) return
+      e.preventDefault()
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1
+      advance((e.deltaY * unit) / GATE.wheelDistance)
+    }
+    let lastY = null
+    const onTouchStart = (e) => (lastY = e.touches[0].clientY)
+    const onTouchMove = (e) => {
+      if (done || lastY === null) return
+      const y = e.touches[0].clientY
+      advance((lastY - y) / GATE.touchDistance) // 위로 쓸어 올리면 앞으로
+      lastY = y
+    }
+    const onKey = (e) => {
+      if (done) return
+      if (['ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
+        e.preventDefault()
+        advance(0.25)
+      } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+        e.preventDefault()
+        advance(-0.25)
+      }
+    }
+
+    const root = rootRef.current
+    root.addEventListener('wheel', onWheel, { passive: false })
+    root.addEventListener('touchstart', onTouchStart, { passive: true })
+    root.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('keydown', onKey)
     return () => {
-      clearTimeout(arm)
-      clearTimeout(auto)
       root.removeEventListener('wheel', onWheel)
-      root.removeEventListener('click', go)
       root.removeEventListener('touchstart', onTouchStart)
       root.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('keydown', onKey)
+      tl.kill()
     }
   }, [])
 
@@ -102,7 +151,7 @@ export default function StartPage({ onEnterCampus }) {
         } else if (d.from === 'pop') {
           tl.from(el, { scale: 0, opacity: 0, rotation: d.rot - 35, duration: 0.7, ease: 'back.out(2.6)' }, at)
         } else {
-          const off = { left: { xPercent: -120 }, right: { xPercent: 120 }, top: { yPercent: -160 }, bottom: { yPercent: 160 } }[d.from]
+          const off = { left: { xPercent: -120 }, right: { xPercent: 120 }, top: { yPercent: -320 }, bottom: { yPercent: 160 } }[d.from]
           tl.from(el, { ...off, rotation: d.rot + (d.from === 'right' ? 18 : -18), duration: 0.75, ease: 'back.out(1.6)' }, at)
         }
         // 들어온 뒤 살짝 둥둥
@@ -111,10 +160,6 @@ export default function StartPage({ onEnterCampus }) {
         }
       })
       popRef.current = tl
-      // 타이틀이 먼저 톡 나타나고, 이어서 장식들이 튀어 들어옴
-      gsap.from(titleRef.current, { scale: 0.85, opacity: 0, duration: 0.7, ease: 'back.out(1.8)', delay: 0.15 })
-      gsap.from('.start__sub', { opacity: 0, y: 10, duration: 0.5, ease: 'power2.out', delay: 0.4 })
-      tl.delay(0.35).play()
     }, rootRef)
     return () => ctx.revert()
   }, [])
@@ -128,6 +173,13 @@ export default function StartPage({ onEnterCampus }) {
     }, 1200)
     return () => clearTimeout(t)
   }, [])
+
+  // ── 정문을 다 지나면 타이틀을 잠깐 보여준 뒤 자동으로 캠퍼스로 ──
+  useEffect(() => {
+    if (!entered) return
+    const t = setTimeout(() => handleEnterRef.current(), TITLE_HOLD)
+    return () => clearTimeout(t)
+  }, [entered])
 
   // ── 캠퍼스로: 퇴장 애니메이션 후 페이지 전환 ────────
   const handleEnter = () => {
@@ -154,7 +206,7 @@ export default function StartPage({ onEnterCampus }) {
         </div>
 
         {/* 정문을 지나면 나타나는 안쪽 화면 (장식 + 타이틀) */}
-        <div className="start__content">
+        <div className="start__content" ref={contentRef}>
         <div className="start__content-inner">
         {/* 장식: 시안대로 배치, 정문을 지나면 하나씩 튀어 들어옴 */}
         <div className="start__deco" aria-hidden="true">
@@ -168,9 +220,9 @@ export default function StartPage({ onEnterCampus }) {
           <img
             ref={titleRef}
             className="start__layer start__title"
-            src={`${IMG}/Main_Title.png`}
+            src={`${IMG}/Main_Title_v2.png`}
             alt="한남대 고양이가 학생이 되었다."
-            style={pos({ x: 234, y: 328, w: 979 })}
+            style={pos({ x: 230, y: 322, w: 985 })}
           />
         </h1>
         <img
@@ -184,7 +236,13 @@ export default function StartPage({ onEnterCampus }) {
 
       </div>
 
-      <p className="start__hint">{IS_TOUCH ? '화면을 눌러 등교하기' : '스크롤하거나 화면을 눌러 등교하기'}</p>
+      {/* 정문: 맨 앞에서 시작해 휠을 내리면 다가오며 사라짐 */}
+      <div className="start__gate-wrap" aria-hidden="true">
+        <img ref={gateRef} className="start__gate" src={`${IMG}/gate_v2.webp`} alt="" />
+      </div>
+      <p className="start__hint" ref={hintRef}>
+        {IS_TOUCH ? '위로 밀어서 정문으로 들어가기' : '스크롤해서 정문으로 들어가기'}
+      </p>
     </main>
   )
 }
