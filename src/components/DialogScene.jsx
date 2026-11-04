@@ -75,6 +75,20 @@ export default function DialogScene({ dialog, onClose }) {
           setPoseDur(a.dur ?? 0.3)
           setPose(a.pose)
           await sleep(a.dur ?? 0.3)
+        } else if (a.look) {
+          // 두리번: 배경이 좌우로 살짝
+          await gsap
+            .timeline()
+            .to('.dialog__bg', { x: -26, duration: 0.35, ease: 'sine.inOut' })
+            .to('.dialog__bg', { x: 22, duration: 0.5, ease: 'sine.inOut' })
+            .to('.dialog__bg', { x: 0, duration: 0.35, ease: 'sine.inOut' })
+        } else if (a.rise) {
+          // 벌떡 일어나기: 살짝 아래로 눌렸다가 튀어 오르며 자세 교체
+          const el = charRef.current
+          await gsap.to(el, { y: 14, scaleY: 0.96, transformOrigin: '50% 100%', duration: 0.1, ease: 'power1.in' })
+          setPoseDur(0.08)
+          setPose(a.rise)
+          await gsap.to(el, { y: 0, scaleY: 1, duration: a.dur ?? 0.35, ease: 'back.out(2.4)' })
         } else if (a.rename) {
           const el = nameRef.current
           await gsap.to(el, { opacity: 0, duration: (a.dur ?? 0.2) / 2 })
@@ -238,6 +252,7 @@ function seenPoses(lines) {
     for (const a of [...(l.before || []), ...(l.after || [])]) {
       if (a.pose) set[a.pose] = true
       if (a.show) set[a.show] = true
+      if (a.rise) set[a.rise] = true
     }
   return set
 }

@@ -32,8 +32,8 @@
 
 .dialog__bg {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  inset: 0 -40px; /* 두리번거릴 때 좌우로 움직여도 가장자리가 비지 않도록 여유 */
+  width: calc(100% + 80px);
   height: 100%;
   object-fit: cover;
   object-position: 50% 60%;
@@ -42,7 +42,7 @@
 /* 캐릭터: 대화 상자 바로 위에 서 있도록 아래 기준 */
 .dialog__char {
   position: absolute;
-  left: max(calc(91 * var(--u)), calc(50% - 780 * var(--u)));
+  left: max(16px, calc(50% - 686 * var(--u))); /* 대화창 왼쪽 끝에 맞춤 */
   bottom: calc(262 * var(--u));
   width: calc(636 * var(--u));
   aspect-ratio: 1393 / 1125;
@@ -58,10 +58,10 @@
 
 /* 대화 상자: 반투명 파랑 + 흰 테두리, 화면 아래에 붙음 */
 .dialog__box {
-  --pad-x: calc(34 * var(--u));
   position: absolute;
-  left: var(--pad-x);
-  right: var(--pad-x);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 32px), calc(1372 * var(--u))); /* 시안 폭 그대로 (와이드 화면에서 늘어나지 않게) */
   bottom: 0;
   height: calc(264 * var(--u));
   border: calc(7 * var(--u)) solid #fff;
