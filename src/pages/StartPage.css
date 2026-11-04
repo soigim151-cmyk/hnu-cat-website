@@ -160,9 +160,9 @@
 .start__gate-wrap {
   position: absolute;
   left: 50%;
-  top: 76%; /* 화면 가운데보다 아래 */
-  width: max(82vw, 66vh); /* 정문 양쪽 끝이 화면 가장자리에 닿도록 (빈 여백 없이, 휴대폰 세로는 양끝만 살짝 잘림) */
-  transform: translate(-50%, -50%);
+  bottom: 0; /* 새 정문 그림은 화면 아래에 붙여서 전체 폭으로 */
+  width: max(100vw, 140vh);
+  transform: translateX(-50%);
   z-index: 5;
   pointer-events: none;
 }
@@ -170,10 +170,7 @@
   display: block;
   width: 100%;
   height: auto;
-  transform-origin: 49% 58%; /* 두 기둥 사이 도로 끝 쪽으로 다가가는 느낌 */
-  /* 앞쪽 도로가 뚝 끊겨 보이지 않도록 아래로 갈수록 서서히 사라짐 */
-  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 96%);
-  mask-image: linear-gradient(to bottom, #000 58%, transparent 96%);
+  transform-origin: 43% 90%; /* 두 기둥 사이 길 쪽으로 다가가는 느낌 */
   will-change: transform, opacity;
 }
 
@@ -212,5 +209,12 @@
 @media (prefers-reduced-motion: reduce) {
   .start__hint {
     animation: none;
+  }
+}
+
+/* 휴대폰 세로: 정문 길(그림의 43% 지점)이 화면 가운데에 오도록 */
+@media (max-aspect-ratio: 4/5) {
+  .start__gate-wrap {
+    transform: translateX(-43%);
   }
 }

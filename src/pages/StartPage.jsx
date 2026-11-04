@@ -239,7 +239,7 @@ export default function StartPage({ onEnterCampus }) {
 
       {/* 정문: 맨 앞에서 시작해 휠을 내리면 다가오며 사라짐 */}
       <div className="start__gate-wrap" aria-hidden="true">
-        <img ref={gateRef} className="start__gate" src={`${IMG}/gate_v2.webp`} alt="" />
+        <img ref={gateRef} className="start__gate" src={`${IMG}/gate_v3.webp`} alt="" />
       </div>
       <p className="start__hint" ref={hintRef}>
         {IS_TOUCH ? '위로 밀어서 정문으로 들어가기' : '스크롤해서 정문으로 들어가기'}
