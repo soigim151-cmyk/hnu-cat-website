@@ -47,7 +47,7 @@ export const LINTON = {
   gap: 0.3,
   bgs: {
     // 멀리서 본 공원 (린튼공원2): 고등·시혁이 멀리 앉아 있음
-    far: { src: 'images/린튼공원/린튼공원2.png', fallback: `${T}bg-linton-far.webp`, fallbackPos: '50% 45%' },
+    far: { src: `${T}bg-linton-far.webp` }, // 린튼공원2.png + 멀리 앉은 두 사람
     park: { src: `${T}bg-linton.webp` },
     // 산책로 배경 (public/talk/bg-walk.webp 를 올리면 적용, 없으면 공원 배경을 다른 구도로)
     walk: { src: `${T}bg-walk.webp`, fallback: `${T}bg-linton.webp`, fallbackPos: '20% 80%' },
@@ -82,7 +82,7 @@ export const LINTON = {
       who: 'me',
       text: '어, 저기 사람 있다.',
       // 멀리 앉아 있는 두 사람 쪽으로 시선이 감
-      after: [cam({ zoom: 1.12, x: 40, dur: 1.2 })],
+      after: [cam({ zoom: 1.2, x: 200, dur: 1.4 })],
     },
     {
       who: 'me',
