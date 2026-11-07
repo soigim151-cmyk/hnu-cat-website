@@ -2,9 +2,15 @@
    여러 인물 대화 화면 (린튼공원 등)
    대화 상자·이름표·글꼴은 DialogScene.css 를 같이 씀
    ───────────────────────────────────────── */
+/* 장면(배경+인물)은 1440×1021 한 틀 안에서 같이 커지고 작아짐 → 화면 비율이 달라도 의자와 인물이 어긋나지 않음
+   화면을 꽉 채우도록(cover) 크기를 정하고, 넘치는 부분은 화면 밖으로 잘림 */
 .cast__world {
+  --u: max(calc(100vw / 1440), calc(100dvh / 1021));
   position: absolute;
-  inset: 0;
+  width: calc(1440 * var(--u));
+  height: calc(1021 * var(--u));
+  left: calc(50% - 720 * var(--u));
+  top: calc(50% - 510.5 * var(--u));
   transform-origin: 50% 50%;
   will-change: transform;
 }

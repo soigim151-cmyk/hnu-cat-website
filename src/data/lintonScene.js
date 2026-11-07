@@ -53,16 +53,17 @@ export const LINTON = {
     walk: { src: `${T}bg-walk.webp`, fallback: `${T}bg-linton.webp`, fallbackPos: '20% 80%' },
   },
   startBg: 'far',
-  main: ['siyu'], // 메인 캐릭터 대사만 기본 방향, 나머지(플레이어 포함)는 대화창 좌우 반전
+  main: ['sihyuk', 'goeun'], // 시혁·고등 대사는 기본 방향, 시유와 플레이어 대사는 대화창 좌우 반전
   cast: {
     // 멀리서 본 두 사람 (고등시혁대화.png) — 대화하지 않는 원경에서만
     couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -40, bottom: 5, w: 810 },
     // 대화 중 개별 이미지 (턱시혁.png · 이고등.png)
     sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}sihyuk.webp`, x: -160, bottom: -10, w: 288 },
     goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: 110, bottom: -10, w: 218 },
-    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp`, x: 480, bottom: -10, w: 760 },
+    // 대화 중 시유: 다른 인물과 같은 비율의 전신 (옆모습을 반전해 고등·시혁 쪽을 봄). 포즈 이미지가 생기면 siyu/<포즈>.png
+    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}siyu-side.webp`, x: 470, bottom: -10, w: 380, flip: true },
     // 걸어가며 지나가는 시유 (시유옆모습.png) — left: 왼쪽을 보고 걸음(반전), right: 오른쪽으로 걸음
-    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 500, bottom: -10, w: 440, flip: ['left'] },
+    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 470, bottom: -10, w: 380, flip: ['left'] },
   },
   photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.37] },
   bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png

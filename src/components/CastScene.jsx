@@ -7,7 +7,8 @@ import './CastScene.css'
 
 const BASE = import.meta.env.BASE_URL
 const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000))
-const unitPx = () => Math.min(window.innerWidth / 1440, window.innerHeight / 1021) // CSS --u 와 같은 값
+// 장면(배경+인물) 단위: 1440×1021 장면이 화면을 꽉 채우도록 (CSS .cast__world 의 --u 와 같은 값)
+const unitPx = () => Math.max(window.innerWidth / 1440, window.innerHeight / 1021)
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
 
 // 여러 인물이 나오는 대화 화면 (린튼공원 등)
@@ -147,8 +148,8 @@ export default function CastScene({ dialog, onClose }) {
       y = -py * (zoom - 1)
     }
     // 배경 가장자리(검은 부분)가 보이지 않을 만큼만 이동 (배경은 사방 2% 더 큼)
-    const mx = Math.max(0, (world.offsetWidth * (zoom - 1)) / 2 + world.offsetWidth * 0.02 * zoom - 1)
-    const my = Math.max(0, (world.offsetHeight * (zoom - 1)) / 2 + world.offsetHeight * 0.02 * zoom - 1)
+    const mx = Math.max(0, (world.offsetWidth * 1.04 * zoom - window.innerWidth) / 2 - 1)
+    const my = Math.max(0, (world.offsetHeight * 1.04 * zoom - window.innerHeight) / 2 - 1)
     x = Math.min(mx, Math.max(-mx, x))
     y = Math.min(my, Math.max(-my, y))
     camRef.current = { zoom, x, y }
@@ -391,7 +392,7 @@ export default function CastScene({ dialog, onClose }) {
               >
                 <div className={`cast__char-inner${focus}`}>
                   {/* flip 목록에 있는 포즈는 좌우 반전 (같은 옆모습으로 양쪽 방향) */}
-                  <div className={c.flip?.includes(p) ? 'cast__flip' : undefined}>
+                  <div className={c.flip === true || c.flip?.includes(p) ? 'cast__flip' : undefined}>
                     {src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}
                   </div>
                 </div>
