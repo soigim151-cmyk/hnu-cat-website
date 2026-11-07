@@ -44,6 +44,7 @@ export default function CastScene({ dialog, onClose }) {
   const [profile, setProfile] = useState(null) // NEW CHARACTER 카드
   const [bagOn, setBagOn] = useState(false)
   const [complete, setComplete] = useState(null)
+  const [bagSrc, setBagSrc] = useState(null)
 
   const lines = dialog.lines
   const line = step < 0 ? { text: dialog.place, place: true } : lines[step]
@@ -81,6 +82,11 @@ export default function CastScene({ dialog, onClose }) {
       img.onerror = () => !off && setBgSrcs((m) => ({ ...m, [key]: { src: BASE + (b.fallback || b.src), pos: b.fallbackPos } }))
       img.src = BASE + b.src
     })
+    if (dialog.bagImg) {
+      const bi = new Image()
+      bi.onload = () => !off && setBagSrc(BASE + dialog.bagImg.src)
+      bi.src = BASE + dialog.bagImg.src
+    }
     const ph = new Image()
     ph.onload = () => !off && setPhotoSrc(BASE + dialog.photo.src)
     ph.src = BASE + dialog.photo.src
@@ -358,6 +364,9 @@ export default function CastScene({ dialog, onClose }) {
             const p = poses[who]
             const src = p ? srcs[`${who}/${p}`] || BASE + c.fallback : null
             const temp = src && src.includes('/placeholder/')
+            // 말하는 인물은 살짝 커지고, 나머지 인물은 살짝 어두워짐
+            const speakerIsCast = line.who && dialog.cast[line.who]
+            const focus = speakerIsCast ? (line.who === who ? ' is-speaking' : ' is-dim') : ''
             return (
               <div
                 key={who}
@@ -365,7 +374,7 @@ export default function CastScene({ dialog, onClose }) {
                 className={`cast__char cast__char--${who}`}
                 style={{ '--x': c.x, '--b': c.bottom, '--w': c.w, visibility: p ? 'visible' : 'hidden' }}
               >
-                {src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}
+                <div className={`cast__char-inner${focus}`}>{src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}</div>
                 {temp && <span className="cast__temp">{c.name} (임시)</span>}
               </div>
             )
@@ -375,7 +384,7 @@ export default function CastScene({ dialog, onClose }) {
         {/* 참치김밥 봉투 */}
         {bagOn && (
           <div className="cast__bag" ref={bagRef}>
-            <KimbapBag />
+            {bagSrc ? <img className="cast__bag-img" src={bagSrc} alt="참치김밥" /> : <KimbapBag />}
           </div>
         )}
 

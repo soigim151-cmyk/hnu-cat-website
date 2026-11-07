@@ -50,12 +50,15 @@ export const LINTON = {
   },
   startBg: 'park',
   cast: {
-    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}placeholder/sihyuk.png`, x: 60, bottom: 250, w: 330 },
-    goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}placeholder/goeun.png`, x: -120, bottom: 250, w: 240 },
-    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp`, x: 470, bottom: 250, w: 560 },
+    // 멀리서 본 두 사람 (고등시혁대화.png) — 대화하지 않는 원경에서만
+    couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -40, bottom: 110, w: 640 },
+    // 대화 중 개별 이미지 (턱시혁.png · 이고등.png)
+    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}sihyuk.webp`, x: 150, bottom: 110, w: 250 },
+    goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: -170, bottom: 110, w: 200 },
+    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp`, x: 560, bottom: 250, w: 560 },
   },
   photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.37] },
-  bagImg: { src: `${T}bag-kimbap.png` }, // 없으면 그림으로 대신 그림
+  bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png
 
   lines: [
     // ── SCENE 01. 김시유를 찾습니다 ──
@@ -71,13 +74,22 @@ export const LINTON = {
     {
       who: 'me',
       text: '어, 저기 사람 있다.',
-      after: [show('sihyuk', 'lying', { from: 'fade', dur: 0.5, wait: false }), show('goeun', 'lean', { from: 'fade', dur: 0.5 })],
+      after: [show('couple', 'far', { from: 'fade', dur: 0.5 })],
     },
     { who: 'me', text: '혹시 시유 씨 어디 있는지 아시려나?', after: [cam({ zoom: 1.09, x: -60, dur: 1.0 })] },
     { who: 'me', text: '저기, 실례합니다.', after: [bag('hide')] },
 
     // ── SCENE 02. 잘못 걸린 질문 ──
-    { who: 'goeun', text: '네?', before: [pose('goeun', 'look')] },
+    // 대화가 시작되면 원경 → 개별 이미지로
+    {
+      who: 'goeun',
+      text: '네?',
+      before: [
+        hide('couple', { to: 'fade', dur: 0.35, wait: false }),
+        show('sihyuk', 'lying', { from: 'fade', dur: 0.35, wait: false }),
+        show('goeun', 'look', { from: 'fade', dur: 0.35 }),
+      ],
+    },
     {
       who: 'me',
       text: '혹시 김시유라는 학생 아세요?',
@@ -307,14 +319,21 @@ export const LINTON = {
     {
       who: 'goeun',
       text: '응. 다음에 잡아.',
-      after: [move('sihyuk', -50, 0.4), pose('sihyuk', 'sit', 0.3), pose('goeun', 'lean'), cam({ zoom: 1.0, x: 0, dur: 2.2 })],
+      // 다시 나란히 앉음 → 원경(두 사람 이미지)으로 바꾸고 카메라가 멀어짐
+      after: [
+        move('sihyuk', -50, 0.4),
+        hide('sihyuk', { to: 'fade', dur: 0.4, wait: false }),
+        hide('goeun', { to: 'fade', dur: 0.4, wait: false }),
+        show('couple', 'far', { from: 'fade', dur: 0.4 }),
+        cam({ zoom: 1.0, x: 0, dur: 2.2 }),
+      ],
     },
     { who: 'sihyuk', text: '근데 쟤 진짜 짜증 나지 않냐?' },
     { who: 'goeun', text: '응. 이제 조용히 해.' },
     {
       who: 'sihyuk',
       text: '…….',
-      after: [hide('goeun', { to: 'fade', dur: 0.7, wait: false }), hide('sihyuk', { to: 'fade', dur: 0.7, wait: false }), bg('walk', 0.7)],
+      after: [hide('couple', { to: 'fade', dur: 0.7, wait: false }), bg('walk', 0.7)],
     },
 
     // ── SCENE 09. 참치김밥 전달 완료 (린튼공원 밖 산책로) ──
