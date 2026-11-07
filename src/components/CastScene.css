@@ -239,3 +239,8 @@
   font-size: calc(22 * var(--u));
   animation: dialog-next 0.9s steps(2, jump-none) infinite;
 }
+
+/* 참치김밥이 보일 때: 좁은 화면에서도 글자가 봉투에 가리지 않게 글자를 오른쪽으로 */
+.dialog__box.has-bag:not(.is-flip) .dialog__text {
+  left: max(calc(103 * var(--u)), calc(310 * var(--u) - (50vw - min(50vw - 16px, 686 * var(--u)))));
+}

@@ -146,6 +146,11 @@ export default function CastScene({ dialog, onClose }) {
       x = -px * (zoom - 1)
       y = -py * (zoom - 1)
     }
+    // 배경 가장자리(검은 부분)가 보이지 않을 만큼만 이동 (배경은 사방 2% 더 큼)
+    const mx = Math.max(0, (world.offsetWidth * (zoom - 1)) / 2 + world.offsetWidth * 0.02 * zoom - 1)
+    const my = Math.max(0, (world.offsetHeight * (zoom - 1)) / 2 + world.offsetHeight * 0.02 * zoom - 1)
+    x = Math.min(mx, Math.max(-mx, x))
+    y = Math.min(my, Math.max(-my, y))
     camRef.current = { zoom, x, y }
     return gsap.to(world, { scale: zoom, x, y, duration: o.dur ?? 0.6, ease: o.dur > 2 ? 'sine.inOut' : 'power2.inOut', overwrite: true })
   }, [])
@@ -435,7 +440,7 @@ export default function CastScene({ dialog, onClose }) {
         <div className="cast__dark" />
 
         {box && (
-          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${flip ? ' is-flip' : ''}`}>
+          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${flip ? ' is-flip' : ''}${bagOn ? ' has-bag' : ''}`}>
             {line.who && (
               <span className="dialog__name" ref={nameRef}>
                 {label}
