@@ -58,6 +58,12 @@ export function playSfx(name) {
     case 'steps': // 빠른 발소리
       for (let i = 0; i < 4; i++) noise(c, { dur: 0.05, vol: 0.12, at: i * 0.13, hp: 300 })
       break
+    case 'trudge': // 터벅터벅 다가오는 발소리 (점점 가까워짐)
+      for (let i = 0; i < 6; i++) {
+        noise(c, { dur: 0.09, vol: 0.05 + i * 0.025, at: i * 0.4, hp: 180 })
+        tone(c, { freq: 90, to: 60, dur: 0.08, type: 'triangle', vol: 0.04 + i * 0.02, at: i * 0.4 })
+      }
+      break
     case 'stand': // 벤치에서 일어나는 소리
       tone(c, { freq: 140, to: 70, dur: 0.15, type: 'triangle', vol: 0.18 })
       noise(c, { dur: 0.08, vol: 0.06, hp: 400 })

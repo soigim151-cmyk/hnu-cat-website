@@ -266,7 +266,7 @@ export default function CastScene({ dialog, onClose }) {
         } else if (a.sfx) {
           playSfx(a.sfx)
         } else if (a.dark) {
-          await gsap.to(rootRef.current.querySelector('.cast__dark'), { opacity: 0.75, duration: a.dark })
+          await gsap.to(rootRef.current.querySelector('.cast__dark'), { opacity: a.to ?? 0.75, duration: a.dark })
         } else if (a.complete) {
           await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
           setComplete(a.complete)

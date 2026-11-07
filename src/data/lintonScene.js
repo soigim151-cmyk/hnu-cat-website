@@ -38,17 +38,21 @@ const bag = (mode) => ({ bag: mode })
 const bg = (key, dur = 0.7) => ({ bg: key, dur })
 const sfx = (name) => ({ sfx: name })
 const dark = (dur) => ({ dark: dur })
+const black = (dur) => ({ dark: dur, to: 1 }) // 완전 암전
+const unblack = (dur) => ({ dark: dur, to: 0 }) // 암전 풀기
 
 export const LINTON = {
   place: '린튼공원 입구',
   typeSpeed: 35,
   gap: 0.3,
   bgs: {
+    // 멀리서 본 공원 (린튼공원2): 고등·시혁이 멀리 앉아 있음
+    far: { src: 'images/린튼공원/린튼공원2.png', fallback: `${T}bg-linton-far.webp`, fallbackPos: '50% 45%' },
     park: { src: `${T}bg-linton.webp` },
     // 산책로 배경 (public/talk/bg-walk.webp 를 올리면 적용, 없으면 공원 배경을 다른 구도로)
     walk: { src: `${T}bg-walk.webp`, fallback: `${T}bg-linton.webp`, fallbackPos: '20% 80%' },
   },
-  startBg: 'park',
+  startBg: 'far',
   main: ['siyu'], // 메인 캐릭터 대사만 기본 방향, 나머지(플레이어 포함)는 대화창 좌우 반전
   cast: {
     // 멀리서 본 두 사람 (고등시혁대화.png) — 대화하지 않는 원경에서만
@@ -77,9 +81,24 @@ export const LINTON = {
     {
       who: 'me',
       text: '어, 저기 사람 있다.',
-      after: [show('couple', 'far', { from: 'fade', dur: 0.5 })],
+      // 멀리 앉아 있는 두 사람 쪽으로 시선이 감
+      after: [cam({ zoom: 1.12, x: 40, dur: 1.2 })],
     },
-    { who: 'me', text: '혹시 시유 씨 어디 있는지 아시려나?', after: [cam({ zoom: 1.09, x: -60, dur: 1.0 })] },
+    {
+      who: 'me',
+      text: '혹시 시유 씨 어디 있는지 아시려나?',
+      // 암전 → 터벅터벅 발소리 → 가까이 다가간 모습
+      after: [
+        W(0.3),
+        black(0.7),
+        sfx('trudge'),
+        bg('park', 0),
+        cam({ zoom: 1.09, x: -60, dur: 0 }),
+        show('couple', 'far', { from: 'fade', dur: 0 }),
+        W(2.4),
+        unblack(0.9),
+      ],
+    },
     { who: 'me', text: '저기, 실례합니다.', after: [bag('hide')] },
 
     // ── SCENE 02. 잘못 걸린 질문 ──
