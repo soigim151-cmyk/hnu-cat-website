@@ -201,7 +201,7 @@
 }
 .dialog__reward-card {
   position: relative;
-  width: calc(640 * var(--u));
+  width: min(calc(640 * var(--u)), 766px); /* 원본(766px)보다 크게 늘리지 않아 선명하게 */
   height: auto;
   filter: drop-shadow(0 calc(16 * var(--u)) calc(24 * var(--u)) rgba(0, 10, 80, 0.45));
 }

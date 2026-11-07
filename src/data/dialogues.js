@@ -80,7 +80,7 @@ export const DIALOGUES = {
       {
         who: '나',
         text: '네, 다음에 봬요.',
-        after: [W(0.6), { exit: 60, dur: 0.7 }, W(0.5), { reward: `${T}id-siyu.webp`, label: '학생증 획득!' }, { close: 0.3 }],
+        after: [W(0.6), { exit: 60, dur: 0.7 }, W(0.5), { reward: `${T}id-siyu-v2.png`, label: '학생증 획득!' }, { close: 0.3 }],
       },
     ],
   },
