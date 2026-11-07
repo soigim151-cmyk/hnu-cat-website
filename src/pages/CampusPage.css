@@ -111,3 +111,40 @@
   position: relative;
   z-index: 1;
 }
+
+/* 처음으로 돌아가기 버튼 (왼쪽 위, 지도 화면에 고정) */
+.campus__back {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 16px 9px 10px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(2, 37, 255, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s ease 0.6s,
+    visibility 0.5s 0.6s,
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.campus__back.is-shown {
+  opacity: 1;
+  visibility: visible;
+}
+@media (hover: hover) and (pointer: fine) {
+  .campus__back:hover {
+    transform: translateY(-2px);
+  }
+}
+.campus__back:focus-visible {
+  outline: 2px solid var(--blue-ink);
+  outline-offset: 3px;
+}

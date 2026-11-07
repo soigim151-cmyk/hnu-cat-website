@@ -12,7 +12,7 @@ import DialogScene from '../components/DialogScene.jsx'
 import { DIALOGUES } from '../data/dialogues.js'
 import './CampusPage.css'
 
-export default function CampusPage() {
+export default function CampusPage({ onBack }) {
   const stageRef = useRef(null)
   const [ready, setReady] = useState(false) // 3D 모델 준비 완료
   const [revealed, setRevealed] = useState(false) // 로딩 화면이 끝나고 캠퍼스 등장
@@ -64,6 +64,13 @@ export default function CampusPage() {
 
   return (
     <main className="campus">
+      {/* 처음(시작 페이지)으로 돌아가기 */}
+      <button type="button" className={`campus__back${revealed ? ' is-shown' : ''}`} onClick={onBack} aria-label="처음으로 돌아가기">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+        처음으로
+      </button>
       <section className="campus__map">
       <div ref={stageRef} className={`campus__stage${dragging ? ' is-dragging' : ''}${pointing ? ' is-pointing' : ''}`}>
         <Canvas
