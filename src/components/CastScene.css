@@ -65,13 +65,14 @@
 }
 
 /* 참치김밥 봉투: 화면 하단 가운데에서 살짝 보임 */
+/* 참치김밥: 왼쪽 아래 구석 (대사를 가리지 않게) */
 .cast__bag {
   position: absolute;
-  left: 50%;
+  left: calc(-70 * var(--u));
   bottom: 0;
-  z-index: 3;
-  width: calc(300 * var(--u));
-  margin-left: calc(-150 * var(--u));
+  z-index: 8;
+  width: calc(360 * var(--u));
+  pointer-events: none;
 }
 .cast__bag-img {
   display: block;

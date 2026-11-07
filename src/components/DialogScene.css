@@ -131,11 +131,6 @@
   right: calc(103 * var(--u));
   text-align: right;
 }
-.dialog__box.is-flip .dialog__next {
-  right: auto;
-  left: calc(49 * var(--u));
-  transform: translateY(-50%) scaleX(-1);
-}
 /* 장소 안내: 가운데 정렬 */
 .dialog__box.is-place .dialog__text {
   left: calc(80 * var(--u));
@@ -151,11 +146,11 @@
 }
 
 /* 다음 화살표: 깜빡깜빡 */
+/* 다음 화살표: 항상 오른쪽 아래 */
 .dialog__next {
   position: absolute;
-  right: calc(49 * var(--u));
-  top: 50%;
-  transform: translateY(-50%);
+  right: calc(40 * var(--u));
+  bottom: calc(32 * var(--u));
   width: calc(44 * var(--u));
   image-rendering: pixelated;
   animation: dialog-next 0.9s steps(2, jump-none) infinite;

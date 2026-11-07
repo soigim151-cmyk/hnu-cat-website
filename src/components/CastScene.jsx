@@ -48,6 +48,9 @@ export default function CastScene({ dialog, onClose }) {
 
   const lines = dialog.lines
   const line = step < 0 ? { text: dialog.place, place: true } : lines[step]
+  // 대화창 좌우 반전: 메인 캐릭터가 아닌 대사. 단, 다른 인물이 말하기 전 플레이어 독백은 그대로
+  const talked = step > 0 && lines.slice(0, step).some((l) => l.who && l.who !== 'me')
+  const flip = line.who && !dialog.main?.includes(line.who) && (line.who !== 'me' || talked)
   // 마지막으로 말한 인물 (플레이어 대사는 건너뜀) → 다른 인물이 말할 때까지 강조 유지
   let focusWho = null
   for (let i = step; i >= 0; i--) {
@@ -231,7 +234,7 @@ export default function CastScene({ dialog, onClose }) {
           if (a.bag === 'peek') {
             setBagOn(true)
             await nextFrame()
-            await gsap.fromTo(bagRef.current, { yPercent: 100, x: 0, opacity: 1, scale: 1 }, { yPercent: 45, duration: 0.5, ease: 'back.out(1.6)' })
+            await gsap.fromTo(bagRef.current, { yPercent: 100, x: 0, opacity: 1, scale: 1 }, { yPercent: 30, duration: 0.5, ease: 'back.out(1.6)' })
           } else if (a.bag === 'hide') {
             await gsap.to(bagRef.current, { yPercent: 100, duration: 0.4 })
             setBagOn(false)
@@ -432,7 +435,7 @@ export default function CastScene({ dialog, onClose }) {
         <div className="cast__dark" />
 
         {box && (
-          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${line.who && !dialog.main?.includes(line.who) ? ' is-flip' : ''}`}>
+          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${flip ? ' is-flip' : ''}`}>
             {line.who && (
               <span className="dialog__name" ref={nameRef}>
                 {label}
