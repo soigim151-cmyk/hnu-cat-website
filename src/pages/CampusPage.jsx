@@ -9,6 +9,7 @@ import { CAMPUS_MODEL_URL } from '../components/campusModel.js'
 import CampusLoader from '../components/CampusLoader.jsx'
 import CatGallery from '../components/CatGallery.jsx'
 import DialogScene from '../components/DialogScene.jsx'
+import CastScene from '../components/CastScene.jsx'
 import { DIALOGUES } from '../data/dialogues.js'
 import './CampusPage.css'
 
@@ -129,7 +130,12 @@ export default function CampusPage({ onBack }) {
 
       {revealed && <CatGallery />}
 
-      {talk && <DialogScene dialog={talk} onClose={() => setTalk(null)} />}
+      {talk &&
+        (talk.cast ? (
+          <CastScene dialog={talk} onClose={() => setTalk(null)} />
+        ) : (
+          <DialogScene dialog={talk} onClose={() => setTalk(null)} />
+        ))}
     </main>
   )
 }

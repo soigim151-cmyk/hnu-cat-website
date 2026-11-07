@@ -1,0 +1,217 @@
+/* ─────────────────────────────────────────
+   여러 인물 대화 화면 (린튼공원 등)
+   대화 상자·이름표·글꼴은 DialogScene.css 를 같이 씀
+   ───────────────────────────────────────── */
+.cast__world {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.cast__bg {
+  position: absolute;
+  inset: -2%;
+  width: 104%;
+  height: 104%;
+  object-fit: cover;
+}
+
+/* 인물: 화면 가운데 기준 x(u), 아래 기준 bottom(u), 폭 w(u) */
+.cast__char {
+  position: absolute;
+  left: calc(50% + var(--x) * var(--u) - var(--w) * var(--u) / 2);
+  bottom: calc(var(--b) * var(--u));
+  width: calc(var(--w) * var(--u));
+  transform-origin: 50% 100%;
+  opacity: 0;
+}
+.cast__char .dialog__pose {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cast__char .dialog__pose + .dialog__pose {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+.cast__temp {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--blue-ink);
+  font-size: calc(22 * var(--u));
+  white-space: nowrap;
+}
+
+/* 참치김밥 봉투: 화면 하단 가운데에서 살짝 보임 */
+.cast__bag {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 3;
+  width: calc(220 * var(--u));
+  margin-left: calc(-110 * var(--u));
+}
+.cast__bag svg {
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+}
+
+/* 조별 과제 사진 (폴라로이드) */
+.cast__photo {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  z-index: 4;
+  width: calc(560 * var(--u));
+  margin-left: calc(-280 * var(--u));
+  padding: calc(16 * var(--u)) calc(16 * var(--u)) calc(70 * var(--u));
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(0, 10, 60, 0.35);
+}
+.cast__photo-inner {
+  overflow: hidden;
+  aspect-ratio: 900 / 640;
+}
+.cast__photo-inner img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 메신저 */
+.cast__msg {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  z-index: 4;
+  width: calc(520 * var(--u));
+  margin-left: calc(-260 * var(--u));
+  padding: calc(22 * var(--u));
+  border: calc(5 * var(--u)) solid #fff;
+  background: rgba(220, 229, 253, 0.96);
+  display: flex;
+  flex-direction: column;
+  gap: calc(14 * var(--u));
+}
+.cast__msg-head {
+  margin: 0 0 calc(4 * var(--u));
+  color: var(--blue-ink);
+  font-size: calc(24 * var(--u));
+  letter-spacing: 0.1em;
+}
+.cast__bubble {
+  max-width: 78%;
+  margin: 0;
+  padding: calc(12 * var(--u)) calc(18 * var(--u));
+  font-size: calc(28 * var(--u));
+  line-height: 1.4;
+  animation: cast-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cast__bubble--me {
+  align-self: flex-end;
+  background: var(--blue-ink);
+  color: #fff;
+}
+.cast__bubble--other {
+  align-self: flex-start;
+  background: #fff;
+  color: #222;
+}
+@keyframes cast-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* NEW CHARACTER 카드 */
+.cast__profile {
+  position: absolute;
+  right: calc(60 * var(--u));
+  top: calc(80 * var(--u));
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: calc(6 * var(--u));
+  padding: calc(18 * var(--u)) calc(30 * var(--u));
+  background: #fff;
+  border: calc(5 * var(--u)) solid var(--blue-ink);
+  animation: cast-profile 1.5s ease both;
+}
+.cast__profile-tag {
+  color: var(--blue-ink);
+  font-size: calc(22 * var(--u));
+  letter-spacing: 0.08em;
+}
+.cast__profile-name {
+  color: #111;
+  font-size: calc(44 * var(--u));
+}
+@keyframes cast-profile {
+  0% {
+    opacity: 0;
+    transform: translateX(30%);
+  }
+  18%,
+  80% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+/* 어두워지기 · QUEST COMPLETE */
+.cast__dark {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+.cast__qc {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(18 * var(--u));
+  color: #fff;
+  text-align: center;
+}
+.cast__qc p {
+  margin: 0;
+}
+.cast__qc-title {
+  font-size: calc(96 * var(--u));
+  color: #fff;
+  text-shadow:
+    0 calc(6 * var(--u)) 0 var(--blue-ink),
+    0 0 calc(24 * var(--u)) rgba(95, 140, 247, 0.8);
+}
+.cast__qc-sub {
+  font-size: calc(40 * var(--u));
+}
+.cast__qc-foot {
+  margin-top: calc(30 * var(--u)) !important;
+  font-size: calc(24 * var(--u));
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+.cast__qc-hint {
+  font-size: calc(22 * var(--u));
+  animation: dialog-next 0.9s steps(2, jump-none) infinite;
+}
