@@ -96,14 +96,18 @@
 /* 조별 과제 사진 (폴라로이드) */
 .cast__photo {
   position: absolute;
-  left: 50%;
-  top: 8%;
+  /* 오른쪽 위: 가운데 인물을 가리지 않게 */
+  right: max(16px, calc(50% - 900 * var(--u)));
+  top: 6%;
   z-index: 4;
-  width: calc(560 * var(--u));
-  margin-left: calc(-280 * var(--u));
-  padding: calc(16 * var(--u)) calc(16 * var(--u)) calc(70 * var(--u));
+  width: calc(500 * var(--u));
+  padding: calc(14 * var(--u)) calc(14 * var(--u)) calc(60 * var(--u));
   background: #fff;
   box-shadow: 0 10px 28px rgba(0, 10, 60, 0.35);
+}
+.cast__photo.is-left {
+  right: auto;
+  left: max(16px, calc(50% - 900 * var(--u)));
 }
 .cast__photo-inner {
   overflow: hidden;

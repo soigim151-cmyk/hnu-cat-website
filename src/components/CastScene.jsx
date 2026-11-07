@@ -15,6 +15,7 @@ const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAn
 // 장소 안내 → 클릭마다: before 연출 → 대사 타이핑 → after 연출(자동)
 export default function CastScene({ dialog, onClose }) {
   const rootRef = useRef(null)
+  const curtainRef = useRef(null)
   const worldRef = useRef(null)
   const boxRef = useRef(null)
   const nameRef = useRef(null)
@@ -211,7 +212,7 @@ export default function CastScene({ dialog, onClose }) {
           setProfile(null)
         } else if (a.photo) {
           if (a.photo === 'show') {
-            setPhotoOpen(true)
+            setPhotoOpen(a.side || 'right')
             await nextFrame()
             const el = photoRef.current
             gsap.set(el.querySelector('img'), { scale: 1 })
@@ -252,7 +253,7 @@ export default function CastScene({ dialog, onClose }) {
             await gsap.to(bag, {
               yPercent: 0,
               x: t.left + t.width * 0.5 - (b.left + b.width / 2),
-              y: t.top + t.height * 0.55 - (b.top + b.height / 2),
+              y: t.top + t.height * 0.4 - (b.top + b.height / 2),
               scale: 0.6,
               duration: 0.7,
               ease: 'power2.inOut',
@@ -300,6 +301,7 @@ export default function CastScene({ dialog, onClose }) {
       busyRef.current = true
       setReady(false)
       const l = lines[i]
+      if (i === 0 && curtainRef.current) await gsap.to(curtainRef.current, { opacity: 0, duration: 0.8, ease: 'power1.inOut' })
       await sleep(dialog.gap ?? 0.3)
       await run(l.before)
       if (!aliveRef.current) return
@@ -411,7 +413,7 @@ export default function CastScene({ dialog, onClose }) {
 
         {/* 조별 과제 사진 */}
         {photoOpen && (
-          <div className="cast__photo" ref={photoRef}>
+          <div className={`cast__photo${photoOpen === 'left' ? ' is-left' : ''}`} ref={photoRef}>
             <div className="cast__photo-inner">
               <img src={photoSrc} alt="조별 과제 사진" />
             </div>
@@ -439,6 +441,9 @@ export default function CastScene({ dialog, onClose }) {
         )}
 
         <div className="cast__dark" />
+
+        {/* 장소 안내 동안 검은 화면 → 첫 대사에서 걷힘 */}
+        <div className="dialog__curtain" ref={curtainRef} />
 
         {box && (
           <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${flip ? ' is-flip' : ''}${bagOn ? ' has-bag' : ''}`}>

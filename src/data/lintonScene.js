@@ -31,7 +31,7 @@ const move = (who, x, dur = 0.6) => ({ move: who, x, dur })
 const shake = (who) => ({ shake: who })
 const cam = (o) => ({ cam: o })
 const reveal = (who) => ({ reveal: who })
-const photo = (mode) => ({ photo: mode })
+const photo = (mode, side) => ({ photo: mode, side }) // side: 'left' 면 왼쪽 위 (기본 오른쪽 위)
 const msg = (list) => ({ msg: list })
 const msgHide = () => ({ msgHide: true })
 const bag = (mode) => ({ bag: mode })
@@ -60,10 +60,10 @@ export const LINTON = {
     // 대화 중 개별 이미지 (턱시혁.png · 이고등.png)
     sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}sihyuk.webp`, x: -160, bottom: -10, w: 288 },
     goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: 110, bottom: -10, w: 218 },
-    // 대화 중 시유: 다른 인물과 같은 비율의 전신 (옆모습을 반전해 고등·시혁 쪽을 봄). 포즈 이미지가 생기면 siyu/<포즈>.png
-    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}siyu-side.webp`, x: 470, bottom: -10, w: 380, flip: true },
+    // 대화 중 시유: 시유전신.png (화면 오른쪽, 다리 아래는 화면 밖). 포즈 이미지가 생기면 siyu/<포즈>.png
+    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}siyu-full.webp`, x: 534, bottom: -429, w: 530 },
     // 걸어가며 지나가는 시유 (시유옆모습.png) — left: 왼쪽을 보고 걸음(반전), right: 오른쪽으로 걸음
-    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 470, bottom: -10, w: 380, flip: ['left'] },
+    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 534, bottom: -429, w: 533, flip: ['left'] },
   },
   photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.37] },
   bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png
@@ -265,7 +265,7 @@ export const LINTON = {
     { who: 'sihyuk', text: '뭐!' },
     { who: 'siyu', text: '그 사진 너도 있잖아.' },
     { who: 'sihyuk', text: '……뭐?' },
-    { who: 'siyu', text: '뒤에.', after: [photo('show')] },
+    { who: 'siyu', text: '뒤에.', after: [photo('show', 'left')] }, // 시유가 오른쪽에 있어서 사진은 왼쪽
     { who: 'sihyuk', text: '무슨 소리야?' },
     {
       who: 'siyu',

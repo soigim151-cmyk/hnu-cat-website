@@ -12,6 +12,7 @@ const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000))
 // 3) 마지막 줄의 after 에서 캐릭터 퇴장 → 대화창 페이드 아웃 → 지도로
 export default function DialogScene({ dialog, onClose }) {
   const rootRef = useRef(null)
+  const curtainRef = useRef(null)
   const boxRef = useRef(null)
   const charRef = useRef(null)
   const nameRef = useRef(null)
@@ -143,6 +144,7 @@ export default function DialogScene({ dialog, onClose }) {
       busyRef.current = true
       setReady(false)
       const l = lines[i]
+      if (i === 0 && curtainRef.current) await gsap.to(curtainRef.current, { opacity: 0, duration: 0.8, ease: 'power1.inOut' })
       const gap = l.page ? 0.15 : (dialog.gap ?? 0.3)
       await sleep(gap)
       await run(l.before)
@@ -256,6 +258,9 @@ export default function DialogScene({ dialog, onClose }) {
         <div className={`dialog__char${pose?.startsWith('lying') ? ' is-lying' : ''}`} ref={charRef}>
           {curSrc && <PoseLayer src={curSrc} dur={poseDur} />}
         </div>
+
+        {/* 장소 안내 동안 검은 화면 → 첫 대사에서 걷힘 */}
+        <div className="dialog__curtain" ref={curtainRef} />
 
         {box && (
           <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${line.who && !dialog.main?.includes(line.who) ? ' is-flip' : ''}`}>
