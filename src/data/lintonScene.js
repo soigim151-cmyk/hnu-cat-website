@@ -49,13 +49,16 @@ export const LINTON = {
     walk: { src: `${T}bg-walk.webp`, fallback: `${T}bg-linton.webp`, fallbackPos: '20% 80%' },
   },
   startBg: 'park',
+  main: ['siyu'], // 메인 캐릭터 대사만 기본 방향, 나머지(플레이어 포함)는 대화창 좌우 반전
   cast: {
     // 멀리서 본 두 사람 (고등시혁대화.png) — 대화하지 않는 원경에서만
-    couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -40, bottom: 110, w: 640 },
+    couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -40, bottom: 5, w: 810 },
     // 대화 중 개별 이미지 (턱시혁.png · 이고등.png)
-    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}sihyuk.webp`, x: 150, bottom: 110, w: 250 },
-    goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: -170, bottom: 110, w: 200 },
-    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp`, x: 560, bottom: 250, w: 560 },
+    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}sihyuk.webp`, x: -160, bottom: -10, w: 288 },
+    goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: 110, bottom: -10, w: 218 },
+    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp`, x: 480, bottom: -10, w: 760 },
+    // 걸어가며 지나가는 시유 (시유옆모습.png) — left: 왼쪽을 보고 걸음(반전), right: 오른쪽으로 걸음
+    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 500, bottom: -10, w: 440, flip: ['left'] },
   },
   photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.37] },
   bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png
@@ -196,9 +199,14 @@ export const LINTON = {
       who: 'me',
       text: '어? 잠깐만요.',
       // 시유가 화면 뒤편에서 천천히 걸어옴 (우연히 지나가는 중)
-      before: [cam({ zoom: 1.0, x: 30, dur: 1.0, wait: false }), show('siyu', 'walk', { from: 'back', dur: 1.4 })],
+      before: [cam({ zoom: 1.0, x: 30, dur: 1.0, wait: false }), show('siyuSide', 'left', { from: 'back', dur: 1.4 })],
     },
-    { who: 'me', text: '저기 시유 씨 아니에요?', after: [pose('siyu', 'look')] },
+    {
+      who: 'me',
+      text: '저기 시유 씨 아니에요?',
+      // 걸음을 멈추고 이쪽을 봄: 옆모습 → 대화 이미지로 바뀜
+      after: [show('siyu', 'look', { from: 'fade', dur: 0.4, wait: false }), hide('siyuSide', { dur: 0.4 })],
+    },
     { who: 'siyu', text: '어. 안녕.' },
     { who: 'me', text: '시유 씨! 한참 찾았어요.' },
     {
@@ -292,7 +300,10 @@ export const LINTON = {
       text: '아, 네!',
       after: [
         sfx('steps'),
-        hide('siyu', { to: 'left', dur: 0.5, wait: false }),
+        // 옆모습으로 바꿔 왼쪽으로 뛰어감
+        hide('siyu', { dur: 0.12, wait: false }),
+        show('siyuSide', 'left', { from: 'fade', dur: 0.12 }),
+        hide('siyuSide', { to: 'left', dur: 0.5, wait: false }),
         cam({ zoom: 1.06, x: 120, dur: 0.6 }), // 시유를 따라 왼쪽으로 확 이동
         sfx('whoosh'),
         cam({ zoom: 1.0, x: 0, dur: 0.35 }), // 뒤를 돌아보는 시점
@@ -375,7 +386,10 @@ export const LINTON = {
       text: '김밥 하나 먹기 힘드네.',
       after: [
         W(0.4),
-        hide('siyu', { to: 'right', dur: 0.9 }),
+        // 옆모습으로 바꿔 오른쪽으로 걸어감
+        hide('siyu', { dur: 0.2, wait: false }),
+        show('siyuSide', 'right', { from: 'fade', dur: 0.2 }),
+        hide('siyuSide', { to: 'right', dur: 1.1 }),
         dark(0.8),
         sfx('complete'),
         { complete: { title: 'QUEST COMPLETE!', sub: '참치김밥 전달 완료', foot: 'HNU CAT MAP · LINTON PARK' } },
@@ -409,8 +423,11 @@ export const LINTON_POSES = {
     stunned: '말문이 막힌 표정',
     slump: '어깨가 축 처짐',
   },
+  siyuSide: {
+    left: '왼쪽으로 걷는 옆모습 (반전)',
+    right: '오른쪽으로 걷는 옆모습',
+  },
   siyu: {
-    walk: '걸어오는 모습',
     look: '나를 보며 멈춤',
     stop: '턱시혁을 보고 멈춤',
     blank: '무표정',

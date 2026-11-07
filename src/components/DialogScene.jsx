@@ -258,7 +258,7 @@ export default function DialogScene({ dialog, onClose }) {
         </div>
 
         {box && (
-          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}`}>
+          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${line.who && !dialog.main?.includes(line.who) ? ' is-flip' : ''}`}>
             {line.who && (
               <span className="dialog__name" ref={nameRef}>
                 {name}

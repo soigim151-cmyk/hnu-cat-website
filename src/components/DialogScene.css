@@ -119,6 +119,23 @@
   letter-spacing: 0.02em;
   word-break: keep-all;
 }
+/* 메인 캐릭터(시유)가 아닌 인물·플레이어 대사: 좌우 반전 (이름표 오른쪽, 글자 오른쪽 정렬) */
+.dialog__box.is-flip .dialog__name {
+  left: auto;
+  right: calc(-7 * var(--u));
+  border-top-right-radius: 0;
+  border-top-left-radius: calc(24 * var(--u));
+}
+.dialog__box.is-flip .dialog__text {
+  left: calc(143 * var(--u));
+  right: calc(103 * var(--u));
+  text-align: right;
+}
+.dialog__box.is-flip .dialog__next {
+  right: auto;
+  left: calc(49 * var(--u));
+  transform: translateY(-50%) scaleX(-1);
+}
 /* 장소 안내: 가운데 정렬 */
 .dialog__box.is-place .dialog__text {
   left: calc(80 * var(--u));

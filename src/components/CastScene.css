@@ -35,6 +35,9 @@
 .cast__char-inner.is-speaking {
   transform: scale(1.06);
 }
+.cast__flip {
+  transform: scaleX(-1);
+}
 .cast__char-inner.is-dim {
   filter: brightness(0.6);
 }

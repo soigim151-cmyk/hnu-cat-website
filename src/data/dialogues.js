@@ -31,6 +31,7 @@ export const DIALOGUES = {
   'insarye-hall': {
     place: '11번 건물 앞, 햇볕이 잘 드는 벤치',
     bg: `${T}bg-insarye.webp`,
+    main: ['???', '김시유'], // 메인 캐릭터(시유) 대사만 기본 방향, 나머지는 대화창 좌우 반전
     character: { folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp` },
     // 보조 인물 (실루엣): 화면 오른쪽 가장자리에 크게, 일부만 보이게
     extras: { student: { src: `${T}student.webp`, opacity: 0.55 } },

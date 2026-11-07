@@ -48,6 +48,14 @@ export default function CastScene({ dialog, onClose }) {
 
   const lines = dialog.lines
   const line = step < 0 ? { text: dialog.place, place: true } : lines[step]
+  // 마지막으로 말한 인물 (플레이어 대사는 건너뜀) → 다른 인물이 말할 때까지 강조 유지
+  let focusWho = null
+  for (let i = step; i >= 0; i--) {
+    if (lines[i].who && dialog.cast[lines[i].who]) {
+      focusWho = lines[i].who
+      break
+    }
+  }
   const full = line.text
 
   const nameOf = (who) => {
@@ -365,8 +373,7 @@ export default function CastScene({ dialog, onClose }) {
             const src = p ? srcs[`${who}/${p}`] || BASE + c.fallback : null
             const temp = src && src.includes('/placeholder/')
             // 말하는 인물은 살짝 커지고, 나머지 인물은 살짝 어두워짐
-            const speakerIsCast = line.who && dialog.cast[line.who]
-            const focus = speakerIsCast ? (line.who === who ? ' is-speaking' : ' is-dim') : ''
+            const focus = focusWho ? ((c.as || who) === focusWho ? ' is-speaking' : ' is-dim') : ''
             return (
               <div
                 key={who}
@@ -374,7 +381,12 @@ export default function CastScene({ dialog, onClose }) {
                 className={`cast__char cast__char--${who}`}
                 style={{ '--x': c.x, '--b': c.bottom, '--w': c.w, visibility: p ? 'visible' : 'hidden' }}
               >
-                <div className={`cast__char-inner${focus}`}>{src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}</div>
+                <div className={`cast__char-inner${focus}`}>
+                  {/* flip 목록에 있는 포즈는 좌우 반전 (같은 옆모습으로 양쪽 방향) */}
+                  <div className={c.flip?.includes(p) ? 'cast__flip' : undefined}>
+                    {src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}
+                  </div>
+                </div>
                 {temp && <span className="cast__temp">{c.name} (임시)</span>}
               </div>
             )
@@ -420,7 +432,7 @@ export default function CastScene({ dialog, onClose }) {
         <div className="cast__dark" />
 
         {box && (
-          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}`}>
+          <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${line.who && !dialog.main?.includes(line.who) ? ' is-flip' : ''}`}>
             {line.who && (
               <span className="dialog__name" ref={nameRef}>
                 {label}
