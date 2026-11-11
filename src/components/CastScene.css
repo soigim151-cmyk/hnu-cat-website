@@ -519,3 +519,56 @@
     transform: translateY(6px);
   }
 }
+
+/* 그림 카드 선택지 */
+.cast__choices.is-cards {
+  bottom: calc(320 * var(--u));
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(22 * var(--u));
+  width: min(calc(100vw - 32px), calc(1300 * var(--u)));
+}
+.cast__card {
+  width: calc(270 * var(--u));
+  min-width: 120px;
+  padding: calc(12 * var(--u)) calc(12 * var(--u)) calc(16 * var(--u));
+  border: calc(5 * var(--u)) solid #fff;
+  background: rgba(2, 37, 255, 0.82);
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(6 * var(--u));
+  animation: cast-choice 0.3s ease backwards;
+  transition: transform 0.15s, background 0.15s;
+}
+.cast__card:nth-child(2) { animation-delay: 0.06s; }
+.cast__card:nth-child(3) { animation-delay: 0.12s; }
+.cast__card:nth-child(4) { animation-delay: 0.18s; }
+.cast__card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #fff;
+}
+.cast__card-name {
+  font-size: max(16px, calc(34 * var(--u)));
+}
+.cast__card-sub {
+  color: #ffe14d;
+  font-size: max(12px, calc(22 * var(--u)));
+}
+@media (hover: hover) and (pointer: fine) {
+  .cast__card:hover {
+    background: var(--blue-ink);
+    transform: translateY(-6px);
+  }
+}
+.cast__card:focus-visible {
+  outline: 3px solid #ffe14d;
+  outline-offset: 2px;
+}

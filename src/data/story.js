@@ -7,7 +7,7 @@ export const STORY = [
   { id: 'insarye-hall', get: ['id-card'] },
   { id: 'student-hall', get: ['kimbap'] },
   { id: 'linton-park', get: ['id-goeun', 'id-sihyuk'], use: ['kimbap'] },
-  { id: 'side-gate', note: '쪽문 이야기는 곧 열려요.' },
+  { id: 'side-gate' },
   { id: 'memorial-56', note: '56주년 기념관 이야기는 곧 열려요.' },
 ]
 

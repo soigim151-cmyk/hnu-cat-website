@@ -220,7 +220,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
           const u = unitPx()
           await gsap.to(el, { x: `+=${a.x * u}`, duration: a.dur ?? 0.6, ease: 'power2.inOut' })
         } else if (a.shake) {
-          const el = charRefs.current[a.shake]
+          const el = a.shake === 'world' ? worldRef.current : charRefs.current[a.shake]
           await gsap.timeline().to(el, { rotation: -3, duration: 0.14 }).to(el, { rotation: 3, duration: 0.18 }).to(el, { rotation: -2, duration: 0.16 }).to(el, { rotation: 0, duration: 0.14 })
         } else if (a.cam) {
           const t = camTo(a.cam)
@@ -235,7 +235,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
             await gsap.to(nameRef.current, { opacity: 1, duration: 0.1 })
           }
           setProfile({ who, name: dialog.cast[who].name })
-          await sleep(1.5)
+          await sleep(a.dur ?? 1.5)
           setProfile(null)
         } else if (a.photo) {
           if (a.photo === 'show') {
@@ -618,12 +618,21 @@ export default function CastScene({ dialog, onClose, startAt }) {
 
         {/* 선택지 */}
         {choices && (
-          <div className="cast__choices" onClick={(e) => e.stopPropagation()}>
-            {choices.map((c) => (
-              <button key={c.text} type="button" className="cast__choice" onClick={() => choose(c)}>
-                {c.text}
-              </button>
-            ))}
+          <div className={`cast__choices${choices.some((c) => c.img) ? ' is-cards' : ''}`} onClick={(e) => e.stopPropagation()}>
+            {choices.map((c) =>
+              c.img ? (
+                // 그림 카드 선택지 (메뉴 고르기 등)
+                <button key={c.text} type="button" className="cast__card" onClick={() => choose(c)}>
+                  <img src={BASE + c.img} alt="" />
+                  <span className="cast__card-name">{c.text}</span>
+                  {c.sub && <span className="cast__card-sub">{c.sub}</span>}
+                </button>
+              ) : (
+                <button key={c.text} type="button" className="cast__choice" onClick={() => choose(c)}>
+                  {c.text}
+                </button>
+              ),
+            )}
           </div>
         )}
 
