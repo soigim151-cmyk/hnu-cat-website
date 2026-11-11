@@ -35,6 +35,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const camRef = useRef({ zoom: 1, x: 0, y: 0 })
   const revealedRef = useRef({})
   const resumeRef = useRef(null) // 닫으면 다음에 여기서부터
+  const lineWhoRef = useRef(null) // 지금 대사를 말하는 인물
   const gameResRef = useRef(null)
   const itemResRef = useRef(null)
   const propRefs = useRef({})
@@ -229,7 +230,8 @@ export default function CastScene({ dialog, onClose, startAt }) {
           const who = a.reveal
           revealedRef.current[who] = true
           playSfx('ding')
-          if (nameRef.current) {
+          // 이름표는 지금 말하는 인물의 이름일 때만 바꿈
+          if (nameRef.current && (lineWhoRef.current === who || dialog.cast[lineWhoRef.current]?.as === who)) {
             await gsap.to(nameRef.current, { opacity: 0, duration: 0.1 })
             setLabel(dialog.cast[who].name)
             await gsap.to(nameRef.current, { opacity: 1, duration: 0.1 })
@@ -427,6 +429,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
       await run(l.before)
       if (!aliveRef.current) return
       setStep(i)
+      lineWhoRef.current = l.who
       setLabel(nameOf(l.who))
       await typeLine(l.text)
       await run(l.after)

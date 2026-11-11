@@ -14,7 +14,8 @@ const bg = (key, dur = 0.7) => ({ bg: key, dur })
 const reveal = (who, dur) => ({ reveal: who, dur })
 
 const SIBS = ['ju1', 'ju2', 'ju3', 'ju4']
-const showAll = (dur = 0.5) => SIBS.map((w, i) => show(w, { from: 'fade', dur, wait: i === SIBS.length - 1 }))
+// 마지막 한 명이 나타날 때까지 기다림 (앞의 셋은 동시에)
+const showAll = (dur = 0.5) => SIBS.map((w, i) => show(w, { from: 'fade', dur, ...(i < SIBS.length - 1 ? { wait: false } : {}) }))
 // 처음엔 넷이 함께 있는 모습(남매.png) → 대화가 시작되면 각자 이미지로
 // 처음부터 다시 들어왔을 때 쓰는 무대 (메뉴 고르기에서 다시 시작)
 const ALLEY = [bg('alley', 0), cam({ zoom: 1, x: 0, dur: 0 })]
