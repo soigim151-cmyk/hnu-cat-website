@@ -94,10 +94,11 @@ export default function CampusPage({ onBack }) {
   )
 
   // 선택한 장소 → 대화가 있으면 대화 화면, 없으면 짧은 안내
-  const [talk, setTalk] = useState(null) // { id, dialog }
+  const [talk, setTalk] = useState(null) // { id, dialog, startAt }
+  const resumeRef = useRef({}) // 장소별: 중간에 닫았을 때 다시 시작할 위치
   const setSelectedBuilding = useCallback((b) => {
     if (!b) return
-    if (DIALOGUES[b.id]) setTalk({ id: b.id, dialog: DIALOGUES[b.id] })
+    if (DIALOGUES[b.id]) setTalk({ id: b.id, dialog: DIALOGUES[b.id], startAt: resumeRef.current[b.id] })
     else setNote(b)
   }, [])
   // 순서가 아닌 장소를 누름
@@ -108,10 +109,12 @@ export default function CampusPage({ onBack }) {
     [nextB, showToast],
   )
   const closeTalk = useCallback(
-    (completed) => {
+    (completed, resume) => {
       const id = talk?.id
       setTalk(null)
-      if (completed === true && id) finishPlace(id)
+      if (!id) return
+      resumeRef.current[id] = completed === true ? undefined : resume || undefined
+      if (completed === true) finishPlace(id)
     },
     [talk, finishPlace],
   )
@@ -258,7 +261,7 @@ export default function CampusPage({ onBack }) {
 
       {talk &&
         (talk.dialog.cast ? (
-          <CastScene dialog={talk.dialog} onClose={closeTalk} />
+          <CastScene dialog={talk.dialog} onClose={closeTalk} startAt={talk.startAt} />
         ) : (
           <DialogScene dialog={talk.dialog} onClose={closeTalk} />
         ))}

@@ -19,6 +19,7 @@
 //
 // 자세 이미지: public/talk/siyu/<자세>.png  (파일이 없으면 기본 이미지로 대신 표시)
 import { LINTON } from './lintonScene.js'
+import { HALL } from './hallScene.js'
 
 const T = 'talk/'
 const W = (s) => ({ wait: s })
@@ -27,6 +28,7 @@ const P = (pose, dur = 0.3) => ({ pose, dur })
 export const DIALOGUES = {
   // 린튼공원: 여러 인물 대화 (src/data/lintonScene.js)
   'linton-park': LINTON,
+  'student-hall': HALL,
 
   'insarye-hall': {
     place: '11번 건물 앞, 햇볕이 잘 드는 벤치',

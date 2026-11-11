@@ -1,0 +1,410 @@
+/* ─────────────────────────────────────────
+   미니게임: 선거 홍보물 배부
+   글꼴은 대화 화면과 같은 Galmuri9 (픽셀)
+   ───────────────────────────────────────── */
+.fg {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+  animation: fg-in 0.5s ease;
+}
+@keyframes fg-in {
+  from {
+    opacity: 0;
+  }
+}
+.fg__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 70%;
+}
+
+/* 학생 */
+.fg__npc {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: none;
+  transform: translateX(-50%);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.fg__npc img {
+  display: block;
+  height: 100%;
+  width: auto;
+  opacity: 0.88;
+  /* 상반신 실루엣: 아래쪽이 자연스럽게 흐려지도록 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
+  pointer-events: none;
+  transition: filter 0.2s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .fg__npc:hover img {
+    filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 2px #fff);
+  }
+}
+.fg__npc.is-served img {
+  opacity: 0.55;
+}
+
+/* 말풍선 */
+.fg__bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 6%);
+  padding: 8px 12px;
+  border: 3px solid var(--blue-ink);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--blue-ink);
+  font-size: clamp(13px, 1.4vw, 20px);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: fg-bubble 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fg__bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  border: 8px solid transparent;
+  border-top-color: var(--blue-ink);
+  transform: translateX(-50%);
+}
+.fg__bubble.is-no {
+  border-color: #8a8f9e;
+  color: #4a5370;
+}
+.fg__bubble.is-no::after {
+  border-top-color: #8a8f9e;
+}
+@keyframes fg-bubble {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.7);
+  }
+}
+
+/* 한남이 (오른쪽 아래) */
+.fg__host {
+  position: absolute;
+  right: 2vw;
+  bottom: 0;
+  z-index: 6;
+  height: 34vh;
+  pointer-events: none;
+}
+.fg__host img {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+.fg__say {
+  position: absolute;
+  right: 60%;
+  bottom: 88%;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--blue-ink);
+  color: #fff;
+  font-size: clamp(12px, 1.2vw, 17px);
+  white-space: nowrap;
+  animation: fg-bubble 0.25s ease;
+}
+
+/* 상단 정보 */
+.fg__hud {
+  position: absolute;
+  inset: 16px 72px auto 16px;
+  z-index: 7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.fg__hud-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 3px solid #fff;
+  background: rgba(2, 37, 255, 0.78);
+  color: #fff;
+  font-size: clamp(14px, 1.5vw, 22px);
+}
+.fg__hud-box .fg__flyer {
+  width: 1em;
+  height: auto;
+}
+.fg__time.is-low {
+  background: #e5243b;
+  animation: fg-blink 0.5s steps(2, jump-none) infinite;
+}
+.fg__hud-box.is-pulse {
+  animation: fg-pulse 0.3s ease 3;
+}
+.fg__hud-box.is-blink {
+  animation: fg-blink 0.15s steps(2, jump-none) 2;
+}
+@keyframes fg-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes fg-pulse {
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* +1 · MISS · 날아가는 홍보물 */
+.fg__pop {
+  position: absolute;
+  z-index: 8;
+  font-size: clamp(22px, 2.6vw, 38px);
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  animation: fg-pop 0.9s ease-out forwards;
+  -webkit-text-stroke: 1px #fff;
+}
+.fg__pop--plus {
+  color: var(--blue-ink);
+}
+.fg__pop--miss {
+  color: #e5243b;
+}
+@keyframes fg-pop {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -220%);
+  }
+}
+.fg__fly {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 8;
+  width: 34px;
+  pointer-events: none;
+  animation: fg-fly 0.45s cubic-bezier(0.3, 0.6, 0.4, 1) forwards;
+}
+.fg__fly .fg__flyer {
+  display: block;
+  width: 100%;
+}
+@keyframes fg-fly {
+  from {
+    transform: translate(88vw, 72vh) rotate(-20deg);
+  }
+  to {
+    transform: translate(var(--tx), var(--ty)) rotate(10deg) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* 안내창 · 버튼 */
+.fg__panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 9;
+  width: min(560px, calc(100% - 32px));
+  padding: 28px 28px 24px;
+  border: 4px solid #fff;
+  background: rgba(2, 37, 255, 0.86);
+  color: #fff;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  animation: fg-in 0.4s ease;
+}
+.fg__kicker {
+  margin: 0;
+  color: #ffe14d;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+.fg__title {
+  margin: 6px 0 12px;
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 400;
+}
+.fg__goal {
+  margin: 0 0 14px;
+  font-size: 17px;
+}
+.fg__goal b {
+  color: #ffe14d;
+  font-weight: 400;
+}
+.fg__rules {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.14);
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.9;
+  text-align: left;
+}
+.fg__rules li::before {
+  content: '▸ ';
+  color: #ffe14d;
+}
+.fg__btn {
+  min-width: 150px;
+  padding: 12px 22px;
+  border: 3px solid #fff;
+  background: #ffe14d;
+  color: var(--blue-ink);
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.fg__btn.is-sub {
+  background: #fff;
+}
+@media (hover: hover) and (pointer: fine) {
+  .fg__btn:hover {
+    transform: translateY(-2px);
+  }
+}
+.fg__btn:focus-visible {
+  outline: 3px solid #ffe14d;
+  outline-offset: 3px;
+}
+
+/* 3 · 2 · 1 · START! */
+.fg__count {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  z-index: 9;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(64px, 10vw, 140px);
+  -webkit-text-stroke: 3px var(--blue-ink);
+  transform: translate(-50%, -50%);
+  animation: fg-count 0.7s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes fg-count {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.8);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0.2;
+  }
+}
+
+/* 결과 */
+.fg__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: rgba(0, 0, 20, 0.45);
+  animation: fg-in 0.4s ease;
+}
+.fg__banner {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  z-index: 9;
+  margin: 0;
+  color: #ffe14d;
+  font-size: clamp(40px, 6vw, 88px);
+  white-space: nowrap;
+  -webkit-text-stroke: 3px var(--blue-ink);
+  transform: translate(-50%, -50%);
+  animation: fg-banner 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fg__banner.is-fail {
+  color: #fff;
+  -webkit-text-stroke-color: #e5243b;
+}
+@keyframes fg-banner {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+}
+
+/* 결과 뒤 한남이 대화창 */
+.fg__talk {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 9;
+  width: min(calc(100% - 32px), 960px);
+  min-height: 170px;
+  padding: 34px 40px 22px;
+  border: 5px solid #fff;
+  border-bottom: 0;
+  background: rgba(74, 100, 255, 0.86);
+  color: #fff;
+  transform: translateX(-50%);
+  cursor: pointer;
+  animation: fg-talk 0.35s ease;
+}
+@keyframes fg-talk {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+}
+.fg__talk-name {
+  position: absolute;
+  left: -5px;
+  bottom: 100%;
+  padding: 8px 40px;
+  background: #fff;
+  color: #2f4be0;
+  font-size: 22px;
+  border-top-right-radius: 16px;
+}
+.fg__talk-text {
+  margin: 0;
+  font-size: clamp(16px, 1.8vw, 24px);
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.fg__talk-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.fg__talk-next {
+  position: absolute;
+  right: 26px;
+  bottom: 16px;
+  animation: fg-blink 0.9s steps(2, jump-none) infinite;
+}
+.fg__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg__time.is-low,
+  .fg__count,
+  .fg__banner {
+    animation: none;
+  }
+}

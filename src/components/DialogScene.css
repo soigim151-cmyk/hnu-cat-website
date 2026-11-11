@@ -18,6 +18,7 @@
   inset: 0;
   z-index: 60;
   overflow: hidden;
+  overflow: clip; /* 버튼을 눌러도 화면이 스크롤되어 밀리지 않게 */
   background: #000;
   cursor: pointer;
   user-select: none;

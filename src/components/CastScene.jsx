@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { playSfx } from './sfx.js'
+import FlyerGame from './FlyerGame.jsx'
 import './DialogScene.css'
 import './CastScene.css'
 
@@ -11,9 +12,12 @@ const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000))
 const unitPx = () => Math.max(window.innerWidth / 1440, window.innerHeight / 1021)
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
 
-// 여러 인물이 나오는 대화 화면 (린튼공원 등)
+// 여러 인물이 나오는 대화 화면 (린튼공원 · 학생회관 등)
 // 장소 안내 → 클릭마다: before 연출 → 대사 타이핑 → after 연출(자동)
-export default function CastScene({ dialog, onClose }) {
+// 대사 줄 옵션: label(이름표) · next(다음에 갈 label) · choices(선택지) · tap(인물 아이콘을 눌러 시작)
+//              auto(다음 줄 자동) · setup(이 줄부터 다시 시작할 때 무대 준비) · checkpoint(닫았을 때 다시 시작할 위치)
+// onClose(끝까지 봤는지, 다시 시작할 label)
+export default function CastScene({ dialog, onClose, startAt }) {
   const rootRef = useRef(null)
   const curtainRef = useRef(null)
   const worldRef = useRef(null)
@@ -29,6 +33,10 @@ export default function CastScene({ dialog, onClose }) {
   const aliveRef = useRef(true)
   const camRef = useRef({ zoom: 1, x: 0, y: 0 })
   const revealedRef = useRef({})
+  const resumeRef = useRef(null) // 닫으면 다음에 여기서부터
+  const gameResRef = useRef(null)
+  const itemResRef = useRef(null)
+  const propRefs = useRef({})
 
   const [step, setStep] = useState(-1)
   const [typed, setTyped] = useState(0)
@@ -41,23 +49,38 @@ export default function CastScene({ dialog, onClose }) {
   const [bgKey, setBgKey] = useState(dialog.startBg)
   const [bgSrcs, setBgSrcs] = useState({})
   const [photoOpen, setPhotoOpen] = useState(false)
-  const [photoSrc, setPhotoSrc] = useState(BASE + dialog.photo.fallback)
+  const [photoSrc, setPhotoSrc] = useState(dialog.photo ? BASE + dialog.photo.fallback : null)
   const [msgs, setMsgs] = useState(null) // 메신저 [{from,text}] (보이는 것만)
   const [profile, setProfile] = useState(null) // NEW CHARACTER 카드
   const [bagOn, setBagOn] = useState(false)
   const [complete, setComplete] = useState(null)
   const [bagSrc, setBagSrc] = useState(null)
+  const [boxOff, setBoxOff] = useState(false) // 대화창 잠깐 숨김
+  const [tapOn, setTapOn] = useState(null) // 말 걸기 아이콘이 뜬 인물
+  const [choices, setChoices] = useState(null)
+  const [walkers, setWalkers] = useState(false) // 배경을 오가는 학생들
+  const [passers, setPassers] = useState(0) // 앞을 지나가는 학생들 (번호가 바뀌면 다시 재생)
+  const [bubbles, setBubbles] = useState({}) // 인물 머리 위 작은 말풍선
+  const [propsOn, setPropsOn] = useState({}) // 소품 (홍보물 · 가방 · 김밥)
+  const [game, setGame] = useState(false)
+  const [itemGet, setItemGet] = useState(null)
 
   const lines = dialog.lines
+  const labelIdx = useMemo(() => {
+    const m = {}
+    lines.forEach((l, i) => l.label && (m[l.label] = i))
+    return m
+  }, [lines])
+  const nextOf = (i) => (lines[i].next ? labelIdx[lines[i].next] : i + 1)
   const line = step < 0 ? { text: dialog.place, place: true } : lines[step]
   // 대화창 좌우 반전: 메인 캐릭터가 아닌 대사. 단, 다른 인물이 말하기 전 플레이어 독백은 그대로
   const talked = step > 0 && lines.slice(0, step).some((l) => l.who && l.who !== 'me')
-  const flip = line.who && !dialog.main?.includes(line.who) && (line.who !== 'me' || talked)
+  const flip = line.who && !dialog.main?.includes(dialog.cast[line.who]?.as || line.who) && (line.who !== 'me' || talked)
   // 마지막으로 말한 인물 (플레이어 대사는 건너뜀) → 다른 인물이 말할 때까지 강조 유지
   let focusWho = null
   for (let i = step; i >= 0; i--) {
     if (lines[i].who && dialog.cast[lines[i].who]) {
-      focusWho = lines[i].who
+      focusWho = dialog.cast[lines[i].who].as || lines[i].who
       break
     }
   }
@@ -100,9 +123,11 @@ export default function CastScene({ dialog, onClose }) {
       bi.onload = () => !off && setBagSrc(BASE + dialog.bagImg.src)
       bi.src = BASE + dialog.bagImg.src
     }
-    const ph = new Image()
-    ph.onload = () => !off && setPhotoSrc(BASE + dialog.photo.src)
-    ph.src = BASE + dialog.photo.src
+    if (dialog.photo) {
+      const ph = new Image()
+      ph.onload = () => !off && setPhotoSrc(BASE + dialog.photo.src)
+      ph.src = BASE + dialog.photo.src
+    }
     return () => {
       off = true
     }
@@ -277,6 +302,69 @@ export default function CastScene({ dialog, onClose }) {
           playSfx(a.sfx)
         } else if (a.dark) {
           await gsap.to(rootRef.current.querySelector('.cast__dark'), { opacity: a.to ?? 0.75, duration: a.dark })
+        } else if (a.walkers !== undefined) {
+          setWalkers(a.walkers)
+        } else if (a.passers) {
+          setPassers((n) => n + 1)
+          await sleep(a.dur ?? 2.2)
+        } else if (a.bubble) {
+          setBubbles((b) => ({ ...b, [a.bubble]: a.text }))
+          await sleep(a.dur ?? 1)
+          setBubbles((b) => ({ ...b, [a.bubble]: null }))
+        } else if (a.prop) {
+          const id = a.prop
+          const p = dialog.props[id]
+          if (a.do === 'show') {
+            setPropsOn((m) => ({ ...m, [id]: true }))
+            await nextFrame()
+            const t = gsap.fromTo(propRefs.current[id], { opacity: 0, y: 20, x: 0, scale: 1 }, { opacity: 1, y: 0, duration: a.dur ?? 0.4, ease: 'power2.out' })
+            if (a.wait !== false) await t
+          } else if (a.do === 'hide') {
+            const el = propRefs.current[id]
+            if (el) await gsap.to(el, { opacity: 0, duration: a.dur ?? 0.3 })
+            setPropsOn((m) => ({ ...m, [id]: false }))
+          } else if (a.do === 'pulse') {
+            const el = propRefs.current[id]
+            if (el) await gsap.timeline().to(el, { scale: 1.2, duration: 0.18 }).to(el, { scale: 1, duration: 0.25 })
+          } else if (a.to) {
+            const el = propRefs.current[id]
+            const u = unitPx()
+            const t = el && gsap.to(el, { x: (a.to[0] - p.x) * u, y: -(a.to[1] - p.bottom) * u, scale: a.scale ?? 1, duration: a.dur ?? 0.8, ease: 'power2.inOut' })
+            if (t && a.wait !== false) await t
+          }
+        } else if (a.boxOff !== undefined) {
+          setBoxOff(a.boxOff)
+          await nextFrame()
+        } else if (a.game) {
+          // 미니게임: 끝날 때까지 기다림
+          setBoxOff(true)
+          setGame(true)
+          const res = await new Promise((r) => (gameResRef.current = r))
+          setGame(false)
+          if (res === 'quit') {
+            aliveRef.current = false
+            await gsap.to(rootRef.current, { opacity: 0, duration: 0.35 })
+            onClose(false, a.game.quit)
+            return
+          }
+          setBoxOff(false)
+          await nextFrame()
+        } else if (a.leave !== undefined) {
+          // 끝까지 보지 않고 대화 종료 (다음에 a.leave 부터 다시)
+          aliveRef.current = false
+          await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
+          await gsap.to(rootRef.current, { opacity: 0, duration: 0.35 })
+          onClose(false, a.leave)
+          return
+        } else if (a.itemGet) {
+          // 아이템 획득 화면 → 확인 누르면 끝
+          setBoxOff(true)
+          setItemGet(a.itemGet)
+          await new Promise((r) => (itemResRef.current = r))
+          aliveRef.current = false
+          await gsap.to(rootRef.current, { opacity: 0, duration: 0.4 })
+          onClose(true)
+          return
         } else if (a.complete) {
           await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
           setComplete(a.complete)
@@ -296,12 +384,34 @@ export default function CastScene({ dialog, onClose }) {
   }, [bgSrcs])
 
   // ── 한 줄 진행 ──
+  const curtainUp = useRef(false)
   const play = useCallback(
-    async (i) => {
+    async (i, first = false) => {
       busyRef.current = true
       setReady(false)
       const l = lines[i]
-      if (i === 0 && curtainRef.current) await gsap.to(curtainRef.current, { opacity: 0, duration: 0.8, ease: 'power1.inOut' })
+      if (!curtainUp.current && curtainRef.current) {
+        curtainUp.current = true
+        if (first && l.setup) await run(l.setup) // 중간부터 다시 시작: 무대 준비
+        await gsap.to(curtainRef.current, { opacity: 0, duration: 0.8, ease: 'power1.inOut' })
+      }
+      if (l.checkpoint) resumeRef.current = l.checkpoint
+      if (l.tap) {
+        // 대화창 없이 인물 머리 위 아이콘 → 아무 곳이나 누르면 시작
+        setBoxOff(true)
+        await run(l.before)
+        if (!aliveRef.current) return
+        setTapOn(l.tap)
+        busyRef.current = false
+        await new Promise((r) => (waitClickRef.current = r))
+        busyRef.current = true
+        setTapOn(null)
+        await run(l.after)
+        if (!aliveRef.current) return
+        setBoxOff(false)
+        await nextFrame()
+        return play(nextOf(i))
+      }
       await sleep(dialog.gap ?? 0.3)
       await run(l.before)
       if (!aliveRef.current) return
@@ -310,6 +420,8 @@ export default function CastScene({ dialog, onClose }) {
       await typeLine(l.text)
       await run(l.after)
       if (!aliveRef.current) return
+      if (l.choices) return setChoices(l.choices) // 선택할 때까지 진행 멈춤
+      if (l.auto) return play(nextOf(i))
       busyRef.current = false
       setReady(true)
     },
@@ -344,7 +456,7 @@ export default function CastScene({ dialog, onClose }) {
   const close = useCallback(() => {
     aliveRef.current = false
     clearInterval(typingRef.current)
-    gsap.to(rootRef.current, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: () => onClose(false) })
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: () => onClose(false, resumeRef.current) })
   }, [onClose])
 
   const next = useCallback(() => {
@@ -355,8 +467,16 @@ export default function CastScene({ dialog, onClose }) {
     }
     if (finishRef.current) return finishRef.current()
     if (busyRef.current) return
-    if (step + 1 < lines.length) play(step + 1)
-  }, [step, lines.length, play])
+    if (step < 0) return play(startAt && labelIdx[startAt] != null ? labelIdx[startAt] : 0, true)
+    const n = nextOf(step)
+    if (n < lines.length) play(n)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, lines.length, play, startAt, labelIdx])
+
+  const choose = (c) => {
+    setChoices(null)
+    play(labelIdx[c.goto])
+  }
 
   useEffect(() => {
     const onKey = (e) => {
@@ -373,12 +493,23 @@ export default function CastScene({ dialog, onClose }) {
   const bgNow = bgSrcs[bgKey] || { src: BASE + dialog.bgs[bgKey].src }
 
   return createPortal(
-    <div className="dialog cast" ref={rootRef} role="dialog" aria-modal="true" aria-label={dialog.place} onClick={next}>
+    <div className={`dialog cast${dialog.calm ? ' is-calm' : ''}`} ref={rootRef} role="dialog" aria-modal="true" aria-label={dialog.place} onClick={next}>
       <div className="dialog__stage">
         {/* 카메라가 움직이는 세계: 배경 + 인물 */}
         <div className="cast__world" ref={worldRef}>
           <img className="cast__bg" src={bgNow.src} style={{ objectPosition: bgNow.pos || '' }} alt="" />
           <img className="cast__bg cast__bg-next" alt="" style={{ opacity: 0 }} />
+          {/* 배경을 오가는 학생들 */}
+          {walkers &&
+            dialog.walkers?.map((w, i) => (
+              <img
+                key={i}
+                className={`cast__walker${w.dir < 0 ? ' is-rev' : ''}`}
+                src={BASE + w.src}
+                alt=""
+                style={{ '--b': w.bottom, '--h': w.h, animationDuration: `${w.dur}s`, animationDelay: `${w.delay}s` }}
+              />
+            ))}
           {Object.entries(dialog.cast).map(([who, c]) => {
             const p = poses[who]
             const src = p ? srcs[`${who}/${p}`] || BASE + c.fallback : null
@@ -399,9 +530,38 @@ export default function CastScene({ dialog, onClose }) {
                   </div>
                 </div>
                 {temp && <span className="cast__temp">{c.name} (임시)</span>}
+                {bubbles[who] && <span className="cast__say">{bubbles[who]}</span>}
+                {tapOn === who && (
+                  <span className="cast__tap" aria-label="말 걸기">
+                    <svg viewBox="0 0 48 44" aria-hidden="true">
+                      <path d="M6 4h36a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H22l-10 9v-9H6a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z" fill="#fff" stroke="#0225ff" strokeWidth="3" />
+                      <circle cx="15" cy="18" r="3" fill="#0225ff" />
+                      <circle cx="24" cy="18" r="3" fill="#0225ff" />
+                      <circle cx="33" cy="18" r="3" fill="#0225ff" />
+                    </svg>
+                  </span>
+                )}
               </div>
             )
           })}
+          {/* 소품 */}
+          {Object.entries(dialog.props || {}).map(([id, p]) =>
+            propsOn[id] ? (
+              <div
+                key={id}
+                ref={(el) => (propRefs.current[id] = el)}
+                className={`cast__prop cast__prop--${id}`}
+                style={{ '--x': p.x, '--b': p.bottom, '--w': p.w }}
+              >
+                {p.src ? <img src={BASE + p.src} alt="" /> : <PropIcon kind={p.kind} />}
+              </div>
+            ) : null,
+          )}
+          {/* 앞을 지나가는 학생들 */}
+          {passers > 0 &&
+            dialog.passersImgs?.map((src, i) => (
+              <img key={`${passers}-${i}`} className={`cast__passer${i % 2 ? ' is-rev' : ''}`} src={BASE + src} alt="" style={{ animationDelay: `${i * 0.45}s` }} />
+            ))}
         </div>
 
         {/* 참치김밥 봉투 */}
@@ -445,7 +605,29 @@ export default function CastScene({ dialog, onClose }) {
         {/* 장소 안내 동안 검은 화면 → 첫 대사에서 걷힘 */}
         <div className="dialog__curtain" ref={curtainRef} />
 
-        {box && (
+        {/* 선택지 */}
+        {choices && (
+          <div className="cast__choices" onClick={(e) => e.stopPropagation()}>
+            {choices.map((c) => (
+              <button key={c.text} type="button" className="cast__choice" onClick={() => choose(c)}>
+                {c.text}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {game && (
+          <FlyerGame
+            bg={BASE + dialog.game.bg}
+            hannam={BASE + dialog.game.host}
+            npcs={dialog.game.npcs.map((n) => BASE + n)}
+            onDone={(res) => gameResRef.current?.(res)}
+          />
+        )}
+
+        {itemGet && <ItemGet {...itemGet} onOk={() => itemResRef.current?.()} />}
+
+        {box && !boxOff && (
           <div ref={boxRef} className={`dialog__box${line.who ? ' has-name' : ''}${line.place ? ' is-place' : ''}${flip ? ' is-flip' : ''}${bagOn ? ' has-bag' : ''}`}>
             {line.who && (
               <span className="dialog__name" ref={nameRef}>
@@ -527,6 +709,123 @@ function QuestComplete({ title, sub, foot }) {
       <p className="cast__qc-sub">{sub}</p>
       <p className="cast__qc-foot">{foot}</p>
       <p className="cast__qc-hint">눌러서 지도로</p>
+    </div>
+  )
+}
+
+// 소품 그림 (이미지가 없을 때)
+function PropIcon({ kind }) {
+  if (kind === 'flyers')
+    return (
+      <svg viewBox="0 0 120 110" aria-label="홍보물 더미">
+        {[0, 1, 2, 3].map((i) => (
+          <g key={i} transform={`translate(${10 + i * 4} ${42 - i * 12}) rotate(${-6 + i * 4} 40 30)`}>
+            <rect width="80" height="58" rx="3" fill="#fff" stroke="#0225ff" strokeWidth="3" />
+            <rect x="8" y="8" width="40" height="12" fill="#0225ff" />
+            <rect x="8" y="27" width="60" height="5" fill="#5f8cf7" />
+            <rect x="8" y="38" width="44" height="5" fill="#5f8cf7" />
+          </g>
+        ))}
+      </svg>
+    )
+  return (
+    <svg viewBox="0 0 100 100" aria-label="가방">
+      <path d="M32 34v-8a18 18 0 0 1 36 0v8" fill="none" stroke="#0225ff" strokeWidth="7" strokeLinecap="round" />
+      <rect x="12" y="32" width="76" height="58" rx="12" fill="#5f8cf7" stroke="#0225ff" strokeWidth="5" />
+      <rect x="40" y="50" width="20" height="12" rx="3" fill="#fff" />
+    </svg>
+  )
+}
+
+// 아이템 획득 화면: 어두워짐 → 그림이 아래에서 올라옴 → 글자 차례로
+// → 아래 대화 영역에 독백 한 줄씩 (다음 버튼) → 0.5초 뒤 보관 안내 + 확인
+function ItemGet({ img, title, sub, desc, monologue = [], saved, onOk }) {
+  const ref = useRef(null)
+  const [n, setN] = useState(-1) // 보이는 독백 줄 (-1 = 아직)
+  const [typed, setTyped] = useState(0)
+  const [wait, setWait] = useState(true) // 다음 버튼 잠김 (타이핑·정적 중)
+  const [done, setDone] = useState(false)
+  const timers = useRef([])
+  const later = (fn, s) => timers.current.push(setTimeout(fn, s * 1000))
+
+  // 한 줄 타이핑
+  const say = useCallback(
+    (i) => {
+      setN(i)
+      setTyped(0)
+      setWait(true)
+      const text = monologue[i].text
+      let k = 0
+      const t = setInterval(() => {
+        k += 1
+        setTyped(k)
+        if (k >= text.length) {
+          clearInterval(t)
+          if (i === monologue.length - 1) later(() => setDone(true), 0.5)
+          else setWait(false)
+        }
+      }, 45)
+      timers.current.push(t)
+    },
+    [monologue],
+  )
+
+  useLayoutEffect(() => {
+    const q = gsap.utils.selector(ref)
+    const tl = gsap
+      .timeline()
+      .fromTo(ref.current, { backgroundColor: 'rgba(0,0,20,0)' }, { backgroundColor: 'rgba(0,0,20,0.72)', duration: 0.2 })
+      .fromTo(q('.cast__get-img'), { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' })
+      .fromTo(q('.cast__get-title'), { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2.2)' })
+      .fromTo(q('.cast__get-sub'), { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 })
+      .fromTo(q('.cast__get-desc'), { opacity: 0 }, { opacity: 1, duration: 0.3 })
+      .call(() => (monologue.length ? say(0) : setDone(true)), [], '+=0.6')
+    playSfx('complete')
+    const list = timers.current
+    return () => {
+      tl.kill()
+      list.forEach((t) => (clearTimeout(t), clearInterval(t)))
+    }
+  }, [monologue, say])
+
+  const next = () => {
+    if (wait || n >= monologue.length - 1) return
+    setWait(true)
+    later(() => say(n + 1), monologue[n + 1].pause ?? 0) // 대사 사이 정적
+  }
+
+  const line = n >= 0 ? monologue[n] : null
+  return (
+    <div className="cast__get" ref={ref} onClick={(e) => e.stopPropagation()}>
+      <img className="cast__get-img" src={BASE + img} alt="" />
+      <p className="cast__get-title">{title}</p>
+      <p className="cast__get-sub">{sub}</p>
+      <p className="cast__get-desc">{desc}</p>
+
+      {/* 독백 */}
+      <div className={`cast__get-talk${line ? ' is-on' : ''}`}>
+        <span className="cast__get-who">나</span>
+        <p className="cast__get-line" aria-live="polite">
+          {line && line.text.slice(0, typed)}
+        </p>
+        <div className="cast__get-foot">
+          {done ? (
+            <>
+              <span className="cast__get-saved">{saved}</span>
+              <button type="button" className="cast__get-ok" onClick={onOk}>
+                확인
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="cast__get-page">{line ? `${n + 1} / ${monologue.length}` : ''}</span>
+              <button type="button" className="cast__get-next" onClick={next} disabled={wait}>
+                다음
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

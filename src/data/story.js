@@ -5,11 +5,7 @@
 // - note: 아직 대화가 없는 장소에서 대신 보여줄 짧은 안내 (대화가 생기면 대화가 나옴)
 export const STORY = [
   { id: 'insarye-hall', get: ['id-card'] },
-  {
-    id: 'student-hall',
-    get: ['kimbap'],
-    note: '학생회관에서 "김시유에게 전해 달라"는 부탁과 함께 참치김밥을 받았다.',
-  },
+  { id: 'student-hall', get: ['kimbap'] },
   { id: 'linton-park', use: ['kimbap'] },
   { id: 'side-gate', note: '쪽문 이야기는 곧 열려요.' },
   { id: 'memorial-56', note: '56주년 기념관 이야기는 곧 열려요.' },
@@ -25,7 +21,7 @@ export const ITEMS = {
   kimbap: {
     name: '참치김밥',
     img: 'talk/kimbap.webp',
-    desc: '김시유에게 전해 달라고 부탁받은 참치김밥.',
+    desc: '한남이의 선거운동을 도와주고 받은 참치김밥. 시유 선배에게 드려야겠다.',
     usedDesc: '린튼공원에서 김시유에게 무사히 전달했다.',
   },
 }
