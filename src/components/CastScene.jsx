@@ -282,7 +282,7 @@ export default function CastScene({ dialog, onClose }) {
           setComplete(a.complete)
           await new Promise((res) => (waitClickRef.current = res))
           await gsap.to(rootRef.current, { opacity: 0, duration: 0.4 })
-          onClose()
+          onClose(true) // 끝까지 봄
           return
         }
       }
@@ -344,7 +344,7 @@ export default function CastScene({ dialog, onClose }) {
   const close = useCallback(() => {
     aliveRef.current = false
     clearInterval(typingRef.current)
-    gsap.to(rootRef.current, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: onClose })
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: () => onClose(false) })
   }, [onClose])
 
   const next = useCallback(() => {

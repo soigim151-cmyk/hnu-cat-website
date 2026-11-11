@@ -44,6 +44,7 @@ const TONE = {
   dotSize: 4, // 점 간격 (그림 px, 작을수록 섬세)
   colorKeep: 0.5, // 원래 사진 색을 남기는 정도 (0 = 완전 2색)
 }
+const NO_IDS = new Set()
 const MARKER_IMG = `${import.meta.env.BASE_URL}images/marker_outline.png`
 const MARKER_LIFT = 40 // 마커를 땅보다 카메라 쪽으로 띄우는 거리 (회전할 때 떠 있는 느낌)
 const MARKER_DEPTH = 0.3 // 핀 끝이 가리키는 지점: 구역 위쪽 끝(0) ~ 아래쪽 끝(1) 사이
@@ -225,7 +226,18 @@ const fragmentShader = /* glsl */ `
   }
 `
 
-export default function MapScene({ onReady, onDragChange, dragging, onSelectBuilding, onPointingChange }) {
+export default function MapScene({
+  onReady,
+  onDragChange,
+  dragging,
+  onSelectBuilding,
+  onPointingChange,
+  nextId = null, // 스토리상 지금 가야 할 장소
+  doneIds = NO_IDS, // 이야기를 끝낸 장소
+  onLockedClick, // 아직 갈 수 없는 장소를 눌렀을 때
+}) {
+  // 순서가 아닌 장소는 잠김 (끝낸 장소는 다시 볼 수 있음)
+  const isLocked = (b) => b && b.id !== nextId && !doneIds.has(b.id)
   const assets = readMapAssets()
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
@@ -324,13 +336,15 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
   const [hovered, setHovered] = useState(0) // 건물 번호 (0 = 없음)
   const [armed, setArmed] = useState(0) // 터치: 첫 탭으로 강조된 건물
   const [selected, setSelected] = useState(0)
-  const active = dragging ? selected : hovered || armed || selected
+  const lockedNum = (n) => n > 0 && isLocked(BUILDINGS[n - 1])
+  const hoverOk = lockedNum(hovered) ? 0 : hovered
+  const active = dragging ? selected : hoverOk || armed || selected
 
   useEffect(() => {
     material.uniforms.activeId.value = active
-    onPointingChange?.(!dragging && hovered > 0)
+    onPointingChange?.(!dragging && hoverOk > 0)
     invalidate()
-  }, [active, hovered, dragging, material, onPointingChange, invalidate])
+  }, [active, hoverOk, dragging, material, onPointingChange, invalidate])
 
   // 마우스 판정은 넓힌 지도(hover)로 → 구역 근처만 가도 반응
   const idAtUv = (uv) => {
@@ -349,6 +363,11 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
       return
     }
     e.stopPropagation()
+    if (isLocked(BUILDINGS[id - 1])) {
+      setArmed(0)
+      onLockedClick?.(BUILDINGS[id - 1])
+      return
+    }
     if (e.pointerType !== 'mouse' && armed !== id) {
       setArmed(id)
       return
@@ -461,37 +480,51 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         onClick={handleClick}
       />
       {/* 장소 마커: 각 구역 위에 떠 있고, 누르면 그 장소를 선택 */}
-      {markers.map((position, i) =>
-        position ? (
+      {markers.map((position, i) => {
+        if (!position) return null
+        const b = BUILDINGS[i]
+        const locked = isLocked(b)
+        const state = b.id === nextId ? ' is-next' : doneIds.has(b.id) ? ' is-done' : locked ? ' is-locked' : ''
+        return (
           <Html key={BUILDINGS[i].id} position={position} zIndexRange={[5, 0]}>
             <button
               type="button"
-              className={`map-marker${active === i + 1 ? ' is-active' : ''}${
+              className={`map-marker${state}${active === i + 1 ? ' is-active' : ''}${
                 hovered === i + 1 || armed === i + 1 ? ' is-hovered' : ''
               }`}
+              aria-disabled={locked || undefined}
               style={{ '--bob-delay': `${i * -0.45}s` }}
-              aria-label={`${BUILDINGS[i].name} (${BUILDINGS[i].characters.join(', ')})`}
+              aria-label={`${b.name}${locked ? ' (잠김)' : b.id === nextId ? ' (다음 장소)' : ''}`}
               onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(i + 1)}
               onPointerLeave={() => setHovered(0)}
               onFocus={() => setHovered(i + 1)}
               onBlur={() => setHovered(0)}
               onClick={() => {
                 setArmed(0)
+                if (locked) return onLockedClick?.(b)
                 setSelected(i + 1)
-                onSelectBuilding?.(BUILDINGS[i])
+                onSelectBuilding?.(b)
               }}
             >
               {/* 이름표와 핀이 함께 둥실거림 */}
               <span className="map-marker__float">
                 <span className="map-marker__label" aria-hidden="true">
-                  {labelText(BUILDINGS[i])}
+                  {b.id === nextId && <span className="map-marker__next">NEXT</span>}
+                  {locked && <LockIcon />}
+                  {labelText(b)}
                 </span>
+                {b.id === nextId && <span className="map-marker__ring" aria-hidden="true" />}
                 <img className="map-marker__pin" src={MARKER_IMG} alt="" draggable="false" />
+                {doneIds.has(b.id) && (
+                  <span className="map-marker__check" aria-hidden="true">
+                    ✓
+                  </span>
+                )}
               </span>
             </button>
           </Html>
-        ) : null,
-      )}
+        )
+      })}
 
       <OrbitControls
         ref={controlsRef}
@@ -513,5 +546,13 @@ export default function MapScene({ onReady, onDragChange, dragging, onSelectBuil
         onEnd={() => onDragChange?.(false)}
       />
     </>
+  )
+}
+
+function LockIcon() {
+  return (
+    <svg className="map-marker__lock" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true">
+      <path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z" />
+    </svg>
   )
 }

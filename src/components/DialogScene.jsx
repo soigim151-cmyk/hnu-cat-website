@@ -130,7 +130,7 @@ export default function DialogScene({ dialog, onClose }) {
         } else if (a.close) {
           await gsap.to(boxRef.current, { opacity: 0, duration: a.close })
           await gsap.to(rootRef.current, { opacity: 0, duration: 0.3 })
-          onClose()
+          onClose(true) // 끝까지 봄
           return
         }
       }
@@ -190,7 +190,7 @@ export default function DialogScene({ dialog, onClose }) {
   const close = useCallback(() => {
     aliveRef.current = false
     clearInterval(typingRef.current)
-    gsap.to(rootRef.current, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: onClose })
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: () => onClose(false) })
   }, [onClose])
 
   const next = useCallback(() => {
