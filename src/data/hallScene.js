@@ -12,7 +12,6 @@ const move = (who, x, dur) => ({ move: who, x, dur })
 const cam = (o) => ({ cam: o })
 const sfx = (name) => ({ sfx: name })
 const prop = (id, what, o = {}) => (typeof what === 'string' ? { prop: id, do: what, ...o } : { prop: id, to: what, ...o })
-const bubble = (who, text, dur) => ({ bubble: who, text, dur })
 
 // 무대 준비 (중간부터 다시 시작할 때)
 const STAGE = [{ walkers: true }, show('hannam', { dur: 0 }), cam({ zoom: 1, x: 0, dur: 0 })]
@@ -33,7 +32,7 @@ export const HALL = {
   },
   // 소품 (x · bottom · w 는 인물과 같은 단위)
   props: {
-    flyers: { kind: 'flyers', x: 20, bottom: 30, w: 190 },
+    flyers: { src: `${H}flyer.webp`, x: 0, bottom: 330, w: 240 }, // 홍보물.png
     kimbap: { src: `${T}kimbap.webp`, x: 60, bottom: 380, w: 200 }, // 한남이 손 근처에서 등장
   },
   // 배경을 좌우로 오가는 학생들 / 한남이 앞을 지나가는 학생 두 명
@@ -44,24 +43,25 @@ export const HALL = {
   ],
   passersImgs: [`${H}npc2.webp`, `${H}npc3.webp`],
   // 미니게임 이미지
-  game: { bg: `${H}bg.webp`, host: `${H}hannam.webp`, npcs: [`${H}npc1.webp`, `${H}npc2.webp`, `${H}npc3.webp`] },
+  game: { bg: `${H}bg.webp`, host: `${H}hannam.webp`, flyer: `${H}flyer.webp`, npcs: [`${H}npc1.webp`, `${H}npc2.webp`, `${H}npc3.webp`] },
 
   lines: [
-    // ── SCENE 01. 다급한 한남이 ──
-    {
-      // 한남이 머리 위 대화 아이콘 → 누르면 카메라가 한남이 쪽으로 약하게 확대
-      tap: 'hannam',
-      before: [{ walkers: true }, show('hannam', { dur: 0.6 }), prop('flyers', 'show')],
-      after: [cam({ zoom: 1.1, on: 'hannam', dur: 0.9 })],
-    },
+    // ── SCENE 01. 다급한 한남이 ── (한남이가 먼저 말을 걺)
     {
       who: 'hannam',
       text: '안녕하세요! 학생회장 후보 한남이입니다. 공약 한번 읽어봐 주세요!',
-      // 학생 두 명이 앞을 지나가지만 받지 않음 · 홍보물 더미 강조
-      after: [{ reveal: 'hannam' }, { passers: true, dur: 2.3 }, prop('flyers', 'pulse')],
+      before: [{ walkers: true }, show('hannam', { dur: 0.6 }), cam({ zoom: 1.1, on: 'hannam', dur: 0.9 })],
+      // 학생 두 명이 앞을 지나가지만 받지 않음
+      after: [{ reveal: 'hannam' }, { passers: true, dur: 2.3 }],
     },
-    { who: 'hannam', text: '아, 벌써 시간이 이렇게 됐네. 아직 한참 남았는데...', after: [W(1), bubble('hannam', '…', 1.1)] },
-    { label: 'ask', who: 'me', text: '무슨 일 있으세요?' },
+    { who: 'hannam', text: '아, 벌써 시간이 이렇게 됐네. 아직 한참 남았는데...', after: [W(1)] },
+    {
+      label: 'ask',
+      // 다시 말을 걸었을 때는 여기서부터
+      setup: [{ walkers: true }, show('hannam', { dur: 0 }), cam({ zoom: 1.1, on: 'hannam', dur: 0 })],
+      who: 'me',
+      text: '무슨 일 있으세요?',
+    },
     { who: 'hannam', text: '아, 안녕하세요. 지금 학생회장 선거운동 중인데 점심시간 안에 홍보물을 나눠줘야 하거든요.' },
     { who: 'me', text: '많이 남았네요.' },
     {
@@ -77,7 +77,8 @@ export const HALL = {
       who: 'hannam',
       text: '정말요? 감사합니다! 학생들이 바빠서 홍보물을 잘 안 받아 가네요. 받으려는 학생들에게만 전달해 주시면 돼요.',
       // 홍보물 더미가 화면 가운데로 → 카메라가 조금 멀어짐
-      after: [prop('flyers', [0, 330], { scale: 1.4, dur: 0.8 }), W(0.3), prop('flyers', 'hide'), cam({ zoom: 1, x: 0, dur: 0.8 })],
+      // 홍보물이 화면 가운데에 나타났다가 사라짐 → 카메라가 조금 멀어짐
+      after: [prop('flyers', 'show', { dur: 0.4 }), W(0.9), prop('flyers', 'hide'), cam({ zoom: 1, x: 0, dur: 0.8 })],
       next: 'game',
     },
 
@@ -177,15 +178,7 @@ export const HALL = {
       label: 'no',
       who: 'hannam',
       text: '아, 괜찮습니다. 그래도 관심 가져주셔서 감사해요!',
-      after: [cam({ zoom: 1, x: 0, dur: 0.7 }), W(0.4), { leave: 'again' }],
-    },
-    // 다시 말을 걸었을 때: 대화 아이콘 → 도움 요청 대화부터
-    {
-      label: 'again',
-      setup: [{ walkers: true }, show('hannam', { dur: 0 }), prop('flyers', 'show', { dur: 0 })],
-      tap: 'hannam',
-      after: [cam({ zoom: 1.1, on: 'hannam', dur: 0.9 })],
-      next: 'ask',
+      after: [cam({ zoom: 1, x: 0, dur: 0.7 }), W(0.4), { leave: 'ask' }],
     },
   ],
 }

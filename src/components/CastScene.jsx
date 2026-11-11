@@ -632,6 +632,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
             bg={BASE + dialog.game.bg}
             hannam={BASE + dialog.game.host}
             npcs={dialog.game.npcs.map((n) => BASE + n)}
+            flyer={dialog.game.flyer && BASE + dialog.game.flyer}
             onDone={(res) => gameResRef.current?.(res)}
           />
         )}

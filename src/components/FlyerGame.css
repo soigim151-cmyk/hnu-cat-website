@@ -408,3 +408,20 @@
     animation: none;
   }
 }
+
+/* 홍보물 이미지 */
+img.fg__flyer {
+  border: 1px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.fg__fly {
+  width: 46px;
+}
+.fg__poster {
+  display: block;
+  width: 110px;
+  margin: 0 auto 12px;
+  border: 3px solid #fff;
+  transform: rotate(-4deg);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}

@@ -30,7 +30,7 @@ const stageOf = (n) =>
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
 const fmt = (s) => `00:${String(Math.max(0, Math.ceil(s))).padStart(2, '0')}`
 
-export default function FlyerGame({ bg, hannam, npcs: npcImgs, onDone }) {
+export default function FlyerGame({ bg, hannam, npcs: npcImgs, flyer, onDone }) {
   const [phase, setPhase] = useState('intro') // intro · count · play · clear · fail
   const [count, setCount] = useState(null) // 3 · 2 · 1 · START!
   const [, setFrame] = useState(0)
@@ -271,7 +271,7 @@ export default function FlyerGame({ bg, hannam, npcs: npcImgs, onDone }) {
       {fx.map((f) =>
         f.kind === 'fly' ? (
           <span key={f.id} className="fg__fly" style={{ '--tx': `${f.x}px`, '--ty': `${f.y}px` }}>
-            <FlyerIcon />
+            <FlyerIcon src={flyer} />
           </span>
         ) : (
           <span key={f.id} className={`fg__pop fg__pop--${f.kind}`} style={{ left: f.x, top: f.y }}>
@@ -284,7 +284,7 @@ export default function FlyerGame({ bg, hannam, npcs: npcImgs, onDone }) {
       {phase !== 'intro' && (
         <div className="fg__hud">
           <span className={`fg__hud-box${pulse === 'got' ? ' is-pulse' : ''}`}>
-            <FlyerIcon /> {s.got} / {GOAL}
+            <FlyerIcon src={flyer} /> {s.got} / {GOAL}
           </span>
           <span className={`fg__hud-box fg__time${s.left <= 5 ? ' is-low' : ''}`}>{fmt(s.left)}</span>
           <span className={`fg__hud-box${pulse === 'miss' ? ' is-blink' : ''}`}>
@@ -296,6 +296,7 @@ export default function FlyerGame({ bg, hannam, npcs: npcImgs, onDone }) {
       {/* 안내창 */}
       {phase === 'intro' && (
         <div className="fg__panel">
+          {flyer && <img className="fg__poster" src={flyer} alt="한남이 선거 홍보물" />}
           <p className="fg__kicker">MINI GAME</p>
           <h2 className="fg__title">선거 홍보물 배부</h2>
           <p className="fg__goal">
@@ -395,7 +396,8 @@ function EndTalk({ lines, buttons, delay = 0 }) {
   )
 }
 
-function FlyerIcon() {
+function FlyerIcon({ src }) {
+  if (src) return <img className="fg__flyer" src={src} alt="" />
   return (
     <svg className="fg__flyer" viewBox="0 0 24 30" aria-hidden="true">
       <rect x="1" y="1" width="22" height="28" rx="2" fill="#fff" stroke="#0225ff" strokeWidth="2" />

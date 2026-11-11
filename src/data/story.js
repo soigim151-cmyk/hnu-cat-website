@@ -16,7 +16,7 @@ export const ITEMS = {
   'id-card': {
     name: '김시유 학생증',
     img: 'talk/id-siyu-v2.png',
-    desc: '11번 건물 앞 벤치에서 만난 김시유의 학생증.',
+    desc: '김시유의 학생증이다.',
   },
   'id-goeun': {
     name: '이고등 학생증',
@@ -26,7 +26,7 @@ export const ITEMS = {
   'id-sihyuk': {
     name: '턱시혁 학생증',
     img: 'talk/id-sihyuk.png',
-    desc: '린튼공원에서 통성명하며 받은 턱시혁의 학생증. 발급 사유가 수상하다.',
+    desc: '린튼공원에서 통성명하며 받은 턱시혁의 학생증.',
   },
   kimbap: {
     name: '참치김밥',
