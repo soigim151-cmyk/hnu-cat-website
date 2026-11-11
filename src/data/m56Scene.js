@@ -31,7 +31,7 @@ export const M56 = {
   startBg: 'gate',
   cast: {
     // 화면 오른쪽, 기념관 입구 근처에 앉아 있음
-    jeon: { name: '신전이', title: '한남대학교 화석 선배 · 학번 비공개', folder: `${M}jeon/`, fallback: `${M}jeon.webp`, x: 360, bottom: 30, w: 500 },
+    jeon: { name: '신전이', title: '한남대학교 화석 선배 · 학번 비공개', folder: `${M}jeon/`, fallback: `${M}jeon.webp`, x: 380, bottom: 170, w: 360 },
   },
   walkers: [
     { src: `${T}hall/npc1.webp`, h: 230, bottom: 300, dur: 22, delay: -6, dir: 1 },
