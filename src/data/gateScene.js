@@ -1,5 +1,5 @@
 // 쪽문 — 4남매와의 첫 만남 → 점심 메뉴 고르기
-// 배경: 쪽문.png · 인물: 차주일~차주사.png · 처음 모습: 남매.png
+// 배경: 쪽문.png → 진앤키노.png · 인물: 차주일~차주사.png · 처음 모습: 남매.png
 // 음식 그림은 임시 (public/talk/gate/food-*.webp 를 바꾸면 적용)
 const T = 'talk/'
 const G = `${T}gate/`
@@ -33,16 +33,16 @@ const lunch = (img, sub, desc, lines) => ({
 })
 
 export const GATE = {
-  place: '린튼공원, 점심시간',
+  place: '쪽문, 점심시간',
   typeSpeed: 35,
   gap: 0.3,
   calm: true,
   main: ['ju1', 'ju2', 'ju3', 'ju4', 'shop'], // 4남매 대사는 기본 방향, 플레이어는 반전
   bgs: {
-    park: { src: `${T}bg-linton.webp` },
-    alley: { src: `${G}bg-gate.webp` }, // 쪽문.png
+    gate: { src: `${G}bg-gate.webp` }, // 쪽문.png (처음 독백)
+    alley: { src: `${G}bg-jin.webp` }, // 진앤키노.png (4남매가 서 있는 가게 앞)
   },
-  startBg: 'park',
+  startBg: 'gate',
   cast: {
     group: { name: '', nofocus: true, folder: `${G}group/`, fallback: `${G}group.webp`, x: 0, bottom: -40, w: 1150 },
     ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -480, bottom: -40, w: 262 },
@@ -53,12 +53,12 @@ export const GATE = {
   },
 
   lines: [
-    // ── SCENE 01. 린튼공원 — 점심시간 ──
+    // ── SCENE 01. 쪽문 — 점심시간 ──
     {
       who: 'me',
       text: '아, 배고프다. 쪽문 가서 밥이나 먹어야겠다.',
       // 대화창 대신 쪽문으로 가는 이동 버튼
-      choices: [{ text: '쪽문으로 이동하기 →', goto: 'alley' }],
+      choices: [{ text: '골목 안으로 이동하기 →', goto: 'alley' }],
     },
 
     // ── SCENE 02. 쪽문 — 4남매와의 첫 만남 ──
@@ -156,7 +156,7 @@ export const GATE = {
       who: 'me',
       text: '...근데 진짜 뭐 하는 곳이지?',
       // 진앤키노 간판 잠깐 강조
-      after: [cam({ zoom: 1.35, x: 0, dur: 0.8 }), W(0.9), cam({ zoom: 1, x: 0, dur: 0.6 })],
+      after: [cam({ zoom: 1.35, x: 112, y: 56, dur: 0.8 }), W(0.9), cam({ zoom: 1, x: 0, dur: 0.6 })],
     },
 
     // ── 점심 메뉴 고르기 ──
@@ -213,7 +213,7 @@ export const GATE = {
       label: 'eat-jin',
       who: 'me',
       text: '저기... 혹시 영업하세요?',
-      before: [cam({ zoom: 1.3, x: 0, dur: 0.7 })],
+      before: [cam({ zoom: 1.3, x: 96, y: 48, dur: 0.7 })],
     },
     {
       who: 'shop',
