@@ -509,7 +509,7 @@ export default function MapScene({
               {/* 이름표와 핀이 함께 둥실거림 */}
               <span className="map-marker__float">
                 <span className="map-marker__label" aria-hidden="true">
-                  {b.id === nextId && <span className="map-marker__next">NEXT</span>}
+                  {b.id === nextId && <span className="map-marker__next">{doneIds.size ? 'NEXT' : 'START'}</span>}
                   {locked && <LockIcon />}
                   {labelText(b)}
                 </span>

@@ -72,12 +72,12 @@ export const LINTON = {
     // ── SCENE 01. 김시유를 찾습니다 ──
     {
       who: 'me',
-      text: '분명 시유 씨한테 전해달라고 하셨는데….',
+      text: '시유 씨 드리려고 오긴 했는데….',
       // 공원 입구에서 벤치 쪽으로 아주 느리게 다가감 (기다리지 않음)
       before: [cam({ zoom: 1.04, x: 0, dur: 8, wait: false })],
       after: [bag('peek')],
     },
-    { who: 'me', text: '정작 어디 있는지는 안 알려주시네.', after: [W(0.5)] },
+    { who: 'me', text: '정작 어디 계신지를 모르네.', after: [W(0.5)] },
     { who: 'me', text: '이 근처에 자주 있다고 했는데….', after: [cam({ zoom: 1.04, x: -60, dur: 1.6 })] },
     {
       who: 'me',
@@ -126,9 +126,9 @@ export const LINTON = {
     { who: 'me', text: '참치김밥이요.', after: [cam({ zoom: 1.09, x: -60, dur: 0.4 }), sfx('stand'), pose('sihyuk', 'sit', 0.25), W(1)] },
     { who: 'sihyuk', text: '걔는 좋겠다. 김밥도 갖다주고.' },
     { who: 'goeun', text: '왜 또 그래.' },
-    { who: 'me', text: '아, 제가 산 건 아니고 누가 전해달라고 부탁하셔서….' },
-    { who: 'sihyuk', text: '누가?' },
-    { who: 'me', text: '그건 저도 잘….' },
+    { who: 'me', text: '아, 제가 받은 건데 저는 참치김밥을 안 좋아해서요.' },
+    { who: 'sihyuk', text: '근데 왜 하필 걔한테?' },
+    { who: 'me', text: '아까 시유 씨가 참치김밥 좋아한다고 하셨던 게 기억나서요.' },
     { who: 'sihyuk', text: '하. 걔 진짜 뭐 있나?', after: [pose('goeun', 'side')] },
     { who: 'goeun', text: '그냥 김밥 받는 거잖아.' },
     { who: 'sihyuk', text: '그러니까 왜 하필 걔냐고.', after: [pose('goeun', 'press', 0.25), pose('sihyuk', 'lean', 0.3)] },
@@ -386,11 +386,11 @@ export const LINTON = {
     { who: 'me', text: '아, 맞다. 이거요!' },
     {
       who: 'me',
-      text: '어떤 분이 시유 씨한테 전해달라고 부탁하셨어요.',
+      text: '학생회관에서 받은 건데, 저는 참치김밥을 안 좋아해서요.',
       after: [sfx('rustle'), bag('give'), pose('siyu', 'receive', 0.3)],
     },
     { who: 'siyu', text: '오, 참치김밥.' },
-    { who: 'me', text: '좋아하실 거라고 하시던데요.' },
+    { who: 'me', text: '아까 좋아하신다고 하셨던 게 기억나서 가져왔어요.' },
     { who: 'siyu', text: '어. 이거 좋아해.', after: [pose('siyu', 'eat', 0.3), W(0.8)] },
     { who: 'siyu', text: '맛있네.' },
     { who: 'me', text: '다행이에요. 그럼 저는 가볼게요.' },

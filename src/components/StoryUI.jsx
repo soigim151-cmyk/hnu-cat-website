@@ -18,7 +18,7 @@ export function QuestBar({ step, total, place, shown }) {
       </span>
       {place ? (
         <span className="quest__text">
-          <b>NEXT</b> {place}
+          <b>{step === 0 ? 'START' : 'NEXT'}</b> {place}
           <span className="quest__sub"> · 지도에서 눌러 보세요</span>
         </span>
       ) : (

@@ -158,6 +158,16 @@ export default function FlyerGame({ bg, hannam, npcs: npcImgs, onDone }) {
     if (s.over || phase !== 'play') return
     const r = rootRef.current.getBoundingClientRect()
     const at = { x: e.clientX - r.left, y: e.clientY - r.top }
+    // 겹쳐 있을 때: 누른 자리에 홍보물을 원하는 학생이 있으면 그 학생에게 전달
+    const wanting = (m) => m.type === 'want' && m.phase === 'ask' && !m.served
+    if (!wanting(n)) {
+      const under = document
+        .elementsFromPoint(e.clientX, e.clientY)
+        .map((el) => el.closest?.('.fg__npc')?.dataset.id)
+        .map((id) => s.npcs.find((m) => String(m.id) === id))
+        .find((m) => m && wanting(m))
+      if (under) n = under
+    }
     if (n.served && performance.now() - n.servedAt < 500) return // 연달아 누른 건 무시
     if (n.type === 'want' && n.phase === 'ask' && !n.served) {
       n.served = true
@@ -229,6 +239,7 @@ export default function FlyerGame({ bg, hannam, npcs: npcImgs, onDone }) {
           <button
             type="button"
             key={n.id}
+            data-id={n.id}
             className={`fg__npc fg__npc--${n.type}${n.served ? ' is-served' : ''}`}
             style={{
               opacity: n.fade ? Math.max(0, 1 - n.fade / 0.55) : undefined,
