@@ -1,6 +1,6 @@
 // 쪽문 — 4남매와의 첫 만남 → 점심 메뉴 고르기
-// 4남매 이미지가 아직 없어서 임시 실루엣 (public/talk/gate/<이름>/base.png 를 올리면 바로 바뀜)
-// 가게 · 음식 그림도 임시 (public/talk/gate/ 의 bg-alley.webp · food-*.webp 를 바꾸면 적용)
+// 배경: 쪽문.png · 인물: 차주일~차주사.png · 처음 모습: 남매.png
+// 음식 그림은 임시 (public/talk/gate/food-*.webp 를 바꾸면 적용)
 const T = 'talk/'
 const G = `${T}gate/`
 
@@ -15,6 +15,7 @@ const reveal = (who, dur) => ({ reveal: who, dur })
 
 const SIBS = ['ju1', 'ju2', 'ju3', 'ju4']
 const showAll = (dur = 0.5) => SIBS.map((w, i) => show(w, { from: 'fade', dur, wait: i === SIBS.length - 1 }))
+// 처음엔 넷이 함께 있는 모습(남매.png) → 대화가 시작되면 각자 이미지로
 // 처음부터 다시 들어왔을 때 쓰는 무대 (메뉴 고르기에서 다시 시작)
 const ALLEY = [bg('alley', 0), cam({ zoom: 1, x: 0, dur: 0 })]
 
@@ -38,15 +39,16 @@ export const GATE = {
   main: ['ju1', 'ju2', 'ju3', 'ju4', 'shop'], // 4남매 대사는 기본 방향, 플레이어는 반전
   bgs: {
     park: { src: `${T}bg-linton.webp` },
-    alley: { src: `${G}bg-alley.webp` }, // 쪽문 골목 (임시 그림)
+    alley: { src: `${G}bg-gate.webp` }, // 쪽문.png
   },
   startBg: 'park',
   cast: {
-    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}placeholder/ju1.webp`, x: -500, bottom: 110, w: 310 },
-    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}placeholder/ju2.webp`, x: -180, bottom: 110, w: 310 },
-    ju3: { name: '차주삼', folder: `${G}ju3/`, fallback: `${G}placeholder/ju3.webp`, x: 140, bottom: 110, w: 310 },
-    ju4: { name: '차주사', folder: `${G}ju4/`, fallback: `${G}placeholder/ju4.webp`, x: 450, bottom: 110, w: 280 },
-    shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}placeholder/ju1.webp`, x: 0, bottom: -2000, w: 10 },
+    group: { name: '', nofocus: true, folder: `${G}group/`, fallback: `${G}group.webp`, x: 0, bottom: -40, w: 1150 },
+    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -480, bottom: -40, w: 262 },
+    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -165, bottom: -40, w: 286 },
+    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 150, bottom: -40, w: 276 },
+    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 455, bottom: -40, w: 242 },
+    shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}ju1.webp`, x: 0, bottom: -2000, w: 10 },
   },
 
   lines: [
@@ -63,7 +65,7 @@ export const GATE = {
       label: 'alley',
       who: 'ju3',
       text: '와, 오늘도 청소 중이네.',
-      before: [{ boxOff: true }, sfx('steps'), bg('alley', 0.8), ...showAll(0.5), { boxOff: false }],
+      before: [{ boxOff: true }, sfx('steps'), bg('alley', 0.8), show('group', { from: 'fade', dur: 0.6 }), { boxOff: false }],
     },
     { who: 'ju2', text: '이번 주에만 세 번째야. 이제 좀 포기해.' },
     { who: 'ju3', text: '아니, 문은 맨날 열려 있는데 왜 장사를 안 하냐고.' },
@@ -72,8 +74,13 @@ export const GATE = {
     {
       who: 'ju1',
       text: '알았어. 이제 진짜 가자.',
-      // 차주삼이 돌아서다가 플레이어와 부딪힐 뻔함
-      after: [cam({ zoom: 1.14, on: 'ju3', dur: 0.35 }), { shake: 'ju3' }],
+      // 각자 이미지로 바뀌고, 치주삼이 돌아서다가 플레이어와 부딪힐 뻔함
+      after: [
+        hide('group', { dur: 0.35, wait: false }),
+        ...showAll(0.35),
+        cam({ zoom: 1.14, on: 'ju3', dur: 0.35 }),
+        { shake: 'ju3' },
+      ],
     },
     { who: 'ju3', text: '어, 조심하세요.' },
     { who: 'me', text: '아, 네. 괜찮아요.' },
@@ -96,7 +103,7 @@ export const GATE = {
     {
       who: 'ju1',
       text: '시간 생각하면 면식당도 괜찮고. 난 거기 가고 싶어.',
-      // 세 사람이 차주사를 바라봄
+      // 세 사람이 치주사를 바라봄
       after: [cam({ zoom: 1.1, on: 'ju4', dur: 0.6 }), W(0.5)],
     },
     { who: 'ju4', text: '...아무거나.' },
@@ -115,7 +122,7 @@ export const GATE = {
     { who: 'me', text: '네 분이 남매세요?' },
     {
       who: 'ju2',
-      text: '네. 저쪽부터 첫째 치주일, 저는 둘째 치주이, 셋째 차주삼, 막내 차주사예요.',
+      text: '네. 저쪽부터 첫째 치주일, 저는 둘째 치주이, 셋째 치주삼, 막내 치주사예요.',
       after: [reveal('ju1', 0.9), reveal('ju2', 0.9), reveal('ju3', 0.9), reveal('ju4', 0.9)],
     },
     { who: 'ju3', text: '근데 혹시 어디 가서 드실 거예요?' },
@@ -133,7 +140,7 @@ export const GATE = {
     {
       who: 'ju4',
       text: '응.',
-      // 네 명이 골목 안쪽으로 (차주삼만 남아 뒤돌아봄)
+      // 네 명이 골목 안쪽으로 (치주삼만 남아 뒤돌아봄)
       after: [
         sfx('steps'),
         hide('ju1', { to: 'right', dur: 0.8, wait: false }),
@@ -181,7 +188,7 @@ export const GATE = {
       text: '부리또 하나 주세요!',
       after: [
         W(0.3),
-        lunch(`${G}food-dosmas.webp`, '도스마스 · 부리또', '차주삼이 추천한 도스마스의 부리또.', [
+        lunch(`${G}food-dosmas.webp`, '도스마스 · 부리또', '치주삼이 추천한 도스마스의 부리또.', [
           '들고 다니면서 먹기 편하다.',
           '...4남매도 지금 이거 먹고 있겠지?',
         ]),

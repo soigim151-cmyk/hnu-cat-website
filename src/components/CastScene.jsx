@@ -526,7 +526,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
             const src = p ? srcs[`${who}/${p}`] || BASE + c.fallback : null
             const temp = src && src.includes('/placeholder/')
             // 말하는 인물은 살짝 커지고, 나머지 인물은 살짝 어두워짐
-            const focus = focusWho ? ((c.as || who) === focusWho ? ' is-speaking' : ' is-dim') : ''
+            const focus = focusWho && !c.nofocus ? ((c.as || who) === focusWho ? ' is-speaking' : ' is-dim') : ''
             return (
               <div
                 key={who}
