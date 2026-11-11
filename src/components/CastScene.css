@@ -522,7 +522,7 @@
 
 /* 그림 카드 선택지 */
 .cast__choices.is-cards {
-  bottom: calc(320 * var(--u));
+  bottom: calc(345 * var(--u));
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;

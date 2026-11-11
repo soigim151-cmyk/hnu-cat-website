@@ -42,10 +42,10 @@ export const GATE = {
   },
   startBg: 'park',
   cast: {
-    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}placeholder/ju1.webp`, x: -480, bottom: -10, w: 300 },
-    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}placeholder/ju2.webp`, x: -170, bottom: -10, w: 300 },
-    ju3: { name: '차주삼', folder: `${G}ju3/`, fallback: `${G}placeholder/ju3.webp`, x: 150, bottom: -10, w: 300 },
-    ju4: { name: '차주사', folder: `${G}ju4/`, fallback: `${G}placeholder/ju4.webp`, x: 450, bottom: -10, w: 264 },
+    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}placeholder/ju1.webp`, x: -500, bottom: 110, w: 310 },
+    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}placeholder/ju2.webp`, x: -180, bottom: 110, w: 310 },
+    ju3: { name: '차주삼', folder: `${G}ju3/`, fallback: `${G}placeholder/ju3.webp`, x: 140, bottom: 110, w: 310 },
+    ju4: { name: '차주사', folder: `${G}ju4/`, fallback: `${G}placeholder/ju4.webp`, x: 450, bottom: 110, w: 280 },
     shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}placeholder/ju1.webp`, x: 0, bottom: -2000, w: 10 },
   },
 

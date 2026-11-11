@@ -540,7 +540,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
                     {src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}
                   </div>
                 </div>
-                {temp && <span className="cast__temp">{c.name} (임시)</span>}
+                {temp && <span className="cast__temp">{c.known || revealedRef.current[c.as || who] ? c.name : '???'} (임시)</span>}
                 {bubbles[who] && <span className="cast__say">{bubbles[who]}</span>}
                 {tapOn === who && (
                   <span className="cast__tap" aria-label="말 걸기">
