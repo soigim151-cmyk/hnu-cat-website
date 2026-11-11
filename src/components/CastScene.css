@@ -572,3 +572,113 @@
   outline: 3px solid #ffe14d;
   outline-offset: 2px;
 }
+
+/* ── 56주년 기념관 등에서 쓰는 연출 ── */
+/* NEW CHARACTER 카드 부제 */
+.cast__profile-sub {
+  color: #4a5370;
+  font-size: calc(22 * var(--u));
+}
+
+/* 인물 옆 작은 아이콘 (? · … · 📷 · 🍪 등) */
+.cast__icon {
+  position: absolute;
+  right: 4%;
+  top: 2%;
+  min-width: calc(76 * var(--u));
+  padding: calc(8 * var(--u)) calc(14 * var(--u));
+  border: calc(4 * var(--u)) solid var(--blue-ink);
+  border-radius: calc(16 * var(--u));
+  background: #fff;
+  color: var(--blue-ink);
+  font-size: calc(44 * var(--u));
+  line-height: 1;
+  text-align: center;
+  animation: cast-icon 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+@keyframes cast-icon {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.5);
+  }
+}
+
+/* 가운데 짧은 글 */
+.cast__caption {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(8 * var(--u));
+  padding: calc(16 * var(--u)) calc(34 * var(--u));
+  border: calc(5 * var(--u)) solid var(--blue-ink);
+  background: #fff;
+  color: var(--blue-ink);
+  text-align: center;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  animation: cast-caption 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+@keyframes cast-caption {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}
+.cast__caption-kicker {
+  color: var(--blue);
+  font-size: max(12px, calc(24 * var(--u)));
+  letter-spacing: 0.08em;
+}
+.cast__caption-text {
+  font-size: max(18px, calc(44 * var(--u)));
+}
+.cast__caption-sub {
+  color: #4a5370;
+  font-size: max(13px, calc(28 * var(--u)));
+}
+/* 휴대폰 알림 */
+.cast__caption.is-phone {
+  top: 22%;
+  align-items: flex-start;
+  min-width: calc(520 * var(--u));
+  border: 0;
+  border-radius: calc(26 * var(--u));
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 calc(12 * var(--u)) calc(30 * var(--u)) rgba(0, 0, 40, 0.3);
+  text-align: left;
+  animation-name: cast-phone;
+}
+@keyframes cast-phone {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -110%);
+  }
+}
+
+/* 따뜻한 색감 · 햇빛 */
+.cast__warm {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(255, 160, 70, 0.22);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  pointer-events: none;
+}
+.cast__sun {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background:
+    radial-gradient(ellipse 45% 55% at 78% 68%, rgba(255, 230, 160, 0.55), transparent 70%),
+    linear-gradient(200deg, rgba(255, 240, 200, 0.35), transparent 55%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import gsap from 'gsap'
-import { playSfx } from './sfx.js'
+import { playSfx, playBgm, stopBgm, bgmVolume } from './sfx.js'
 import FlyerGame from './FlyerGame.jsx'
 import { RewardPop } from './DialogScene.jsx'
 import './DialogScene.css'
@@ -67,6 +67,9 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const [game, setGame] = useState(false)
   const [itemGet, setItemGet] = useState(null)
   const [reward, setReward] = useState(null) // 학생증 등 획득 카드
+  const [icons, setIcons] = useState({}) // 인물 옆 작은 아이콘 (? · … · 📷 등)
+  const [caption, setCaption] = useState(null) // 화면 가운데 짧은 글 / 휴대폰 알림
+  const [chromeOff, setChromeOff] = useState(false) // 닫기 버튼까지 숨김 (엔딩)
 
   const lines = dialog.lines
   const labelIdx = useMemo(() => {
@@ -167,7 +170,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
     const u = unitPx()
     const zoom = o.zoom ?? c.zoom
     let x = (o.x ?? 0) * u
-    let y = 0
+    let y = (o.y ?? 0) * u
     if (o.on && charRefs.current[o.on]) {
       // 그 인물(얼굴 쪽)을 중심으로 확대: 그 점이 제자리에 있도록 이동
       const el = charRefs.current[o.on]
@@ -236,7 +239,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
             setLabel(dialog.cast[who].name)
             await gsap.to(nameRef.current, { opacity: 1, duration: 0.1 })
           }
-          setProfile({ who, name: dialog.cast[who].name })
+          setProfile({ who, name: dialog.cast[who].name, sub: dialog.cast[who].title })
           await sleep(a.dur ?? 1.5)
           setProfile(null)
         } else if (a.photo) {
@@ -315,6 +318,36 @@ export default function CastScene({ dialog, onClose, startAt }) {
           await gsap.to(rootRef.current.querySelector('.dialog__reward'), { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in' })
           setReward(null)
           await gsap.to(boxRef.current, { opacity: 1, y: 0, duration: 0.25 })
+        } else if (a.icon) {
+          // 인물 옆 작은 아이콘: dur 이 있으면 잠깐, 없으면 text: null 로 끌 때까지
+          setIcons((m) => ({ ...m, [a.icon]: a.text }))
+          if (a.dur) {
+            await sleep(a.dur)
+            setIcons((m) => ({ ...m, [a.icon]: null }))
+          }
+        } else if (a.caption !== undefined) {
+          setCaption(a.caption)
+          if (a.dur) {
+            await sleep(a.dur)
+            setCaption(null)
+          }
+        } else if (a.warm !== undefined || a.sun !== undefined) {
+          const sel = a.warm !== undefined ? '.cast__warm' : '.cast__sun'
+          const on = a.warm ?? a.sun
+          const t = gsap.to(rootRef.current.querySelector(sel), { opacity: on ? 1 : 0, duration: a.dur ?? 1.5 })
+          if (a.wait !== false) await t
+        } else if (a.bgm !== undefined) {
+          if (a.bgm === 'volume') bgmVolume(a.vol, a.dur)
+          else if (a.bgm) playBgm(a.bgm, a.vol, a.dur)
+          else stopBgm(a.dur)
+        } else if (a.chrome !== undefined) {
+          setChromeOff(!a.chrome)
+        } else if (a.finish) {
+          // 끝까지 봄: 천천히 어두워지며 지도로
+          aliveRef.current = false
+          await gsap.to(rootRef.current, { opacity: 0, duration: a.finish })
+          onClose(true)
+          return
         } else if (a.walkers !== undefined) {
           setWalkers(a.walkers)
         } else if (a.passers) {
@@ -460,6 +493,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
       cancelled = true
       aliveRef.current = false
       clearInterval(typingRef.current)
+      stopBgm(0.4)
     }
   }, [dialog.place, typeLine])
 
@@ -545,6 +579,11 @@ export default function CastScene({ dialog, onClose, startAt }) {
                 </div>
                 {temp && <span className="cast__temp">{c.known || revealedRef.current[c.as || who] ? c.name : '???'} (임시)</span>}
                 {bubbles[who] && <span className="cast__say">{bubbles[who]}</span>}
+                {icons[who] && (
+                  <span key={icons[who]} className="cast__icon">
+                    {icons[who]}
+                  </span>
+                )}
                 {tapOn === who && (
                   <span className="cast__tap" aria-label="말 걸기">
                     <svg viewBox="0 0 48 44" aria-hidden="true">
@@ -611,10 +650,22 @@ export default function CastScene({ dialog, onClose, startAt }) {
           <div className="cast__profile">
             <span className="cast__profile-tag">NEW CHARACTER</span>
             <span className="cast__profile-name">{profile.name}</span>
+            {profile.sub && <span className="cast__profile-sub">{profile.sub}</span>}
           </div>
         )}
 
+        <div className="cast__warm" />
+        <div className="cast__sun" />
         <div className="cast__dark" />
+
+        {/* 가운데 짧은 글 · 휴대폰 알림 */}
+        {caption && (
+          <div className={`cast__caption${caption.phone ? ' is-phone' : ''}`}>
+            {caption.kicker && <span className="cast__caption-kicker">{caption.kicker}</span>}
+            <span className="cast__caption-text">{caption.text}</span>
+            {caption.sub && <span className="cast__caption-sub">{caption.sub}</span>}
+          </div>
+        )}
 
         {/* 장소 안내 동안 검은 화면 → 첫 대사에서 걷힘 */}
         <div className="dialog__curtain" ref={curtainRef} />
@@ -676,6 +727,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
       <button
         type="button"
         className="dialog__close"
+        style={chromeOff ? { opacity: 0, pointerEvents: 'none' } : undefined}
         onClick={(e) => {
           e.stopPropagation()
           close()

@@ -80,3 +80,92 @@ export function playSfx(name) {
     default:
   }
 }
+
+// ── 배경 음악 (파일 없이 만들어 냄) ──
+// 'bright': 밝은 분위기 · 'piano': 잔잔한 피아노
+// 음악 파일이 생기면 public/bgm/<이름>.mp3 로 바꿔 끼울 수 있게 이름을 맞춰 둠
+let bgm = null
+const SONGS = {
+  bright: {
+    beat: 0.25,
+    vol: 0.05,
+    type: 'triangle',
+    // C - Am - F - G (8분음표 아르페지오)
+    notes: [523, 659, 784, 659, 440, 523, 659, 523, 349, 440, 523, 440, 392, 494, 587, 494],
+    bass: [131, 0, 0, 0, 110, 0, 0, 0, 87, 0, 0, 0, 98, 0, 0, 0],
+  },
+  piano: {
+    beat: 0.42,
+    vol: 0.07,
+    type: 'sine',
+    // C - G - Am - F (느린 분산화음)
+    notes: [262, 392, 523, 659, 196, 294, 494, 587, 220, 330, 523, 659, 175, 262, 440, 523],
+    bass: [131, 0, 0, 0, 98, 0, 0, 0, 110, 0, 0, 0, 87, 0, 0, 0],
+  },
+}
+function pianoNote(c, out, freq, t, dur, type) {
+  const o = c.createOscillator()
+  const o2 = c.createOscillator()
+  const g = c.createGain()
+  o.type = type
+  o2.type = 'sine'
+  o.frequency.value = freq
+  o2.frequency.value = freq * 2 // 배음 조금
+  const g2 = c.createGain()
+  g2.gain.value = 0.15
+  g.gain.setValueAtTime(0.0001, t)
+  g.gain.exponentialRampToValueAtTime(1, t + 0.02)
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+  o.connect(g)
+  o2.connect(g2).connect(g)
+  g.connect(out)
+  o.start(t)
+  o2.start(t)
+  o.stop(t + dur + 0.05)
+  o2.stop(t + dur + 0.05)
+}
+export function playBgm(name, vol, fade = 1.5) {
+  const c = audio()
+  const song = SONGS[name]
+  if (!c || !song) return
+  stopBgm(fade)
+  const out = c.createGain()
+  out.gain.setValueAtTime(0.0001, c.currentTime)
+  out.gain.exponentialRampToValueAtTime(vol ?? song.vol, c.currentTime + fade)
+  out.connect(c.destination)
+  const me = { out, timer: 0, next: c.currentTime + 0.1, i: 0 }
+  // 조금씩 앞서 예약 (탭이 바쁠 때도 끊기지 않게)
+  const tick = () => {
+    while (me.next < c.currentTime + 0.6) {
+      const k = me.i % song.notes.length
+      pianoNote(c, out, song.notes[k], me.next, song.beat * 2.2, song.type)
+      if (song.bass[k]) pianoNote(c, out, song.bass[k], me.next, song.beat * 6, 'sine')
+      me.next += song.beat
+      me.i += 1
+    }
+  }
+  tick()
+  me.timer = setInterval(tick, 200)
+  bgm = me
+}
+// 볼륨을 sec 초 동안 vol 로 (음악은 계속)
+export function bgmVolume(vol, sec = 2) {
+  if (!bgm || !ctx) return
+  const g = bgm.out.gain
+  g.cancelScheduledValues(ctx.currentTime)
+  g.setValueAtTime(Math.max(0.0001, g.value), ctx.currentTime)
+  g.exponentialRampToValueAtTime(Math.max(0.0001, vol), ctx.currentTime + sec)
+}
+export function stopBgm(fade = 1) {
+  if (!bgm || !ctx) return
+  const me = bgm
+  bgm = null
+  const g = me.out.gain
+  g.cancelScheduledValues(ctx.currentTime)
+  g.setValueAtTime(Math.max(0.0001, g.value), ctx.currentTime)
+  g.exponentialRampToValueAtTime(0.0001, ctx.currentTime + Math.max(0.05, fade))
+  setTimeout(() => {
+    clearInterval(me.timer)
+    me.out.disconnect()
+  }, Math.max(0.05, fade) * 1000 + 100)
+}

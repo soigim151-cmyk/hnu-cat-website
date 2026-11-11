@@ -21,6 +21,7 @@
 import { LINTON } from './lintonScene.js'
 import { HALL } from './hallScene.js'
 import { GATE } from './gateScene.js'
+import { M56 } from './m56Scene.js'
 
 const T = 'talk/'
 const W = (s) => ({ wait: s })
@@ -31,6 +32,7 @@ export const DIALOGUES = {
   'linton-park': LINTON,
   'student-hall': HALL,
   'side-gate': GATE,
+  'memorial-56': M56,
 
   'insarye-hall': {
     place: '11번 건물 앞, 햇볕이 잘 드는 벤치',

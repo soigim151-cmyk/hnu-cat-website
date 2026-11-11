@@ -8,7 +8,7 @@ export const STORY = [
   { id: 'student-hall', get: ['kimbap'] },
   { id: 'linton-park', get: ['id-goeun', 'id-sihyuk'], use: ['kimbap'] },
   { id: 'side-gate' },
-  { id: 'memorial-56', note: '56주년 기념관 이야기는 곧 열려요.' },
+  { id: 'memorial-56' },
 ]
 
 // 보관함 아이템 (img 는 public/ 기준 경로)
