@@ -83,7 +83,7 @@ export default function CampusPage({ onBack }) {
       if (got) {
         setBagNew(true)
         showToast(
-          { img: got.img, text: `보관함에 ${got.name}${iga(got.name)} 들어왔어요!` },
+          { img: got.img, text: st.get.length > 1 ? `보관함에 아이템 ${st.get.length}개가 들어왔어요!` : `보관함에 ${got.name}${iga(got.name)} 들어왔어요!` },
           3200,
           after && { text: `다음 장소가 열렸어요: ${nameOf(after)}` },
         )

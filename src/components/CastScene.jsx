@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { playSfx } from './sfx.js'
 import FlyerGame from './FlyerGame.jsx'
+import { RewardPop } from './DialogScene.jsx'
 import './DialogScene.css'
 import './CastScene.css'
 
@@ -64,6 +65,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const [propsOn, setPropsOn] = useState({}) // 소품 (홍보물 · 가방 · 김밥)
   const [game, setGame] = useState(false)
   const [itemGet, setItemGet] = useState(null)
+  const [reward, setReward] = useState(null) // 학생증 등 획득 카드
 
   const lines = dialog.lines
   const labelIdx = useMemo(() => {
@@ -302,6 +304,15 @@ export default function CastScene({ dialog, onClose, startAt }) {
           playSfx(a.sfx)
         } else if (a.dark) {
           await gsap.to(rootRef.current.querySelector('.cast__dark'), { opacity: a.to ?? 0.75, duration: a.dark })
+        } else if (a.reward) {
+          // 획득 카드: 대화창을 치우고 튀어나옴 → 한 번 누르면 다음으로
+          await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
+          setReward({ src: a.reward, label: a.label })
+          playSfx('complete')
+          await new Promise((r) => (waitClickRef.current = r))
+          await gsap.to(rootRef.current.querySelector('.dialog__reward'), { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in' })
+          setReward(null)
+          await gsap.to(boxRef.current, { opacity: 1, y: 0, duration: 0.25 })
         } else if (a.walkers !== undefined) {
           setWalkers(a.walkers)
         } else if (a.passers) {
@@ -625,6 +636,8 @@ export default function CastScene({ dialog, onClose, startAt }) {
           />
         )}
 
+        {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
+
         {itemGet && <ItemGet {...itemGet} onOk={() => itemResRef.current?.()} />}
 
         {box && !boxOff && (
@@ -738,33 +751,38 @@ function PropIcon({ kind }) {
 }
 
 // 아이템 획득 화면: 어두워짐 → 그림이 아래에서 올라옴 → 글자 차례로
-// → 아래 대화 영역에 독백 한 줄씩 (다음 버튼) → 0.5초 뒤 보관 안내 + 확인
+// → 평소와 같은 대화창에 독백 (화면 아무 곳이나 눌러 넘김) → 0.5초 뒤 보관 안내 + 확인
 function ItemGet({ img, title, sub, desc, monologue = [], saved, onOk }) {
   const ref = useRef(null)
   const [n, setN] = useState(-1) // 보이는 독백 줄 (-1 = 아직)
   const [typed, setTyped] = useState(0)
-  const [wait, setWait] = useState(true) // 다음 버튼 잠김 (타이핑·정적 중)
+  const [ready, setReady] = useState(false) // 다음으로 넘길 수 있음 (화살표)
   const [done, setDone] = useState(false)
   const timers = useRef([])
-  const later = (fn, s) => timers.current.push(setTimeout(fn, s * 1000))
+  const finishRef = useRef(null)
+  const later = (fn, sec) => timers.current.push(setTimeout(fn, sec * 1000))
 
-  // 한 줄 타이핑
+  // 한 줄 타이핑 (누르면 한 번에 다 보임)
   const say = useCallback(
     (i) => {
       setN(i)
       setTyped(0)
-      setWait(true)
+      setReady(false)
       const text = monologue[i].text
       let k = 0
+      const end = () => {
+        clearInterval(t)
+        finishRef.current = null
+        setTyped(text.length)
+        if (i === monologue.length - 1) later(() => setDone(true), 0.5)
+        else setReady(true)
+      }
       const t = setInterval(() => {
         k += 1
         setTyped(k)
-        if (k >= text.length) {
-          clearInterval(t)
-          if (i === monologue.length - 1) later(() => setDone(true), 0.5)
-          else setWait(false)
-        }
-      }, 45)
+        if (k >= text.length) end()
+      }, 35)
+      finishRef.current = end
       timers.current.push(t)
     },
     [monologue],
@@ -788,44 +806,51 @@ function ItemGet({ img, title, sub, desc, monologue = [], saved, onOk }) {
     }
   }, [monologue, say])
 
-  const next = () => {
-    if (wait || n >= monologue.length - 1) return
-    setWait(true)
-    later(() => say(n + 1), monologue[n + 1].pause ?? 0) // 대사 사이 정적
+  // 화면을 누르면: 타이핑 중이면 한 번에, 다 나왔으면 다음 줄 (대사 사이 정적 후)
+  const next = (e) => {
+    e.stopPropagation()
+    if (finishRef.current) return finishRef.current()
+    if (!ready) return
+    setReady(false)
+    later(() => say(n + 1), monologue[n + 1].pause ?? 0.2)
   }
 
   const line = n >= 0 ? monologue[n] : null
   return (
-    <div className="cast__get" ref={ref} onClick={(e) => e.stopPropagation()}>
+    <div className={`cast__get${line ? ' has-talk' : ''}`} ref={ref} onClick={next}>
       <img className="cast__get-img" src={BASE + img} alt="" />
       <p className="cast__get-title">{title}</p>
       <p className="cast__get-sub">{sub}</p>
       <p className="cast__get-desc">{desc}</p>
+      {done && (
+        <>
+          <p className="cast__get-saved">{saved}</p>
+          <button
+            type="button"
+            className="cast__get-ok"
+            onClick={(e) => {
+              e.stopPropagation()
+              onOk()
+            }}
+          >
+            확인
+          </button>
+        </>
+      )}
 
-      {/* 독백 */}
-      <div className={`cast__get-talk${line ? ' is-on' : ''}`}>
-        <span className="cast__get-who">나</span>
-        <p className="cast__get-line" aria-live="polite">
-          {line && line.text.slice(0, typed)}
-        </p>
-        <div className="cast__get-foot">
-          {done ? (
-            <>
-              <span className="cast__get-saved">{saved}</span>
-              <button type="button" className="cast__get-ok" onClick={onOk}>
-                확인
-              </button>
-            </>
-          ) : (
-            <>
-              <span className="cast__get-page">{line ? `${n + 1} / ${monologue.length}` : ''}</span>
-              <button type="button" className="cast__get-next" onClick={next} disabled={wait}>
-                다음
-              </button>
-            </>
-          )}
+      {/* 독백: 평소 대화창과 같은 모양 */}
+      {line && (
+        <div className="dialog__box has-name is-flip">
+          <span className="dialog__name">나</span>
+          <p className="dialog__text" aria-live="polite">
+            {line.text.slice(0, typed)}
+            <span className="dialog__ghost" aria-hidden="true">
+              {line.text.slice(typed)}
+            </span>
+          </p>
+          {ready && <img className="dialog__next" src={`${BASE}talk/arrow.png`} alt="" />}
         </div>
-      </div>
+      )}
     </div>
   )
 }

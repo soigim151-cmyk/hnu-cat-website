@@ -49,8 +49,8 @@ export const LINTON = {
     // 멀리서 본 공원 (린튼공원2): 고등·시혁이 멀리 앉아 있음
     far: { src: `${T}bg-linton-far.webp` }, // 린튼공원2.png + 멀리 앉은 두 사람
     park: { src: `${T}bg-linton.webp` },
-    // 산책로 배경 (public/talk/bg-walk.webp 를 올리면 적용, 없으면 공원 배경을 다른 구도로)
-    walk: { src: `${T}bg-walk.webp`, fallback: `${T}bg-linton.webp`, fallbackPos: '20% 80%' },
+    // 시유를 따라 도망쳐 온 11번 건물 앞
+    walk: { src: `${T}bg-insarye.webp` },
   },
   startBg: 'far',
   main: ['sihyuk', 'goeun'], // 시혁·고등 대사는 기본 방향, 시유와 플레이어 대사는 대화창 좌우 반전
@@ -65,14 +65,14 @@ export const LINTON = {
     // 걸어가며 지나가는 시유 (시유옆모습.png) — left: 왼쪽을 보고 걸음(반전), right: 오른쪽으로 걸음
     siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 534, bottom: -429, w: 533, flip: ['left'] },
   },
-  photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.37] },
+  photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.33] },
   bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png
 
   lines: [
     // ── SCENE 01. 김시유를 찾습니다 ──
     {
       who: 'me',
-      text: '시유 씨 드리려고 오긴 했는데….',
+      text: '시유 선배님 드리려고 오긴 했는데….',
       // 공원 입구에서 벤치 쪽으로 아주 느리게 다가감 (기다리지 않음)
       before: [cam({ zoom: 1.04, x: 0, dur: 8, wait: false })],
       after: [bag('peek')],
@@ -87,7 +87,7 @@ export const LINTON = {
     },
     {
       who: 'me',
-      text: '혹시 시유 씨 어디 있는지 아시려나?',
+      text: '혹시 시유 선배님 어디 계신지 아시려나?',
       // 암전 → 터벅터벅 발소리 → 가까이 다가간 모습
       after: [
         W(0.3),
@@ -128,7 +128,7 @@ export const LINTON = {
     { who: 'goeun', text: '왜 또 그래.' },
     { who: 'me', text: '아, 제가 받은 건데 저는 참치김밥을 안 좋아해서요.' },
     { who: 'sihyuk', text: '근데 왜 하필 걔한테?' },
-    { who: 'me', text: '아까 시유 씨가 참치김밥 좋아한다고 하셨던 게 기억나서요.' },
+    { who: 'me', text: '아까 시유 선배님이 참치김밥 좋아한다고 하셨던 게 기억나서요.' },
     { who: 'sihyuk', text: '하. 걔 진짜 뭐 있나?', after: [pose('goeun', 'side')] },
     { who: 'goeun', text: '그냥 김밥 받는 거잖아.' },
     { who: 'sihyuk', text: '그러니까 왜 하필 걔냐고.', after: [pose('goeun', 'press', 0.25), pose('sihyuk', 'lean', 0.3)] },
@@ -137,7 +137,7 @@ export const LINTON = {
     { who: 'goeun', text: '지금도 예민하잖아.', after: [pose('sihyuk', 'shut'), pose('goeun', 'lean')] },
 
     // ── SCENE 03. 조별 과제 사건 ──
-    { who: 'me', text: '혹시 시유 씨랑 무슨 일 있으셨어요?' },
+    { who: 'me', text: '혹시 시유 선배님이랑 무슨 일 있으셨어요?' },
     { who: 'sihyuk', text: '있었죠. 아주 어이없는 일이.' },
     { who: 'goeun', text: '별일 아니에요.' },
     { who: 'sihyuk', text: '네가 당사자니까 그렇지.' },
@@ -160,7 +160,7 @@ export const LINTON = {
     { who: 'sihyuk', text: '근데 둘이 너무 붙어서 찍은 거야.' },
     { who: 'goeun', text: '그거 그냥 발표 준비 사진이잖아.' },
     { who: 'sihyuk', text: '그래서 내가 지워달라고 했지.' },
-    { who: 'me', text: '시유 씨한테요?' },
+    { who: 'me', text: '시유 선배님한테요?' },
     { who: 'sihyuk', text: '네. 근데 걔가 뭐라고 했는지 알아요?' },
     {
       who: 'me',
@@ -190,9 +190,9 @@ export const LINTON = {
     // ── SCENE 04. 통성명 ──
     { who: 'goeun', text: '아, 그러고 보니 이름도 안 물어봤네요.', before: [pose('goeun', 'look')] },
     { who: 'me', text: '아, 저는 이 학교 학생이에요.' },
-    { who: 'goeun', text: '저는 이고등이에요.', after: [reveal('goeun')] },
+    { who: 'goeun', text: '저는 이고등이에요.', after: [reveal('goeun'), { reward: `${T}id-goeun.png`, label: '이고등 학생증 획득!' }] },
     { who: 'me', text: '반갑습니다.' },
-    { who: 'sihyuk', text: '턱시혁.', after: [reveal('sihyuk')] },
+    { who: 'sihyuk', text: '턱시혁.', after: [reveal('sihyuk'), { reward: `${T}id-sihyuk.png`, label: '턱시혁 학생증 획득!' }] },
     { who: 'me', text: '네, 반갑습니다.' },
     { who: 'goeun', text: '저희는 거의 맨날 여기 있어요.' },
     { who: 'me', text: '두 분이 커플이신 거죠?' },
@@ -223,12 +223,12 @@ export const LINTON = {
     },
     {
       who: 'me',
-      text: '저기 시유 씨 아니에요?',
+      text: '저기 시유 선배님 아니에요?',
       // 걸음을 멈추고 이쪽을 봄: 옆모습 → 대화 이미지로 바뀜
       after: [show('siyu', 'look', { from: 'fade', dur: 0.4, wait: false }), hide('siyuSide', { dur: 0.4 })],
     },
     { who: 'siyu', text: '어. 안녕.' },
-    { who: 'me', text: '시유 씨! 한참 찾았어요.' },
+    { who: 'me', text: '시유 선배님! 한참 찾았어요.' },
     {
       who: 'siyu',
       text: '나를 왜?',
@@ -367,7 +367,7 @@ export const LINTON = {
       after: [hide('couple', { to: 'fade', dur: 0.7, wait: false }), bg('walk', 0.7)],
     },
 
-    // ── SCENE 09. 참치김밥 전달 완료 (린튼공원 밖 산책로) ──
+    // ── SCENE 09. 참치김밥 전달 완료 (11번 건물 앞) ──
     {
       who: 'me',
       text: '하…. 이제 안 쫓아오시겠죠?',
@@ -378,7 +378,7 @@ export const LINTON = {
     { who: 'siyu', text: '고등이 두고 안 움직이거든.' },
     { who: 'me', text: '아, 그래서 아까도….' },
     { who: 'siyu', text: '맨날 저래.' },
-    { who: 'me', text: '시혁 씨는 시유 씨를 진짜 싫어하시는 것 같아요.' },
+    { who: 'me', text: '시혁 씨는 시유 선배님을 진짜 싫어하시는 것 같아요.' },
     { who: 'siyu', text: '그런가?' },
     { who: 'me', text: '네. 엄청 화내시던데요.' },
     { who: 'siyu', text: '난 쟤한테 관심 없는데.', after: [bag('peek'), pose('siyu', 'down')] },
@@ -397,9 +397,9 @@ export const LINTON = {
     { who: 'siyu', text: '어. 고생했어.' },
     { who: 'siyu', text: '아, 잠깐.', before: [pose('siyu', 'stand')] },
     { who: 'me', text: '네?' },
-    { who: 'siyu', text: '다음엔 11번 건물로 와.' },
+    { who: 'siyu', text: '다음엔 그냥 여기로 와.' },
     { who: 'me', text: '왜요?' },
-    { who: 'siyu', text: '여기 오면 쟤 있잖아.' },
+    { who: 'siyu', text: '린튼공원 가면 쟤 있잖아.' },
     { who: 'me', text: '아….', after: [pose('siyu', 'eat', 0.3)] },
     {
       who: 'siyu',

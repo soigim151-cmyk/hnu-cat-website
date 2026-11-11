@@ -29,12 +29,11 @@ export const HALL = {
     hannam: { name: '한남이', known: true, folder: `${H}hannam/`, fallback: `${H}hannam.webp`, x: 330, bottom: -60, w: 518 },
     hanami: { name: '한나미', known: true, folder: `${H}hanami/`, fallback: `${H}hanami.webp`, x: -340, bottom: -60, w: 510 },
     // 화면 왼쪽에서 상반신만 보이는 한나미
-    hanamiPeek: { name: '한나미', known: true, as: 'hanami', folder: `${H}hanami/`, fallback: `${H}hanami.webp`, x: -560, bottom: -430, w: 510 },
+    hanamiPeek: { name: '한나미', known: true, as: 'hanami', folder: `${H}hanami/`, fallback: `${H}hanami.webp`, x: -390, bottom: -110, w: 510 }, // 가운데 한남이 바로 왼쪽 옆
   },
   // 소품 (x · bottom · w 는 인물과 같은 단위)
   props: {
     flyers: { kind: 'flyers', x: 20, bottom: 30, w: 190 },
-    bag: { kind: 'bag', x: 80, bottom: 360, w: 120 }, // 한남이 왼쪽 옆
     kimbap: { src: `${T}kimbap.webp`, x: 60, bottom: 380, w: 200 }, // 한남이 손 근처에서 등장
   },
   // 배경을 좌우로 오가는 학생들 / 한남이 앞을 지나가는 학생 두 명
@@ -59,7 +58,7 @@ export const HALL = {
       who: 'hannam',
       text: '안녕하세요! 학생회장 후보 한남이입니다. 공약 한번 읽어봐 주세요!',
       // 학생 두 명이 앞을 지나가지만 받지 않음 · 홍보물 더미 강조
-      after: [{ passers: true, dur: 2.3 }, prop('flyers', 'pulse')],
+      after: [{ reveal: 'hannam' }, { passers: true, dur: 2.3 }, prop('flyers', 'pulse')],
     },
     { who: 'hannam', text: '아, 벌써 시간이 이렇게 됐네. 아직 한참 남았는데...', after: [W(1), bubble('hannam', '…', 1.1)] },
     { label: 'ask', who: 'me', text: '무슨 일 있으세요?' },
@@ -101,7 +100,7 @@ export const HALL = {
 
     // ── SCENE 03. 선거운동 종료 ──
     { label: 'after', checkpoint: 'after', setup: STAGE, who: 'me', text: '이제 다 끝난 건가요?' },
-    { who: 'hannam', text: '네. 정말 큰 도움이 됐어요. 그냥 보내드리기엔 좀 그런데...', after: [prop('bag', 'show'), W(0.8)] },
+    { who: 'hannam', text: '네. 정말 큰 도움이 됐어요. 그냥 보내드리기엔 좀 그런데...', after: [W(0.8)] },
     { who: 'hannam', text: '보답은 나중에 할게요. 지금은 마땅히 드릴 게 없어서요.' },
     {
       who: 'me',
@@ -109,7 +108,7 @@ export const HALL = {
       // 왼쪽에서 한나미가 천천히 등장, 한남이는 오른쪽으로 살짝 비켜섬
       after: [move('hannam', 100, 0.9), show('hanami', { from: 'left', dur: 1.3 })],
     },
-    { who: 'hanami', text: '한남아, 홍보물 다 나눠줬어?' },
+    { who: 'hanami', text: '한남아, 홍보물 다 나눠줬어?', after: [{ reveal: 'hanami' }] },
     { who: 'hannam', text: '응. 이분이 도와주셨어.' },
     { who: 'hanami', text: '벌써? 나도 아직 남았는데.' },
     { who: 'hannam', text: '너 아까 친구들이랑 이야기하고 있었잖아.' },
@@ -123,11 +122,11 @@ export const HALL = {
       who: 'hanami',
       text: '아직 선거 안 끝났잖아. 내일은 내가 더 많이 나눠줄 거야.',
       // 한나미 왼쪽으로 퇴장, 한남이는 다시 가운데로
-      after: [hide('hanami', { to: 'left', dur: 1.1 }), prop('bag', [-340, 360], { dur: 1, wait: false }), move('hannam', -430, 1)],
+      after: [hide('hanami', { to: 'left', dur: 1.1 }), move('hannam', -430, 1)],
     },
 
     // ── SCENE 04. 참치김밥 획득 ──
-    { who: 'hannam', text: '아, 잠깐만요.', before: [prop('bag', 'pulse')] },
+    { who: 'hannam', text: '아, 잠깐만요.' },
     { who: 'me', text: '네?', after: [W(0.5), prop('kimbap', 'show', { dur: 0.5 })] },
     {
       who: 'hannam',
@@ -137,7 +136,7 @@ export const HALL = {
     },
     { who: 'me', text: '참치김밥이네요?' },
     { who: 'hannam', text: '네. 점심으로 먹으려고 챙겨왔는데, 도와주신 게 고마워서요.' },
-    { who: 'me', text: '그럼 점심은 어떻게 하시려고요?', before: [prop('kimbap', 'hide', { dur: 0.4 }), prop('bag', 'hide', { dur: 0.3 })] },
+    { who: 'me', text: '그럼 점심은 어떻게 하시려고요?', before: [prop('kimbap', 'hide', { dur: 0.4 })] },
     { who: 'hannam', text: '저는 나중에 먹으면 돼요. 학생회관 지하 1층에 멘사크리스티라는 식당도 있거든요.' },
     {
       who: 'hannam',
@@ -146,8 +145,8 @@ export const HALL = {
     // 화면 밖에서 들리는 한나미 목소리 → 0.5초 뒤 왼쪽에서 상반신만
     { who: 'hanami', text: '거기 학식 맛있어!', after: [W(0.5), show('hanamiPeek', { from: 'left', dur: 0.5 })] },
     { who: 'hannam', text: '나미는 학식 얘기만 나오면 꼭 끼어드네.' },
-    { who: 'hanamiPeek', text: '맛있는 건 알려줘야지.', after: [hide('hanamiPeek', { to: 'left', dur: 0.7 })] },
-    { who: 'me', text: '잘 먹겠습니다. 선거운동 힘내세요!' },
+    { who: 'hanamiPeek', text: '맛있는 건 알려줘야지.' },
+    { who: 'me', text: '잘 먹겠습니다. 선거운동 힘내세요!', before: [hide('hanamiPeek', { to: 'left', dur: 0.7 })] },
     {
       who: 'hannam',
       text: '감사합니다. 투표도 꼭 참여해 주세요!',

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import gsap from 'gsap'
+import { playSfx } from './sfx.js'
 import './DialogScene.css'
+import './CastScene.css'
 
 const BASE = import.meta.env.BASE_URL
 const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000))
@@ -22,6 +24,7 @@ export default function DialogScene({ dialog, onClose }) {
   const nameMapRef = useRef({}) // '???' → '김시유' 처럼 공개된 이름
 
   const [reward, setReward] = useState(null) // 획득 아이템
+  const [profile, setProfile] = useState(null) // NEW CHARACTER 카드
   const rewardDoneRef = useRef(null)
   const [step, setStep] = useState(-1) // -1 = 장소 안내
   const [typed, setTyped] = useState(0)
@@ -118,6 +121,11 @@ export default function DialogScene({ dialog, onClose }) {
             { y: 60, opacity: 0, scaleY: 0.94, transformOrigin: '50% 100%' },
             { y: 0, opacity: 1, scaleY: 1, duration: a.dur ?? 0.35, ease: 'back.out(2.2)' },
           )
+        } else if (a.profile) {
+          playSfx('ding')
+          setProfile(a.profile)
+          await sleep(1.5)
+          setProfile(null)
         } else if (a.rename) {
           const el = nameRef.current
           await gsap.to(el, { opacity: 0, duration: (a.dur ?? 0.2) / 2 })
@@ -281,6 +289,12 @@ export default function DialogScene({ dialog, onClose }) {
       </div>
 
       {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
+      {profile && (
+        <div className="cast__profile">
+          <span className="cast__profile-tag">NEW CHARACTER</span>
+          <span className="cast__profile-name">{profile}</span>
+        </div>
+      )}
 
       <button
         type="button"
@@ -336,7 +350,7 @@ function PoseLayer({ src, dur }) {
 }
 
 // '휙득!' 아이템 등장: 빙글 돌며 크게 튀어나오고, 빛이 뒤에서 돌며, 글자가 톡 튐
-function RewardPop({ src, label }) {
+export function RewardPop({ src, label }) {
   const ref = useRef(null)
   useLayoutEffect(() => {
     const q = gsap.utils.selector(ref)

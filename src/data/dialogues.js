@@ -68,7 +68,7 @@ export const DIALOGUES = {
       { who: '학생들', text: '알았어, 알았어. 나 먼저 간다.', after: [W(0.3), { leave: 'student', dur: 0.6 }] },
       { who: '???', text: '어.' },
       { who: '나', text: '시유 씨라고 하시는군요.', before: [W(0.6), P('look')] },
-      { who: '???', text: '응. 김시유. 넌?', after: [W(0.3), { rename: '김시유', dur: 0.2 }] },
+      { who: '???', text: '응. 김시유. 넌?', after: [W(0.3), { rename: '김시유', dur: 0.2 }, { profile: '김시유' }] },
       { who: '나', text: '저는 그냥 학교 구경하고 있었어요.' },
       { who: '김시유', text: '이름 물어본 건데.', before: [W(0.8), P('blank')] },
       { who: '나', text: '아, 제 이름이요?' },

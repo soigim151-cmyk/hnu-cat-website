@@ -6,7 +6,7 @@
 export const STORY = [
   { id: 'insarye-hall', get: ['id-card'] },
   { id: 'student-hall', get: ['kimbap'] },
-  { id: 'linton-park', use: ['kimbap'] },
+  { id: 'linton-park', get: ['id-goeun', 'id-sihyuk'], use: ['kimbap'] },
   { id: 'side-gate', note: '쪽문 이야기는 곧 열려요.' },
   { id: 'memorial-56', note: '56주년 기념관 이야기는 곧 열려요.' },
 ]
@@ -14,9 +14,19 @@ export const STORY = [
 // 보관함 아이템 (img 는 public/ 기준 경로)
 export const ITEMS = {
   'id-card': {
-    name: '학생증',
+    name: '김시유 학생증',
     img: 'talk/id-siyu-v2.png',
-    desc: '11번 건물 앞 벤치에서 받은 학생증. 이제 진짜 한남대 학생이다!',
+    desc: '11번 건물 앞 벤치에서 만난 김시유의 학생증.',
+  },
+  'id-goeun': {
+    name: '이고등 학생증',
+    img: 'talk/id-goeun.png',
+    desc: '린튼공원에서 통성명하며 받은 이고등의 학생증.',
+  },
+  'id-sihyuk': {
+    name: '턱시혁 학생증',
+    img: 'talk/id-sihyuk.png',
+    desc: '린튼공원에서 통성명하며 받은 턱시혁의 학생증. 발급 사유가 수상하다.',
   },
   kimbap: {
     name: '참치김밥',
