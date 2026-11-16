@@ -47,6 +47,7 @@ export const GATE = {
       '진앤키노는 늘 "청소 중"…. 무엇을 파는 곳인지 아무도 몰라요.',
     ],
   },
+  solo: ['ju1', 'ju2', 'ju3', 'ju4'], // 넷이 나란히 서 있지 않고, 말하는 한 명만 가운데에
   main: ['ju1', 'ju2', 'ju3', 'ju4', 'shop'], // 4남매 대사는 기본 방향, 플레이어는 반전
   bgs: {
     gate: { src: `${G}bg-gate.webp` }, // 쪽문.png (처음 독백)
@@ -55,10 +56,10 @@ export const GATE = {
   startBg: 'gate',
   cast: {
     group: { name: '', nofocus: true, folder: `${G}group/`, fallback: `${G}group.webp`, x: 0, bottom: -40, w: 1150 },
-    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -480, bottom: -40, w: 262 },
-    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -165, bottom: -40, w: 286 },
-    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 150, bottom: -40, w: 276 },
-    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 455, bottom: -40, w: 242 },
+    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: 0, bottom: -40, w: 262 },
+    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: 0, bottom: -40, w: 286 },
+    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 0, bottom: -40, w: 276 },
+    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 0, bottom: -40, w: 242 },
     shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}ju1.webp`, x: 0, bottom: -2000, w: 10 },
   },
 
@@ -84,15 +85,13 @@ export const GATE = {
     {
       who: 'ju1',
       text: '알았어. 이제 진짜 가자.',
-      // 각자 이미지로 바뀌고, 치주삼이 돌아서다가 플레이어와 부딪힐 뻔함
+      // 각자 이미지로 바뀜 (말하는 한 명만 보임)
       after: [
         hide('group', { dur: 0.35, wait: false }),
         ...showAll(0.35),
-        cam({ zoom: 1.14, on: 'ju3', dur: 0.35 }),
-        { shake: 'ju3' },
       ],
     },
-    { who: 'ju3', text: '어, 조심하세요.' },
+    { who: 'ju3', text: '어, 조심하세요.', before: [cam({ zoom: 1.14, on: 'ju3', dur: 0.35 }), { shake: 'ju3' }] },
     { who: 'ju3', text: '혹시 저기 가시려고요?', after: [cam({ zoom: 1, x: 0, dur: 0.6 })] },
     { who: 'me', text: '아니요, 밥 먹으러 왔어요.' },
     { who: 'ju3', text: '다행이네요. 저긴 오늘도 청소 중이거든요.' },

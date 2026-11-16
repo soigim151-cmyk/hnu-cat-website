@@ -72,6 +72,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const [caption, setCaption] = useState(null) // 화면 가운데 짧은 글 / 휴대폰 알림
   const [chromeOff, setChromeOff] = useState(false) // 닫기 버튼까지 숨김 (엔딩)
   const [skipOpen, setSkipOpen] = useState(false) // 건너뛰기 정리 창
+  const [soloWho, setSoloWho] = useState(null) // solo 인물 중 지금 화면에 나와 있는 한 명
 
   const lines = dialog.lines
   const labelIdx = useMemo(() => {
@@ -447,6 +448,8 @@ export default function CastScene({ dialog, onClose, startAt }) {
         await gsap.to(curtainRef.current, { opacity: 0, duration: 0.8, ease: 'power1.inOut' })
       }
       if (l.checkpoint) resumeRef.current = l.checkpoint
+      // 한 명씩 나와서 말하는 인물들 (예: 4남매): 말하는 사람만 보임
+      if (dialog.solo?.includes(l.who)) setSoloWho(l.who)
       if (l.tap) {
         // 대화창 없이 인물 머리 위 아이콘 → 아무 곳이나 누르면 시작
         setBoxOff(true)
@@ -594,7 +597,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
                 className={`cast__char cast__char--${who}`}
                 style={{ '--x': c.x, '--b': c.bottom, '--w': c.w, visibility: p ? 'visible' : 'hidden' }}
               >
-                <div className={`cast__char-inner${focus}`}>
+                <div className={`cast__char-inner${focus}${dialog.solo?.includes(who) && soloWho !== who ? ' is-off' : ''}`}>
                   {/* flip 목록에 있는 포즈는 좌우 반전 (같은 옆모습으로 양쪽 방향) */}
                   <div className={c.flip === true || c.flip?.includes(p) ? 'cast__flip' : undefined}>
                     {src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}
