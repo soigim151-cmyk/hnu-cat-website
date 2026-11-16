@@ -73,7 +73,6 @@ export const HALL = {
       text: '무슨 일 있으세요?',
     },
     { who: 'hannam', text: '아, 안녕하세요. 지금 학생회장 선거운동 중인데 점심시간 안에 홍보물을 나눠줘야 하거든요.' },
-    { who: 'me', text: '많이 남았네요.' },
     {
       who: 'hannam',
       text: '네. 이따 다른 일정도 있어서요. 혹시 잠깐만 도와주실 수 있을까요?',
@@ -100,7 +99,6 @@ export const HALL = {
       who: 'hannam',
       text: '홍보물을 받겠다는 학생들에게만 전달해 주세요. 이미 받은 학생도 있으니까 잘 확인해 주시고요.',
     },
-    { who: 'me', text: '알겠습니다.' },
     {
       who: 'hannam',
       text: '그럼 부탁드릴게요!',
@@ -111,8 +109,7 @@ export const HALL = {
 
     // ── SCENE 03. 선거운동 종료 ──
     { label: 'after', checkpoint: 'after', setup: STAGE, who: 'me', text: '이제 다 끝난 건가요?' },
-    { who: 'hannam', text: '네. 정말 큰 도움이 됐어요. 그냥 보내드리기엔 좀 그런데...', after: [W(0.8)] },
-    { who: 'hannam', text: '보답은 나중에 할게요. 지금은 마땅히 드릴 게 없어서요.' },
+    { who: 'hannam', text: '네. 정말 큰 도움이 됐어요. 보답은 나중에 꼭 할게요.', after: [W(0.6)] },
     {
       who: 'me',
       text: '괜찮아요. 금방 끝났는데요.',
@@ -120,15 +117,9 @@ export const HALL = {
       after: [move('hannam', 100, 0.9), show('hanami', { from: 'left', dur: 1.3 })],
     },
     { who: 'hanami', text: '한남아, 홍보물 다 나눠줬어?', after: [{ reveal: 'hanami' }] },
-    { who: 'hannam', text: '응. 이분이 도와주셨어.' },
-    { who: 'hanami', text: '벌써? 나도 아직 남았는데.' },
-    { who: 'hannam', text: '너 아까 친구들이랑 이야기하고 있었잖아.' },
-    { who: 'hanami', text: '그것도 선거운동이거든.' },
-    { who: 'hannam', text: '알겠어. 그래서 몇 장 나눠줬는데?' },
-    { who: 'hanami', text: '음, 30장?' },
-    { who: 'hannam', text: '난 방금 50장 다 나눠줬어.', after: [W(0.7)] },
+    { who: 'hannam', text: '응. 이분이 도와주셔서 50장 다 나눠줬어.' },
+    { who: 'hanami', text: '벌써? 난 아직 30장인데….', after: [W(0.7)] },
     { who: 'hanami', text: '...나도 좀 도와달라고 할걸.' },
-    { who: 'hannam', text: '이제 와서?' },
     {
       who: 'hanami',
       text: '아직 선거 안 끝났잖아. 내일은 내가 더 많이 나눠줄 거야.',
@@ -147,15 +138,13 @@ export const HALL = {
     },
     { who: 'me', text: '참치김밥이네요?' },
     { who: 'hannam', text: '네. 점심으로 먹으려고 챙겨왔는데, 도와주신 게 고마워서요.' },
-    { who: 'me', text: '그럼 점심은 어떻게 하시려고요?', before: [prop('kimbap', 'hide', { dur: 0.4 })] },
-    { who: 'hannam', text: '저는 나중에 먹으면 돼요. 학생회관 지하 1층에 멘사크리스티라는 식당도 있거든요.' },
+    { who: 'hannam', text: '저는 지하 1층 멘사크리스티에서 먹으면 돼요. 학생식당이 바로 아래 있거든요.', before: [prop('kimbap', 'hide', { dur: 0.4 })] },
     {
       who: 'hannam',
       text: '여기는 동아리방이나 실내체육관 같은 활동 공간뿐 아니라 장학금, 학적 관련 업무를 지원하는 부서도 있어서 학생들이 자주 이용해요.',
     },
     // 화면 밖에서 들리는 한나미 목소리 → 0.5초 뒤 왼쪽에서 상반신만
     { who: 'hanami', text: '거기 학식 맛있어!', after: [W(0.5), show('hanamiPeek', { from: 'left', dur: 0.5 })] },
-    { who: 'hannam', text: '나미는 학식 얘기만 나오면 꼭 끼어드네.' },
     { who: 'hanamiPeek', text: '맛있는 건 알려줘야지.' },
     { who: 'me', text: '잘 먹겠습니다. 선거운동 힘내세요!', before: [hide('hanamiPeek', { to: 'left', dur: 0.7 })] },
     {

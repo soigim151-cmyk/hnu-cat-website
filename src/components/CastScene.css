@@ -682,3 +682,62 @@
   opacity: 0;
   pointer-events: none;
 }
+
+/* 벤치 위에 놓인 쪽지 */
+.cast__caption.is-note {
+  top: 30%;
+  max-width: min(calc(100vw - 32px), calc(760 * var(--u)));
+  padding: calc(30 * var(--u)) calc(40 * var(--u));
+  border: 0;
+  background: #fffaf0;
+  color: #3a3226;
+  white-space: normal;
+  transform: translate(-50%, -50%) rotate(-1.5deg);
+  box-shadow: 0 calc(10 * var(--u)) calc(28 * var(--u)) rgba(40, 20, 0, 0.35);
+  animation: cast-note 1.2s ease;
+}
+.cast__caption.is-note .cast__caption-kicker {
+  color: #a08460;
+}
+.cast__caption.is-note .cast__caption-text {
+  color: #3a3226;
+  font-size: max(18px, calc(40 * var(--u)));
+  line-height: 1.4;
+}
+.cast__caption.is-note .cast__caption-sub {
+  color: #6a5b48;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+@keyframes cast-note {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) rotate(-1.5deg);
+  }
+}
+/* 마지막 글 (어두운 화면 위) */
+.cast__caption.is-end {
+  top: 50%;
+  border: 0;
+  background: none;
+  color: #fff;
+  white-space: normal;
+  max-width: min(calc(100vw - 32px), calc(900 * var(--u)));
+  animation: cast-end 2.4s ease;
+}
+.cast__caption.is-end .cast__caption-kicker {
+  color: #ffe9b0;
+}
+.cast__caption.is-end .cast__caption-text {
+  color: #fff;
+}
+.cast__caption.is-end .cast__caption-sub {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.8;
+  word-break: keep-all;
+}
+@keyframes cast-end {
+  from {
+    opacity: 0;
+  }
+}

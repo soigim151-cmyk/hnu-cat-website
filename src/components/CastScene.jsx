@@ -211,7 +211,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
             right: { opacity: 0, xPercent: 40 },
             back: { opacity: 0, scale: 0.72, yPercent: -12 }, // 멀리서 다가오는 느낌
           }[a.from || 'fade']
-          const t = gsap.fromTo(el, from, { opacity: 1, xPercent: 0, yPercent: 0, scale: 1, duration: dur, ease: a.from === 'back' ? 'power1.out' : 'power2.out' })
+          const t = gsap.fromTo(el, from, { opacity: a.opacity ?? 1, xPercent: 0, yPercent: 0, scale: 1, duration: dur, ease: a.from === 'back' ? 'power1.out' : 'power2.out' })
           if (a.wait !== false) await t
         } else if (a.pose && a.p) {
           setPoseDur((d) => ({ ...d, [a.pose]: a.dur ?? 0.3 }))
@@ -683,7 +683,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
 
         {/* 가운데 짧은 글 · 휴대폰 알림 */}
         {caption && (
-          <div className={`cast__caption${caption.phone ? ' is-phone' : ''}`}>
+          <div className={`cast__caption${caption.phone ? ' is-phone' : ''}${caption.note ? ' is-note' : ''}${caption.end ? ' is-end' : ''}`}>
             {caption.kicker && <span className="cast__caption-kicker">{caption.kicker}</span>}
             <span className="cast__caption-text">{caption.text}</span>
             {caption.sub && <span className="cast__caption-sub">{caption.sub}</span>}
