@@ -23,7 +23,7 @@ export default function CampusPage({ onBack }) {
   const [revealed, setRevealed] = useState(false) // 로딩 화면이 끝나고 캠퍼스 등장
   const [dragging, setDragging] = useState(false)
   const [pointing, setPointing] = useState(false) // 건물 위에 마우스가 있음
-  // ── 스토리 진행 (저장하지 않음: 처음으로 가거나 3분 방치하면 초기화) ──
+  // ── 스토리 진행 (저장하지 않음: 처음으로 가면 초기화) ──
   const [done, setDone] = useState([]) // 이야기를 끝낸 장소 id (순서대로)
   const [items, setItems] = useState({}) // 보관함: { 아이템 id: 'have' | 'used' }
   const [bagNew, setBagNew] = useState(false)
