@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import gsap from 'gsap'
-import { playSfx } from './sfx.js'
+import { playSfx, playBgm, stopBgm } from './sfx.js'
+import { SkipButton, SkipPanel } from './SkipPanel.jsx'
 import './DialogScene.css'
 import './CastScene.css'
 
@@ -25,6 +26,7 @@ export default function DialogScene({ dialog, onClose }) {
 
   const [reward, setReward] = useState(null) // 획득 아이템
   const [profile, setProfile] = useState(null) // NEW CHARACTER 카드
+  const [skipOpen, setSkipOpen] = useState(false) // 건너뛰기 정리 창
   const rewardDoneRef = useRef(null)
   const [step, setStep] = useState(-1) // -1 = 장소 안내
   const [typed, setTyped] = useState(0)
@@ -61,6 +63,7 @@ export default function DialogScene({ dialog, onClose }) {
         typingRef.current = setInterval(() => {
           n += 1
           setTyped(n)
+          if (n % 3 === 1) playSfx('blip')
           if (n >= text.length) end()
         }, dialog.typeSpeed ?? 35)
       }),
@@ -173,6 +176,8 @@ export default function DialogScene({ dialog, onClose }) {
   useLayoutEffect(() => {
     aliveRef.current = true
     gsap.fromTo(rootRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+    if (dialog.bgm) playBgm(dialog.bgm, undefined, 1.2)
+    else stopBgm(1)
     gsap.fromTo('.dialog__bg', { scale: 1.06 }, { scale: 1, duration: 1.4, ease: 'expo.out' })
     let cancelled = false
     ;(async () => {
@@ -207,13 +212,27 @@ export default function DialogScene({ dialog, onClose }) {
       rewardDoneRef.current = null
       return done()
     }
+    if (skipOpen) return
     if (finishRef.current) return finishRef.current() // 타이핑 중이면 한 번에 다 보여주기
     if (busyRef.current) return // 자동 연출 중
+    playSfx('tick')
     if (step + 1 < lines.length) play(step + 1)
-  }, [step, lines.length, play])
+  }, [step, lines.length, play, skipOpen])
+
+  // 건너뛰기: 이 장소를 끝낸 것으로 처리
+  const skip = () => {
+    aliveRef.current = false
+    clearInterval(typingRef.current)
+    setSkipOpen(false)
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.4, onComplete: () => onClose(true) })
+  }
 
   useEffect(() => {
     const onKey = (e) => {
+      if (skipOpen) {
+        if (e.key === 'Escape') setSkipOpen(false)
+        return
+      }
       if (e.key === 'Escape') close()
       else if ([' ', 'Enter', 'ArrowRight'].includes(e.key)) {
         e.preventDefault()
@@ -222,7 +241,7 @@ export default function DialogScene({ dialog, onClose }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [next, close])
+  }, [next, close, skipOpen])
 
   const ch = dialog.character
 
@@ -289,6 +308,11 @@ export default function DialogScene({ dialog, onClose }) {
       </div>
 
       {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
+      {skipOpen && dialog.summary && (
+        <SkipPanel place={dialog.place} summary={dialog.summary} onCancel={() => setSkipOpen(false)} onSkip={skip} />
+      )}
+      {dialog.summary && <SkipButton hidden={!!reward} onClick={() => setSkipOpen(true)} />}
+
       {profile && (
         <div className="cast__profile">
           <span className="cast__profile-tag">NEW CHARACTER</span>

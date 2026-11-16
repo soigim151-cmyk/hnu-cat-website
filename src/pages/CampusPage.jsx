@@ -14,6 +14,7 @@ import { DIALOGUES } from '../data/dialogues.js'
 import { BUILDINGS } from '../data/buildings.js'
 import { STORY, ITEMS } from '../data/story.js'
 import { QuestBar, Inventory, ItemViewer, Confirm, PlaceNote, Toast } from '../components/StoryUI.jsx'
+import { playSfx, playBgm, stopBgm } from '../components/sfx.js'
 import './CampusPage.css'
 
 export default function CampusPage({ onBack }) {
@@ -66,9 +67,11 @@ export default function CampusPage({ onBack }) {
 
   // 장소 이야기를 끝까지 봄 → 다음 장소 열기 + 아이템
   const finishPlace = useCallback(
-    (id) => {
+    (id, extra = {}) => {
       if (id !== nextId) return // 이미 끝낸 장소를 다시 본 경우
-      const st = STORY[stepNow]
+      // 장소 기본 결과 + 대화 중 선택에 따른 결과 (예: 참치김밥을 줬는지)
+      const base = STORY[stepNow]
+      const st = { ...base, use: [...(base.use || []), ...(extra.use || [])] }
       setDone((d) => [...d, id])
       if (st.get?.length || st.use?.length) {
         setItems((m) => {
@@ -82,6 +85,7 @@ export default function CampusPage({ onBack }) {
       const after = STORY[stepNow + 1] && BUILDINGS.find((b) => b.id === STORY[stepNow + 1].id)
       if (got) {
         setBagNew(true)
+        playSfx('item')
         showToast(
           { img: got.img, text: st.get.length > 1 ? `보관함에 아이템 ${st.get.length}개가 들어왔어요!` : `보관함에 ${got.name}${iga(got.name)} 들어왔어요!` },
           3200,
@@ -95,26 +99,40 @@ export default function CampusPage({ onBack }) {
 
   // 선택한 장소 → 대화가 있으면 대화 화면, 없으면 짧은 안내
   const [talk, setTalk] = useState(null) // { id, dialog, startAt }
+
+  // 지도 화면 배경 음악 (대화 중에는 장소 음악이 대신 나옴)
+  useEffect(() => {
+    if (revealed && !talk) playBgm('map', undefined, 1.2)
+  }, [revealed, talk])
+  useEffect(() => () => stopBgm(0.3), [])
+  // 브라우저는 화면을 한 번 눌러야 소리를 낼 수 있음 → 첫 터치에 소리 깨우기
+  useEffect(() => {
+    const wake = () => playSfx('none')
+    window.addEventListener('pointerdown', wake, { once: true })
+    return () => window.removeEventListener('pointerdown', wake)
+  }, [])
   const resumeRef = useRef({}) // 장소별: 중간에 닫았을 때 다시 시작할 위치
   const setSelectedBuilding = useCallback((b) => {
     if (!b) return
+    playSfx('select')
     if (DIALOGUES[b.id]) setTalk({ id: b.id, dialog: DIALOGUES[b.id], startAt: resumeRef.current[b.id] })
     else setNote(b)
   }, [])
   // 순서가 아닌 장소를 누름
   const handleLocked = useCallback(
     (b) => {
+      playSfx('deny')
       if (nextB) showToast({ text: `아직 ${b.name}에는 갈 수 없어요. 지금은 ${nameOf(nextB)} 차례예요!` })
     },
     [nextB, showToast],
   )
   const closeTalk = useCallback(
-    (completed, resume) => {
+    (completed, resume, extra) => {
       const id = talk?.id
       setTalk(null)
       if (!id) return
       resumeRef.current[id] = completed === true ? undefined : resume || undefined
-      if (completed === true) finishPlace(id)
+      if (completed === true) finishPlace(id, extra)
     },
     [talk, finishPlace],
   )
@@ -160,7 +178,7 @@ export default function CampusPage({ onBack }) {
   return (
     <main className="campus">
       {/* 처음(시작 페이지)으로 돌아가기 */}
-      <button type="button" className={`campus__back${revealed ? ' is-shown' : ''}`} onClick={() => setConfirmBack(true)} aria-label="처음으로 돌아가기">
+      <button type="button" className={`campus__back${revealed ? ' is-shown' : ''}`} onClick={() => (playSfx('pop'), setConfirmBack(true))} aria-label="처음으로 돌아가기">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5l-7 7 7 7" />
         </svg>

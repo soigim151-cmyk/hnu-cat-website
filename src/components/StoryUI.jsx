@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ITEMS } from '../data/story.js'
+import { isMuted, setMuted, playSfx } from './sfx.js'
 import './StoryUI.css'
 
 const BASE = import.meta.env.BASE_URL
@@ -45,12 +46,25 @@ export function Inventory({ items, isNew, onOpen, onPick, shown }) {
   }, [open])
 
   const toggle = () => {
+    if (!open) playSfx('pop')
     setOpen((o) => !o)
     onOpen?.()
+  }
+  // 소리 켜기/끄기
+  const [mute, setMute] = useState(isMuted())
+  const toggleSound = () => {
+    setMuted(!mute)
+    setMute(!mute)
   }
 
   return (
     <div className={`bag${shown ? ' is-shown' : ''}`} ref={ref}>
+      <button type="button" className="bag__sound" onClick={toggleSound} aria-label={mute ? '소리 켜기' : '소리 끄기'} aria-pressed={!mute}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor" />
+          {mute ? <path d="M17 9l5 6m0-6l-5 6" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}
+        </svg>
+      </button>
       <button
         type="button"
         className={`bag__btn${isNew ? ' is-new' : ''}`}

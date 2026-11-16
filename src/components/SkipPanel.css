@@ -1,0 +1,124 @@
+/* 대화 건너뛰기 버튼 + 정리 창 (대화 화면 위) */
+.skip__btn {
+  position: absolute;
+  right: 72px;
+  top: 16px;
+  z-index: 12;
+  height: 40px;
+  padding: 0 14px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: rgba(2, 37, 255, 0.55);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .skip__btn:hover {
+    background: var(--blue-ink);
+  }
+}
+.skip__btn:focus-visible {
+  outline: 3px solid #ffe14d;
+  outline-offset: 2px;
+}
+
+.skip {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 30, 0.6);
+  cursor: default;
+  animation: skip-in 0.25s ease;
+}
+@keyframes skip-in {
+  from {
+    opacity: 0;
+  }
+}
+.skip__card {
+  width: min(620px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 28px 28px 22px;
+  border: 4px solid #fff;
+  background: var(--blue-ink);
+  color: #fff;
+  animation: skip-pop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes skip-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+}
+.skip__kicker {
+  margin: 0;
+  color: #ffe14d;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+.skip__place {
+  margin: 6px 0 12px;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 400;
+}
+.skip__story {
+  margin: 0 0 18px;
+  font-size: 16px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.skip__info {
+  padding: 14px 18px;
+  background: #fff;
+  color: var(--blue-ink);
+}
+.skip__info-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+.skip__info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-base);
+  font-size: 15px;
+  line-height: 1.75;
+  color: #2a3150;
+  word-break: keep-all;
+}
+.skip__info li::before {
+  content: '▸ ';
+  color: var(--blue);
+}
+.skip__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+.skip__action {
+  min-width: 110px;
+  padding: 10px 18px;
+  border: 3px solid #fff;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+.skip__action.is-main {
+  background: #ffe14d;
+  color: var(--blue-ink);
+}
+.skip__action:focus-visible {
+  outline: 3px solid #ffe14d;
+  outline-offset: 3px;
+}

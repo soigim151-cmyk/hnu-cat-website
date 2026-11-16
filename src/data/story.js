@@ -6,7 +6,7 @@
 export const STORY = [
   { id: 'insarye-hall', get: ['id-card'] },
   { id: 'student-hall', get: ['kimbap'] },
-  { id: 'linton-park', get: ['id-goeun', 'id-sihyuk'], use: ['kimbap'] },
+  { id: 'linton-park', get: ['id-goeun', 'id-sihyuk'] }, // 참치김밥은 시유에게 줬을 때만 '전달 완료'
   { id: 'side-gate' },
   { id: 'memorial-56' },
 ]

@@ -21,6 +21,16 @@ export const HALL = {
   typeSpeed: 35,
   gap: 0.3,
   calm: true, // 말할 때 인물이 커지지 않음
+  bgm: 'bright',
+  summary: {
+    name: '학생회관',
+    story: '학생회장 후보 한남이의 선거 홍보물 나눠주기를 도와주고, 보답으로 참치김밥을 받았다.',
+    info: [
+      '지하 1층에 학생식당 멘사크리스티가 있어요.',
+      '동아리방과 실내체육관 같은 학생 활동 공간이 모여 있어요.',
+      '장학금 · 학적 업무를 돕는 부서가 있어 학생들이 자주 찾아요.',
+    ],
+  },
   main: ['hannam', 'hanami'], // 한남이 · 한나미 대사는 기본 방향, 플레이어는 반전
   bgs: { hall: { src: `${H}bg.webp` } },
   startBg: 'hall',

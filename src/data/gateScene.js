@@ -37,6 +37,16 @@ export const GATE = {
   typeSpeed: 35,
   gap: 0.3,
   calm: true,
+  bgm: 'street',
+  summary: {
+    name: '쪽문',
+    story: '쪽문 골목에서 메뉴 하나 정하는 데도 진심인 4남매를 만나 맛집을 추천받고, 점심을 해결했다.',
+    info: [
+      '학교 쪽문 밖 골목에 밥집이 모여 있어요.',
+      '도스마스(부리또) · 쯔보(오렌지치킨) · 면식당(라멘) · 몽심(디저트, 레몬 마들렌)',
+      '진앤키노는 늘 "청소 중"…. 무엇을 파는 곳인지 아무도 몰라요.',
+    ],
+  },
   main: ['ju1', 'ju2', 'ju3', 'ju4', 'shop'], // 4남매 대사는 기본 방향, 플레이어는 반전
   bgs: {
     gate: { src: `${G}bg-gate.webp` }, // 쪽문.png (처음 독백)
@@ -221,6 +231,14 @@ export const GATE = {
       after: [sfx('comic'), { shake: 'world' }, sfx('whoosh'), cam({ zoom: 1, x: 0, dur: 0.35 })],
     },
     { who: 'me', text: '...쫓겨났다.', after: [W(0.6)] },
-    { who: 'me', text: '진짜 청소 중이었네. 다른 데 가야겠다.', next: 'menu' },
+    // 쫓겨난 뒤에는 진앤키노를 다시 고를 수 없음
+    {
+      label: 'menu2',
+      checkpoint: 'menu2',
+      setup: ALLEY,
+      who: 'me',
+      text: '진짜 청소 중이었네. 다른 데 가야겠다.',
+      choices: MENU.filter((m) => m.goto !== 'eat-jin'),
+    },
   ],
 }

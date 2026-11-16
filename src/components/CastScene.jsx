@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { playSfx, playBgm, stopBgm, bgmVolume } from './sfx.js'
 import FlyerGame from './FlyerGame.jsx'
+import { SkipButton, SkipPanel } from './SkipPanel.jsx'
 import { RewardPop } from './DialogScene.jsx'
 import './DialogScene.css'
 import './CastScene.css'
@@ -70,6 +71,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const [icons, setIcons] = useState({}) // 인물 옆 작은 아이콘 (? · … · 📷 등)
   const [caption, setCaption] = useState(null) // 화면 가운데 짧은 글 / 휴대폰 알림
   const [chromeOff, setChromeOff] = useState(false) // 닫기 버튼까지 숨김 (엔딩)
+  const [skipOpen, setSkipOpen] = useState(false) // 건너뛰기 정리 창
 
   const lines = dialog.lines
   const labelIdx = useMemo(() => {
@@ -157,6 +159,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
         typingRef.current = setInterval(() => {
           n += 1
           setTyped(n)
+          if (n % 3 === 1) playSfx('blip')
           if (n >= text.length) end()
         }, dialog.typeSpeed ?? 35)
       }),
@@ -385,8 +388,10 @@ export default function CastScene({ dialog, onClose, startAt }) {
           // 미니게임: 끝날 때까지 기다림
           setBoxOff(true)
           setGame(true)
+          playBgm('game', undefined, 0.6)
           const res = await new Promise((r) => (gameResRef.current = r))
           setGame(false)
+          if (dialog.bgm) playBgm(dialog.bgm, undefined, 1)
           if (res === 'quit') {
             aliveRef.current = false
             await gsap.to(rootRef.current, { opacity: 0, duration: 0.35 })
@@ -416,7 +421,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
           setComplete(a.complete)
           await new Promise((res) => (waitClickRef.current = res))
           await gsap.to(rootRef.current, { opacity: 0, duration: 0.4 })
-          onClose(true) // 끝까지 봄
+          onClose(true, null, { use: a.complete.use }) // 끝까지 봄
           return
         }
       }
@@ -480,6 +485,9 @@ export default function CastScene({ dialog, onClose, startAt }) {
   useLayoutEffect(() => {
     aliveRef.current = true
     gsap.fromTo(rootRef.current, { opacity: 0 }, { opacity: 1, duration: 0.7, ease: 'power2.out' })
+    // 장소 음악 (없으면 지도 음악을 끔)
+    if (dialog.bgm) playBgm(dialog.bgm, undefined, 1.2)
+    else stopBgm(1)
     let cancelled = false
     ;(async () => {
       await sleep(0.7)
@@ -513,21 +521,36 @@ export default function CastScene({ dialog, onClose, startAt }) {
       waitClickRef.current = null
       return done()
     }
+    if (skipOpen) return
     if (finishRef.current) return finishRef.current()
     if (busyRef.current) return
+    playSfx('tick')
     if (step < 0) return play(startAt && labelIdx[startAt] != null ? labelIdx[startAt] : 0, true)
     const n = nextOf(step)
     if (n < lines.length) play(n)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, lines.length, play, startAt, labelIdx])
+  }, [step, lines.length, play, startAt, labelIdx, skipOpen])
+
+  // 건너뛰기: 이 장소를 끝낸 것으로 처리 (선택 결과는 기본값)
+  const skip = () => {
+    aliveRef.current = false
+    clearInterval(typingRef.current)
+    setSkipOpen(false)
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.4, onComplete: () => onClose(true, null, { use: dialog.summary?.use }) })
+  }
 
   const choose = (c) => {
+    playSfx('select')
     setChoices(null)
     play(labelIdx[c.goto])
   }
 
   useEffect(() => {
     const onKey = (e) => {
+      if (skipOpen) {
+        if (e.key === 'Escape') setSkipOpen(false)
+        return
+      }
       if (e.key === 'Escape') close()
       else if ([' ', 'Enter', 'ArrowRight'].includes(e.key)) {
         e.preventDefault()
@@ -536,7 +559,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [next, close])
+  }, [next, close, skipOpen])
 
   const bgNow = bgSrcs[bgKey] || { src: BASE + dialog.bgs[bgKey].src }
 
@@ -702,6 +725,10 @@ export default function CastScene({ dialog, onClose, startAt }) {
 
         {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
 
+        {skipOpen && dialog.summary && (
+          <SkipPanel place={dialog.place} summary={dialog.summary} onCancel={() => setSkipOpen(false)} onSkip={skip} />
+        )}
+
         {itemGet && <ItemGet {...itemGet} onOk={() => itemResRef.current?.()} />}
 
         {box && !boxOff && (
@@ -724,6 +751,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
         {complete && <QuestComplete {...complete} />}
       </div>
 
+      {dialog.summary && <SkipButton hidden={chromeOff || !!itemGet || game} onClick={() => setSkipOpen(true)} />}
       <button
         type="button"
         className="dialog__close"
