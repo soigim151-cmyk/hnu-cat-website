@@ -16,6 +16,7 @@ import {
   TOUCH,
 } from 'three'
 import { BUILDINGS } from '../data/buildings.js'
+import { BUILDING_NUMBERS } from '../data/buildingNumbers.js'
 import gsap from 'gsap'
 import { readMapAssets } from './mapAssets.js'
 import './MapMarkers.css'
@@ -232,6 +233,7 @@ export default function MapScene({
   dragging,
   onSelectBuilding,
   onPointingChange,
+  showNumbers = false, // 건물 번호 표시 켜기/끄기
   nextId = null, // 스토리상 지금 가야 할 장소
   doneIds = NO_IDS, // 이야기를 끝낸 장소
   onLockedClick, // 아직 갈 수 없는 장소를 눌렀을 때
@@ -261,6 +263,12 @@ export default function MapScene({
     () => makeReliefGeometry(width, height, assets.depth, [90, 43]),
     [assets, width, height],
   )
+
+  // 건물 번호 위치 (땅에서 조금만 띄움)
+  const numberSpots = useMemo(() => {
+    const mean = geometry.userData.mean
+    return BUILDING_NUMBERS.map((b) => imageToWorld(b.px, b.py, width, height, assets.depth, mean, 12))
+  }, [assets, width, height, geometry])
 
   const markers = useMemo(() => {
     const mean = geometry.userData.mean
@@ -479,6 +487,17 @@ export default function MapScene({
         onPointerLeave={() => setHovered(0)}
         onClick={handleClick}
       />
+      {/* 건물 번호: 켰을 때만, 드래그 중엔 흐리게. 마커·클릭을 가리지 않도록 마커보다 아래 층 */}
+      {showNumbers &&
+        BUILDING_NUMBERS.map((b, i) => (
+          <Html key={`no-${b.no}`} position={numberSpots[i]} zIndexRange={[3, 0]}>
+            <span className={`map-no${dragging ? ' is-faint' : ''}`} style={{ '--i': i }} title={b.name}>
+              <span className="map-no__num">{b.no}</span>
+              <span className="map-no__name">{b.name}</span>
+            </span>
+          </Html>
+        ))}
+
       {/* 장소 마커: 각 구역 위에 떠 있고, 누르면 그 장소를 선택 */}
       {markers.map((position, i) => {
         if (!position) return null

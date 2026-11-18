@@ -98,6 +98,26 @@ export default function CampusPage({ onBack }) {
   )
 
   // 선택한 장소 → 대화가 있으면 대화 화면, 없으면 짧은 안내
+  // 건물 번호 표시 (기본은 꺼짐, 선택은 기억)
+  const [showNumbers, setShowNumbers] = useState(() => {
+    try {
+      return localStorage.getItem('hnu-numbers') === '1'
+    } catch {
+      return false
+    }
+  })
+  const toggleNumbers = () => {
+    playSfx('select')
+    setShowNumbers((v) => {
+      try {
+        localStorage.setItem('hnu-numbers', v ? '0' : '1')
+      } catch {
+        /* 저장 못 해도 괜찮음 */
+      }
+      return !v
+    })
+  }
+
   const [talk, setTalk] = useState(null) // { id, dialog, startAt }
 
   // 지도 화면 배경 음악 (대화 중에는 장소 음악이 대신 나옴)
@@ -204,6 +224,7 @@ export default function CampusPage({ onBack }) {
                 onPointingChange={setPointing}
                 nextId={nextId}
                 doneIds={doneIds}
+                showNumbers={showNumbers}
                 onLockedClick={handleLocked}
               />
             ) : (
@@ -232,6 +253,17 @@ export default function CampusPage({ onBack }) {
         </span>
         드래그해서 둘러보기
       </div>
+
+      {/* 건물 번호 켜기/끄기 */}
+      <button
+        type="button"
+        className={`campus__numbers${revealed && !talk ? ' is-shown' : ''}${showNumbers ? ' is-on' : ''}`}
+        onClick={toggleNumbers}
+        aria-pressed={showNumbers}
+      >
+        <span className="campus__numbers-switch" aria-hidden="true" />
+        건물 번호
+      </button>
 
       {/* 아래 화면(고양이 갤러리)으로 이동 */}
       <button

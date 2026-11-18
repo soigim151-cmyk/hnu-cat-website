@@ -184,3 +184,74 @@
     animation: none;
   }
 }
+
+/* ── 건물 번호 (켰다 껐다) ──
+   작고 반투명한 배지. 지도 클릭·드래그를 가리지 않도록 마우스 입력은 통과
+   마우스가 바로 위에 오면 건물 이름이 옆으로 펼쳐짐 (마우스 환경에서만) */
+.map-no {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(2, 37, 255, 0.82);
+  color: #fff;
+  font-family: var(--font-base);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 3px rgba(0, 0, 30, 0.3);
+  pointer-events: none;
+  user-select: none;
+  animation: map-no-in 0.35s ease backwards;
+  animation-delay: calc(var(--i) * 18ms);
+  transition: opacity 0.2s;
+}
+.map-no__num {
+  padding: 0 6px;
+}
+.map-no__num::after {
+  content: '번';
+  font-weight: 500;
+  opacity: 0.85;
+}
+.map-no__name {
+  max-width: 0;
+  overflow: hidden;
+  font-weight: 500;
+  transition:
+    max-width 0.25s ease,
+    padding 0.25s ease;
+}
+.map-no.is-faint {
+  opacity: 0.35;
+}
+@media (hover: hover) and (pointer: fine) {
+  .map-no {
+    pointer-events: auto;
+    cursor: default;
+  }
+  .map-no:hover {
+    z-index: 1;
+    background: var(--blue-ink);
+  }
+  .map-no:hover .map-no__name {
+    max-width: 160px;
+    padding-right: 7px;
+  }
+}
+@keyframes map-no-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -30%) scale(0.7);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-no {
+    animation: none;
+  }
+}
