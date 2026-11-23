@@ -15,6 +15,7 @@ import { BUILDINGS } from '../data/buildings.js'
 import { STORY, ITEMS } from '../data/story.js'
 import { QuestBar, Inventory, ItemViewer, Confirm, PlaceNote, Toast } from '../components/StoryUI.jsx'
 import { FinalQuest, Finale } from '../components/Finale.jsx'
+import Comic from '../components/Comic.jsx'
 import { playSfx, playBgm, stopBgm } from '../components/sfx.js'
 import './CampusPage.css'
 
@@ -28,6 +29,7 @@ export default function CampusPage({ onBack }) {
   const [done, setDone] = useState([]) // 이야기를 끝낸 장소 id (순서대로)
   const [items, setItems] = useState({}) // 보관함: { 아이템 id: 'have' | 'used' }
   const [likes, setLikes] = useState({}) // 호감도: { 인물: 하트 수 }
+  const [comic, setComic] = useState(true) // 들어오자마자 시작 만화 (지도는 그동안 뒤에서 불러옴)
   const [final, setFinal] = useState(null) // 마지막 퀘스트 · 엔딩 { step: 'quest' | 'ending', message }
   const [bagNew, setBagNew] = useState(false)
   const [viewItem, setViewItem] = useState(null)
@@ -133,8 +135,8 @@ export default function CampusPage({ onBack }) {
 
   // 지도 화면 배경 음악 (대화 중에는 장소 음악이 대신 나옴)
   useEffect(() => {
-    if (revealed && !talk) playBgm('map', undefined, 1.2)
-  }, [revealed, talk])
+    if (revealed && !talk && !comic) playBgm('map', undefined, 1.2)
+  }, [revealed, talk, comic])
   useEffect(() => () => stopBgm(0.3), [])
   // 브라우저는 화면을 한 번 눌러야 소리를 낼 수 있음 → 첫 터치에 소리 깨우기
   useEffect(() => {
@@ -310,6 +312,7 @@ export default function CampusPage({ onBack }) {
           }}
         />
       )}
+      {comic && <Comic onDone={() => setComic(false)} />}
       {final?.step === 'quest' && <FinalQuest onDone={(message) => setFinal({ step: 'ending', message })} />}
       {final?.step === 'ending' && (
         <Finale

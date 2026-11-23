@@ -72,7 +72,7 @@ const scenes = (msg) => [
   {
     kind: 'reveal',
     img: 'talk/m56/jeon-real.webp',
-    fallback: G('08'),
+    fallback: G('26'),
     text: '신전이는 오랫동안 56주년 기념관 앞을 지켜 온 학교 고양이였습니다.',
     sub: '그리고 얼마 전, 고양이별로 졸업했습니다.',
   },

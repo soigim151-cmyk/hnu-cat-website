@@ -84,6 +84,22 @@ export function playSfx(name) {
     case 'stand': // 일어나는 소리 (톡)
       tone(c, { freq: 600, to: 440, dur: 0.05, type: 'sine', vol: 0.05 })
       break
+    case 'flash': // 번쩍
+      noise(c, { dur: 0.5, vol: 0.09, hp: 2000 })
+      tone(c, { freq: 1800, to: 300, dur: 0.5, type: 'sine', vol: 0.06 })
+      break
+    case 'zap': // 지지직 (변신)
+      for (let i = 0; i < 6; i++) tone(c, { freq: 200 + Math.random() * 600, dur: 0.05, type: 'square', vol: 0.04, at: i * 0.06 })
+      tone(c, { freq: 300, to: 1400, dur: 0.6, type: 'sawtooth', vol: 0.03, at: 0.3 })
+      break
+    case 'alarm': // 경고
+      tone(c, { freq: 880, dur: 0.14, type: 'square', vol: 0.05 })
+      tone(c, { freq: 660, dur: 0.14, type: 'square', vol: 0.05, at: 0.16 })
+      break
+    case 'stamp': // 쾅! (도장)
+      tone(c, { freq: 120, to: 50, dur: 0.18, type: 'sine', vol: 0.2 })
+      noise(c, { dur: 0.08, vol: 0.08, hp: 300 })
+      break
     case 'give': // 건네기 (또롱)
       tone(c, { freq: 1175, dur: 0.16, vol: 0.09 })
       tone(c, { freq: 1568, dur: 0.28, vol: 0.08, at: 0.1 })
