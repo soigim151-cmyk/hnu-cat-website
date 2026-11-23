@@ -43,7 +43,7 @@ export const HALL = {
   },
   // 소품 (x · bottom · w 는 인물과 같은 단위)
   props: {
-    flyers: { src: `${H}flyer.webp`, x: 0, bottom: 330, w: 240 }, // 홍보물.png
+    flyers: { src: `${H}flyer.webp`, x: -420, bottom: 330, w: 240 }, // 홍보물.png
     flyerNami: { src: `${H}flyer-nami.webp`, x: -560, bottom: 380, w: 220 }, // 한나미 홍보물 (임시, 나미 홍보물 이미지를 올리면 교체)
     kimbap: { src: `${T}kimbap.webp`, x: 60, bottom: 380, w: 200 }, // 한남이 손 근처에서 등장
   },
