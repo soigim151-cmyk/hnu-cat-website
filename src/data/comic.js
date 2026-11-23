@@ -10,54 +10,57 @@ const P = (n) => `images/gallery/cat_${n}_l.webp`
 const T = 'talk/'
 
 export const COMIC = [
-  // ── SCENE 01. 평화로운 캠퍼스 ──
+  // ── SCENE 01. 한남대학교에는 전설이 있다 (직접 그린 만화) ──
   {
     bgm: 'map',
-    layout: '"a a b" "a a c"',
-    panels: [
-      {
-        area: 'a',
-        src: P('14'),
-        tone: 'day',
-        move: 'pan-r',
-        caption: { text: '평화로운 한남대학교 캠퍼스.', pos: 'tl' },
-        layers: [
-          { src: `${T}hall/npc1.webp`, style: { left: '2%', bottom: '-8%', height: '40%' }, cls: 'is-sil' },
-          { src: `${T}hall/npc3.webp`, style: { left: '14%', bottom: '-10%', height: '44%' }, cls: 'is-sil' },
-        ],
-        sfx: [{ t: '터벅 터벅', x: 30, y: 62, rot: -8, size: 1, color: 'white' }],
-      },
-      {
-        area: 'b',
-        src: P('15'),
-        tone: 'day',
-        move: 'zoom-in',
-        caption: { text: '고양이들은 벤치와 화단 사이에서…', pos: 'tl' },
-      },
-      {
-        area: 'c',
-        src: P('18'),
-        tone: 'day',
-        move: 'zoom-out',
-        caption: { text: '…여유로운 하루를 보낸다.', pos: 'br' },
-        sfx: [{ t: 'Zzz…', x: 70, y: 22, rot: 10, size: 1.1, color: 'blue' }],
-      },
-    ],
-  },
-
-  // ── 전설 ──
-  {
-    bgm: 'tense',
     layout: '"a"',
     panels: [
       {
         area: 'a',
-        src: P('21'),
-        tone: 'night',
-        move: 'zoom-in-slow',
-        moon: true,
+        src: `images/cartoon/web/s1.webp`,
+        tone: 'art',
+        frameless: true,
+        aspect: '1536 / 932',
+        move: 'zoom-in',
+      },
+    ],
+  },
+  {
+    bgm: 'map',
+    layout: '"a b" "c c"',
+    panels: [
+      { area: 'a', src: `images/cartoon/web/s2a.webp`, tone: 'art', move: 'pan-r', sfx: [{ t: '하암…', x: 66, y: 30, rot: -6, size: 0.8, color: 'white' }] },
+      { area: 'b', src: `images/cartoon/web/s2b.webp`, tone: 'art', move: 'zoom-in', sfx: [{ t: '터벅 터벅', x: 30, y: 78, rot: -8, size: 0.9, color: 'white', sound: 'steps' }] },
+      {
+        area: 'c',
+        src: `images/cartoon/web/s2c.webp`,
+        tone: 'art',
+        move: 'pan-l',
+        caption: { text: '학생들은 수업을 들으러, 고양이들은 여유로운 하루를 보내러.', pos: 'bl' },
+      },
+    ],
+  },
+
+  // ── 전설: 달밤의 캠퍼스 ──
+  {
+    bgm: 'tense',
+    layout: '"a b"',
+    panels: [
+      {
+        area: 'a',
+        src: `images/cartoon/web/s3.webp`,
+        tone: 'art',
+        move: 'pan-down',
         caption: { text: '한남대학교에는 오래전부터 전해 내려오는 전설이 있다.', pos: 'tl' },
-        caption2: { text: '학교의 고양이들이 사람이 된다는 전설!', pos: 'br', big: true },
+      },
+      {
+        area: 'b',
+        src: `images/cartoon/web/s35.webp`,
+        tone: 'art',
+        frameless: true,
+        aspect: '381 / 294',
+        move: 'pop',
+        caption2: { text: '한남대 고양이는 사람이 된다는 전설.', pos: 'bc', big: true },
       },
     ],
   },
@@ -65,36 +68,40 @@ export const COMIC = [
   // ── SCENE 02. 전설이 현실이 된 날 ──
   {
     bgm: 'tense',
-    layout: '"a b" "c c"',
+    layout: '"a b" "c d"',
     panels: [
       {
         area: 'a',
-        src: `${T}bg-insarye.webp`,
-        tone: 'night',
-        move: 'pan-l',
+        src: `images/cartoon/web/s4a.webp`,
+        tone: 'art',
+        move: 'zoom-in',
         caption: { text: '학생들이 모두 떠난 늦은 밤.', pos: 'tl' },
-        sfx: [{ t: '스윽…', x: 70, y: 70, rot: -6, size: 0.9, color: 'white' }],
+        sfx: [{ t: '!?', x: 84, y: 30, rot: 10, size: 1.3, color: 'white' }],
       },
       {
         area: 'b',
-        src: P('22'),
-        tone: 'night',
+        src: `images/cartoon/web/s4b.webp`,
+        tone: 'art',
         move: 'shake',
         burst: true,
-        speed: true,
-        caption: { text: '정체불명의 빛이 나타났다!', pos: 'bl' },
-        sfx: [{ t: 'FLASH!!', x: 52, y: 28, rot: -12, size: 1.8, color: 'yellow', sound: 'flash' }],
+        caption: { text: '정체불명의 빛이 고양이를 감싼다!', pos: 'bl' },
+        sfx: [{ t: 'FLASH!!', x: 30, y: 26, rot: -12, size: 1.5, color: 'yellow', sound: 'flash' }],
       },
       {
         area: 'c',
-        src: P('01'),
-        tone: 'flash',
-        move: 'zoom-in',
-        burst: true,
+        src: `images/cartoon/web/s4c.webp`,
+        tone: 'art',
+        move: 'shake',
         speed: true,
-        morph: { to: `${T}siyu-full.webp`, style: { left: '50%', bottom: '-30%', height: '150%' } },
-        sfx: [{ t: 'BZZZZT!!', x: 18, y: 30, rot: 8, size: 1.6, color: 'yellow', sound: 'zap' }],
-        balloons: [{ t: '이, 이게… 내 손?!', x: 76, y: 16, tail: 'bl', delay: 1.6 }],
+        sfx: [{ t: 'BZZZZT!!', x: 70, y: 30, rot: 8, size: 1.4, color: 'yellow', sound: 'zap' }],
+      },
+      {
+        area: 'd',
+        src: `images/cartoon/web/s4d.webp`,
+        tone: 'art',
+        move: 'zoom-in',
+        caption: { text: '빛이 사라진 자리에는…', pos: 'tl' },
+        balloons: [{ t: '이, 이게… 내 손?!', x: 30, y: 70, tail: 'b', delay: 0.6 }],
       },
     ],
   },
@@ -102,40 +109,49 @@ export const COMIC = [
   // ── SCENE 03. 학교에 비상이 걸리다 ──
   {
     bgm: 'tense',
-    layout: '"a b" "c d"',
+    layout: '"a a ." ". b b"',
     panels: [
       {
         area: 'a',
-        cctv: [P('14'), P('22'), P('15'), P('17')],
-        tone: 'cctv',
-        caption: { text: '이상 현상이 CCTV에 포착되었다.', pos: 'bl' },
-        sfx: [{ t: '!!', x: 82, y: 22, rot: 10, size: 1.8, color: 'red', sound: 'alarm' }],
+        src: `images/cartoon/web/s5a.webp`,
+        tone: 'art',
+        frameless: true,
+        aspect: '426 / 217',
+        align: 'start',
+        move: 'zoom-in',
+        caption: { text: '이상 현상이 학교 CCTV에 포착되었다!', pos: 'bl' },
+        sfx: [{ t: 'REC ●', x: 86, y: 12, rot: 0, size: 0.6, color: 'red', sound: 'alarm' }],
       },
       {
         area: 'b',
-        src: `${T}m56/bg.webp`,
-        tone: 'night',
+        src: `images/cartoon/web/s5b.webp`,
+        tone: 'art',
+        frameless: true,
+        aspect: '461 / 215',
+        align: 'end',
         move: 'zoom-in',
-        layers: [
-          { src: `${T}hall/npc1.webp`, style: { left: '2%', bottom: '-20%', height: '82%' }, cls: 'is-sil' },
-          { src: `${T}hall/npc2.webp`, style: { left: '36%', bottom: '-16%', height: '70%' }, cls: 'is-sil' },
-          { src: `${T}hall/npc3.webp`, style: { right: '0%', bottom: '-20%', height: '82%' }, cls: 'is-sil' },
-        ],
         caption: { text: '긴급회의 소집.', pos: 'tl' },
         balloons: [
-          { t: '외부에 알려지면 큰일입니다!', x: 30, y: 26, tail: 'bl', delay: 0.4 },
-          { t: '…방법은 하나뿐이군요.', x: 72, y: 50, tail: 'br', delay: 1.4 },
+          { t: '외부에 알려지면 큰일입니다!', x: 24, y: 30, tail: 'bl', delay: 0.4 },
+          { t: '…방법은 하나뿐이군요.', x: 78, y: 40, tail: 'br', delay: 1.4 },
         ],
       },
+    ],
+  },
+  // 입학 서류 · 학생증 (그림이 생기면 교체 — 지금은 임시 컷)
+  {
+    bgm: 'tense',
+    layout: '"a b"',
+    panels: [
       {
-        area: 'c',
+        area: 'a',
         doc: true,
         tone: 'plain',
         caption: { text: '사람이 된 고양이들에게 학생 신분을!', pos: 'tl' },
         sfx: [{ t: '쾅!', x: 72, y: 70, rot: -10, size: 1.7, color: 'red', sound: 'stamp', delay: 0.9 }],
       },
       {
-        area: 'd',
+        area: 'b',
         src: `${T}id-siblings.png`,
         fit: 'contain',
         tone: 'plain',

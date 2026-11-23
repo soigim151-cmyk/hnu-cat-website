@@ -49,6 +49,11 @@ export default function Comic({ onDone }) {
           pop: [{ scale: 0.8, rotation: -6 }, { scale: 1, rotation: 0, ease: 'elastic.out(1, 0.5)' }],
           shake: [{ scale: 1.08 }, { scale: 1.08 }],
         }[p.move]
+        // 세로로 긴 그림: 위(달) → 아래(거리)로 천천히
+        if (p.move === 'pan-down') {
+          const img = el.querySelector('.cmc__img')
+          if (img) loops.push(gsap.fromTo(img, { objectPosition: '50% 0%' }, { objectPosition: '50% 100%', duration: 7, delay: at, ease: 'sine.inOut' }))
+        }
         if (mv) loops.push(gsap.fromTo(inner, mv[0], { ...mv[1], duration: p.move === 'pop' ? 1 : 7, delay: at, ease: mv[1].ease || 'sine.inOut' }))
         if (p.move === 'shake') tl.fromTo(inner, { x: -6 }, { x: 6, duration: 0.06, repeat: 9, yoyo: true, ease: 'none' }, at + 0.4)
       }
@@ -181,9 +186,21 @@ export default function Comic({ onDone }) {
 
 function Panel({ p, onGo }) {
   return (
-    <div className={`cmc__panel tone-${p.tone || 'day'}`} style={{ gridArea: p.area }}>
+    <div
+      className={`cmc__panel tone-${p.tone || 'day'}${p.frameless ? ' is-frameless' : ''}`}
+      // 그림 비율에 맞춘 컷 (글자 · 말풍선이 그림 위에 정확히 올라가도록)
+      style={{ gridArea: p.area, ...(p.aspect ? { aspectRatio: p.aspect, width: 'auto', height: '100%', maxWidth: '100%', justifySelf: p.align || 'center', alignSelf: 'center' } : null) }}
+    >
       <div className="cmc__art">
-        {p.src && <img className={`cmc__img${p.fit === 'contain' ? ' is-contain' : ''}`} src={BASE + p.src} alt="" draggable="false" />}
+        {p.src && (
+          <img
+            className={`cmc__img${p.fit === 'contain' || p.frameless ? ' is-contain' : ''}`}
+            src={BASE + p.src}
+            alt=""
+            draggable="false"
+            style={p.pos ? { objectPosition: p.pos } : undefined}
+          />
+        )}
         {p.cctv && (
           <div className="cmc__cctv">
             {p.cctv.map((s, k) => (
@@ -219,7 +236,7 @@ function Panel({ p, onGo }) {
       </div>
       {p.tone === 'night' && <span className="cmc__night" />}
       {p.tone === 'cctv' && <span className="cmc__scan" />}
-      <span className="cmc__dots" />
+      {p.tone !== 'art' && <span className="cmc__dots" />}
       {p.speed && <span className="cmc__speed" />}
       {p.burst && <span className="cmc__burst" />}
       {p.burst && <span className="cmc__white" />}

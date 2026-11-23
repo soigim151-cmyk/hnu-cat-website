@@ -341,7 +341,8 @@
 .cmc__cap.pos-bc {
   left: 50%;
   bottom: 6%;
-  max-width: 86%;
+  width: max-content;
+  max-width: 96%;
   translate: -50% 0;
   text-align: center;
 }
@@ -539,4 +540,20 @@
   .cmc__sparkle {
     animation: none;
   }
+}
+
+/* 직접 그린 만화 그림: 필터 없이 그대로 */
+.cmc__panel.tone-art .cmc__img {
+  filter: none;
+}
+/* 테두리 없는 컷 (사선으로 잘린 그림 · 오려 낸 그림) */
+.cmc__panel.is-frameless {
+  overflow: visible;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.cmc__panel.is-frameless .cmc__img.is-contain {
+  padding: 0;
+  filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.55));
 }
