@@ -48,6 +48,13 @@
 .cast__char-inner.is-off {
   opacity: 0;
 }
+/* 한 명씩 나오는 인물: 자기 쪽 화면 밖에서 들어옴 */
+.cast__char-inner.is-off.from-left {
+  transform: translateX(-35%);
+}
+.cast__char-inner.is-off.from-right {
+  transform: translateX(35%);
+}
 .cast__char-inner.is-dim {
   filter: brightness(0.6);
 }
@@ -126,12 +133,12 @@
 
 /* 메신저 */
 .cast__msg {
+  /* 오른쪽 위: 가운데 인물을 가리지 않게 (사진 팝업과 같은 자리) */
   position: absolute;
-  left: 50%;
-  top: 10%;
+  right: max(16px, calc(50% - 900 * var(--u)));
+  top: 8%;
   z-index: 4;
-  width: calc(520 * var(--u));
-  margin-left: calc(-260 * var(--u));
+  width: calc(480 * var(--u));
   padding: calc(22 * var(--u));
   border: calc(5 * var(--u)) solid #fff;
   background: rgba(220, 229, 253, 0.96);
@@ -743,5 +750,97 @@
 @keyframes cast-end {
   from {
     opacity: 0;
+  }
+}
+
+/* 인물 옆에 하나씩 들어오는 목록 (학생회관 시설 등) */
+.cast__list {
+  position: absolute;
+  left: max(16px, calc(50% - 640 * var(--u)));
+  top: calc(140 * var(--u));
+  z-index: 5;
+  pointer-events: none;
+}
+.cast__list-title {
+  margin: 0 0 calc(12 * var(--u));
+  display: inline-block;
+  padding: calc(6 * var(--u)) calc(18 * var(--u));
+  background: var(--blue-ink);
+  color: #fff;
+  font-size: max(13px, calc(26 * var(--u)));
+}
+.cast__list ol {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12 * var(--u));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cast__list li {
+  display: flex;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  width: fit-content;
+  padding: calc(12 * var(--u)) calc(26 * var(--u)) calc(12 * var(--u)) calc(14 * var(--u));
+  border: calc(4 * var(--u)) solid var(--blue-ink);
+  background: #fff;
+  color: var(--blue-ink);
+  font-size: max(15px, calc(34 * var(--u)));
+  box-shadow: 0 calc(6 * var(--u)) calc(16 * var(--u)) rgba(0, 10, 60, 0.25);
+  animation: cast-list-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cast__list-no {
+  display: grid;
+  place-items: center;
+  width: calc(46 * var(--u));
+  min-width: 22px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--blue-ink);
+  color: #fff;
+  font-size: 0.8em;
+}
+@keyframes cast-list-in {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+}
+
+/* 회상 장면: 가운데 사진이 흐릿하고 따뜻하게 (대화창은 그대로 보임) */
+.cast__flash {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  padding-bottom: calc(280 * var(--u));
+  background: radial-gradient(ellipse at center, rgba(40, 24, 8, 0.35), rgba(20, 10, 0, 0.85));
+  pointer-events: none;
+}
+.cast__flash img {
+  max-width: min(70vw, calc(760 * var(--u)));
+  max-height: calc(100dvh - 320 * var(--u));
+  object-fit: contain;
+  filter: sepia(0.45) saturate(0.85) brightness(1.05) blur(0.4px);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse at center, #000 55%, transparent 100%);
+  animation: cast-flash-drift 6s ease-out forwards;
+}
+.cast__flash-cap {
+  position: absolute;
+  top: 8%;
+  color: #ffe9c0;
+  font-size: max(14px, calc(28 * var(--u)));
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+}
+@keyframes cast-flash-drift {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
   }
 }

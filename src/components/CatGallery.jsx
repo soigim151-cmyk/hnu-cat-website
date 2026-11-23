@@ -19,7 +19,7 @@ export default function CatGallery() {
   return (
     <section className="gallery" id="cat-gallery" aria-labelledby="gallery-title">
       <h2 className="gallery__title" id="gallery-title">
-        (HNU CATS)
+        HNU CATS
       </h2>
       <div className="gallery__rows">
         {ROWS.map((row, r) => (
@@ -45,9 +45,6 @@ export default function CatGallery() {
                     <img src={thumbSrc(it)} alt="" loading="lazy" style={{ aspectRatio: `${it.w} / ${it.h}` }} />
                     {it.type === 'video' && <span className="gallery__play" aria-hidden="true" />}
                   </button>
-                  <figcaption className="gallery__caption" aria-hidden={copy}>
-                    {it.caption}
-                  </figcaption>
                 </figure>
               )
             })}
@@ -122,7 +119,6 @@ function Lightbox({ index, onChange, onClose }) {
           <img className="lightbox__media" src={largeSrc(it)} alt={it.caption} />
         )}
         <figcaption className="lightbox__caption">
-          {it.caption}
           <span className="lightbox__count">
             {index + 1} / {GALLERY.length}
           </span>

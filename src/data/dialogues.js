@@ -40,6 +40,7 @@ export const DIALOGUES = {
     bgm: 'calm', // 배경 음악 (sfx.js)
     // 건너뛰기를 누르면 보여줄 정리
     summary: {
+      likes: { siyu: 1 }, // 건너뛰었을 때 오르는 호감도
       name: '인사례교양동 (11번)',
       story: '11번 건물 앞 벤치에서 햇볕을 쬐던 김시유 선배를 만나 이름을 알게 되고, 선배가 참치김밥을 좋아한다는 것도 알게 됐다.',
       info: [
@@ -88,7 +89,15 @@ export const DIALOGUES = {
       {
         who: '나',
         text: '네, 다음에 봬요.',
-        after: [W(0.6), { exit: 60, dur: 0.7 }, W(0.5), { reward: `${T}id-siyu-v2.png`, label: '학생증 획득!' }, { close: 0.3 }],
+        after: [
+          W(0.6),
+          { exit: 60, dur: 0.7 },
+          W(0.5),
+          { reward: `${T}id-siyu-v2.png`, label: '김시유 학생증 획득!', note: '(…특이한 선배님이시다.)' },
+          { like: 'siyu' },
+          W(0.8),
+          { complete: { sub: '햇볕 좋은 벤치에서 김시유 선배를 만났다.', items: ['id-card'] } },
+        ],
       },
     ],
   },

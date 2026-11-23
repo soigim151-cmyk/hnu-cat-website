@@ -188,6 +188,8 @@
   position: absolute;
   right: 0;
   top: calc(100% + 10px);
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
   width: min(300px, calc(100vw - 40px));
   padding: 14px;
   border-radius: 16px;
@@ -411,4 +413,35 @@
   .smodal__card {
     animation: none;
   }
+}
+
+/* 보관함 안 호감도 */
+.bag__title--likes {
+  margin-top: 16px !important;
+}
+.bag__likes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bag__likes li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--blue-soft);
+  color: var(--blue-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.bag__hearts span {
+  color: #c9d3f5;
+  font-size: 14px;
+}
+.bag__hearts span.is-on {
+  color: #ff4d7a;
 }

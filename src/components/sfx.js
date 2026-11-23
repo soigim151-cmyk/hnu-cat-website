@@ -75,18 +75,21 @@ export function playSfx(name) {
       tone(c, { freq: 220, to: 660, dur: 0.18, type: 'square', vol: 0.05 })
       tone(c, { freq: 660, to: 330, dur: 0.22, type: 'square', vol: 0.04, at: 0.18 })
       break
-    case 'steps': // 빠른 발소리
-      for (let i = 0; i < 4; i++) noise(c, { dur: 0.05, vol: 0.12, at: i * 0.13, hp: 300 })
+    case 'steps': // 가벼운 발소리 (톡톡톡)
+      for (let i = 0; i < 3; i++) tone(c, { freq: 700, to: 520, dur: 0.035, type: 'sine', vol: 0.05, at: i * 0.16 })
       break
-    case 'trudge': // 터벅터벅 다가오는 발소리 (점점 가까워짐)
-      for (let i = 0; i < 6; i++) {
-        noise(c, { dur: 0.09, vol: 0.05 + i * 0.025, at: i * 0.4, hp: 180 })
-        tone(c, { freq: 90, to: 60, dur: 0.08, type: 'triangle', vol: 0.04 + i * 0.02, at: i * 0.4 })
-      }
+    case 'trudge': // 다가오는 발소리 (톡톡톡, 조금씩 커짐)
+      for (let i = 0; i < 5; i++) tone(c, { freq: 680, to: 500, dur: 0.035, type: 'sine', vol: 0.025 + i * 0.008, at: i * 0.32 })
       break
-    case 'stand': // 벤치에서 일어나는 소리
-      tone(c, { freq: 140, to: 70, dur: 0.15, type: 'triangle', vol: 0.18 })
-      noise(c, { dur: 0.08, vol: 0.06, hp: 400 })
+    case 'stand': // 일어나는 소리 (톡)
+      tone(c, { freq: 600, to: 440, dur: 0.05, type: 'sine', vol: 0.05 })
+      break
+    case 'give': // 건네기 (또롱)
+      tone(c, { freq: 1175, dur: 0.16, vol: 0.09 })
+      tone(c, { freq: 1568, dur: 0.28, vol: 0.08, at: 0.1 })
+      break
+    case 'heart': // 호감도 오름
+      ;[880, 1109, 1319].forEach((f, i) => tone(c, { freq: f, dur: 0.14, vol: 0.06, at: i * 0.06 }))
       break
     case 'rustle': // 봉투 소리
       noise(c, { dur: 0.35, vol: 0.06, hp: 2500 })
@@ -126,6 +129,14 @@ export function playSfx(name) {
 // 음악 파일이 생기면 public/bgm/<이름>.mp3 로 바꿔 끼울 수 있게 이름을 맞춰 둠
 let bgm = null
 const SONGS = {
+  // 긴장: 낮게 깔리는 반복음 (말다툼)
+  tense: {
+    beat: 0.22,
+    vol: 0.05,
+    type: 'triangle',
+    notes: [220, 0, 220, 0, 233, 0, 220, 0, 220, 0, 220, 0, 262, 0, 247, 0],
+    bass: [55, 0, 55, 0, 55, 0, 58, 0, 55, 0, 55, 0, 65, 0, 62, 0],
+  },
   // 이별 · 마지막 장면: 느린 단조 피아노 (Am - F - Dm - E)
   sad: {
     beat: 0.62,

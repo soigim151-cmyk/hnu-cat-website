@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import gsap from 'gsap'
 import { playSfx, playBgm, stopBgm } from './sfx.js'
 import { SkipButton, SkipPanel } from './SkipPanel.jsx'
+import { StoryClear, LikePop } from './StoryClear.jsx'
+import { LIKES_ON } from '../data/story.js'
 import './DialogScene.css'
 import './CastScene.css'
 
@@ -27,6 +29,10 @@ export default function DialogScene({ dialog, onClose }) {
   const [reward, setReward] = useState(null) // 획득 아이템
   const [profile, setProfile] = useState(null) // NEW CHARACTER 카드
   const [skipOpen, setSkipOpen] = useState(false) // 건너뛰기 정리 창
+  const [likePop, setLikePop] = useState(null)
+  const likesRef = useRef({})
+  const [complete, setComplete] = useState(null)
+  const completeResRef = useRef(null)
   const rewardDoneRef = useRef(null)
   const [step, setStep] = useState(-1) // -1 = 장소 안내
   const [typed, setTyped] = useState(0)
@@ -94,7 +100,8 @@ export default function DialogScene({ dialog, onClose }) {
         } else if (a.reward) {
           // 아이템 획득: 대화창을 치우고 튀어나오고, 한 번 누르면 다음으로
           await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25, ease: 'power2.in' })
-          setReward({ src: a.reward, label: a.label })
+          setReward({ src: a.reward, label: a.label, note: a.note })
+          playSfx('item')
           await new Promise((res) => (rewardDoneRef.current = res))
           await gsap.to('.dialog__reward', { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in' })
         } else if (a.enter) {
@@ -138,6 +145,22 @@ export default function DialogScene({ dialog, onClose }) {
         } else if (a.exit) {
           const el = charRef.current
           if (el) await gsap.to(el, { x: `+=${a.exit}`, opacity: 0, duration: a.dur ?? 0.7, ease: 'power1.in' })
+        } else if (a.like) {
+          if (!LIKES_ON) continue // 호감도 보류 중
+          likesRef.current[a.like] = (likesRef.current[a.like] || 0) + (a.n ?? 1)
+          playSfx('heart')
+          setLikePop({ who: a.like, n: a.n ?? 1, k: Math.random() })
+          setTimeout(() => setLikePop(null), 2000)
+        } else if (a.complete) {
+          // 모든 장소 공통 마무리 화면
+          if (boxRef.current) await gsap.to(boxRef.current, { opacity: 0, duration: 0.25 })
+          setReward(null)
+          setComplete(a.complete)
+          await new Promise((res) => (completeResRef.current = res))
+          aliveRef.current = false
+          await gsap.to(rootRef.current, { opacity: 0, duration: 0.4 })
+          onClose(true, null, { likes: likesRef.current })
+          return
         } else if (a.close) {
           await gsap.to(boxRef.current, { opacity: 0, duration: a.close })
           await gsap.to(rootRef.current, { opacity: 0, duration: 0.3 })
@@ -224,7 +247,7 @@ export default function DialogScene({ dialog, onClose }) {
     aliveRef.current = false
     clearInterval(typingRef.current)
     setSkipOpen(false)
-    gsap.to(rootRef.current, { opacity: 0, duration: 0.4, onComplete: () => onClose(true) })
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.4, onComplete: () => onClose(true, null, { likes: dialog.summary?.likes }) })
   }
 
   useEffect(() => {
@@ -307,7 +330,17 @@ export default function DialogScene({ dialog, onClose }) {
         )}
       </div>
 
-      {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
+      {reward && <RewardPop src={BASE + reward.src} label={reward.label} note={reward.note} />}
+      {complete && (
+        <StoryClear
+          place={dialog.summary?.name || dialog.place}
+          sub={complete.sub}
+          items={complete.items}
+          likes={likesRef.current}
+          onDone={() => completeResRef.current?.()}
+        />
+      )}
+      {likePop && <LikePop key={likePop.k} who={likePop.who} n={likePop.n} />}
       {skipOpen && dialog.summary && (
         <SkipPanel place={dialog.place} summary={dialog.summary} onCancel={() => setSkipOpen(false)} onSkip={skip} />
       )}
@@ -374,7 +407,7 @@ function PoseLayer({ src, dur }) {
 }
 
 // '휙득!' 아이템 등장: 빙글 돌며 크게 튀어나오고, 빛이 뒤에서 돌며, 글자가 톡 튐
-export function RewardPop({ src, label }) {
+export function RewardPop({ src, label, note }) {
   const ref = useRef(null)
   useLayoutEffect(() => {
     const q = gsap.utils.selector(ref)
@@ -388,7 +421,8 @@ export function RewardPop({ src, label }) {
         0.05,
       )
       .fromTo(q('.dialog__reward-label'), { scale: 0, y: 20 }, { scale: 1, y: 0, duration: 0.45, ease: 'back.out(3)' }, 0.55)
-      .fromTo(q('.dialog__reward-hint'), { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.1)
+      .fromTo(q('.dialog__reward-note'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4 }, 1.1)
+      .fromTo(q('.dialog__reward-hint'), { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.4)
     gsap.to(q('.dialog__reward-shine'), { rotation: 360, duration: 8, ease: 'none', repeat: -1 })
     gsap.to(q('.dialog__reward-card'), { y: -8, duration: 1.4, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: 0.8 })
     return () => tl.kill()
@@ -398,6 +432,8 @@ export function RewardPop({ src, label }) {
       <div className="dialog__reward-shine" />
       <p className="dialog__reward-label">{label}</p>
       <img className="dialog__reward-card" src={src} alt={label} />
+      {/* 카드 아래 플레이어 독백 말풍선 */}
+      {note && <p className="dialog__reward-note">{note}</p>}
       <p className="dialog__reward-hint">눌러서 계속</p>
     </div>
   )

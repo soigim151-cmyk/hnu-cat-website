@@ -306,8 +306,9 @@ export default function FlyerGame({ bg, hannam, npcs: npcImgs, flyer, onDone }) 
             <li>홍보물을 원하는 학생(말풍선)을 누르면 전달 성공!</li>
             <li>거절하거나 이미 받은 학생을 누르면 실수 1회</li>
             <li>말풍선 없이 지나가는 학생을 눌러도 실수 1회</li>
-            <li>실수 {MAX_MISS}회 또는 시간 초과면 실패</li>
+            <li>실수 {MAX_MISS}회면 실패</li>
           </ul>
+          <p className="fg__warn">⏰ {TIME}초 안에 {GOAL}장을 다 못 나눠줘도 실패!</p>
           <button type="button" className="fg__btn" onClick={start}>
             게임 시작
           </button>

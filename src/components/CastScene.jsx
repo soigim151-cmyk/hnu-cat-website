@@ -4,6 +4,8 @@ import gsap from 'gsap'
 import { playSfx, playBgm, stopBgm, bgmVolume } from './sfx.js'
 import FlyerGame from './FlyerGame.jsx'
 import { SkipButton, SkipPanel } from './SkipPanel.jsx'
+import { StoryClear, LikePop } from './StoryClear.jsx'
+import { LIKES_ON } from '../data/story.js'
 import { RewardPop } from './DialogScene.jsx'
 import './DialogScene.css'
 import './CastScene.css'
@@ -39,6 +41,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const lineWhoRef = useRef(null) // 지금 대사를 말하는 인물
   const gameResRef = useRef(null)
   const itemResRef = useRef(null)
+  const completeResRef = useRef(null)
   const propRefs = useRef({})
 
   const [step, setStep] = useState(-1)
@@ -72,6 +75,10 @@ export default function CastScene({ dialog, onClose, startAt }) {
   const [caption, setCaption] = useState(null) // 화면 가운데 짧은 글 / 휴대폰 알림
   const [chromeOff, setChromeOff] = useState(false) // 닫기 버튼까지 숨김 (엔딩)
   const [skipOpen, setSkipOpen] = useState(false) // 건너뛰기 정리 창
+  const [likePop, setLikePop] = useState(null) // 호감도 알림
+  const [flash, setFlash] = useState(null) // 회상 장면 { src, fallback, caption }
+  const [list, setList] = useState(null) // 인물 옆에 하나씩 들어오는 목록 { title, items: [...보이는 것] }
+  const likesRef = useRef({}) // 이번 장소에서 오른 호감도
   const [soloWho, setSoloWho] = useState(null) // solo 인물 중 지금 화면에 나와 있는 한 명
 
   const lines = dialog.lines
@@ -211,8 +218,9 @@ export default function CastScene({ dialog, onClose, startAt }) {
             left: { opacity: 0, xPercent: -40 },
             right: { opacity: 0, xPercent: 40 },
             back: { opacity: 0, scale: 0.72, yPercent: -12 }, // 멀리서 다가오는 느낌
+            far: { opacity: 0, scale: 0.3, yPercent: -55 }, // 아주 멀리 작게 → 가까이
           }[a.from || 'fade']
-          const t = gsap.fromTo(el, from, { opacity: a.opacity ?? 1, xPercent: 0, yPercent: 0, scale: 1, duration: dur, ease: a.from === 'back' ? 'power1.out' : 'power2.out' })
+          const t = gsap.fromTo(el, from, { opacity: a.opacity ?? 1, xPercent: 0, yPercent: 0, scale: 1, duration: dur, ease: a.from === 'back' || a.from === 'far' ? 'power1.out' : 'power2.out' })
           if (a.wait !== false) await t
         } else if (a.pose && a.p) {
           setPoseDur((d) => ({ ...d, [a.pose]: a.dur ?? 0.3 }))
@@ -316,8 +324,8 @@ export default function CastScene({ dialog, onClose, startAt }) {
         } else if (a.reward) {
           // 획득 카드: 대화창을 치우고 튀어나옴 → 한 번 누르면 다음으로
           await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
-          setReward({ src: a.reward, label: a.label })
-          playSfx('complete')
+          setReward({ src: a.reward, label: a.label, note: a.note })
+          playSfx('item')
           await new Promise((r) => (waitClickRef.current = r))
           await gsap.to(rootRef.current.querySelector('.dialog__reward'), { opacity: 0, scale: 0.9, duration: 0.3, ease: 'power2.in' })
           setReward(null)
@@ -409,20 +417,50 @@ export default function CastScene({ dialog, onClose, startAt }) {
           onClose(false, a.leave)
           return
         } else if (a.itemGet) {
-          // 아이템 획득 화면 → 확인 누르면 끝
+          // 아이템 획득 화면 → 확인을 누르면 다음 연출로
           setBoxOff(true)
           setItemGet(a.itemGet)
           await new Promise((r) => (itemResRef.current = r))
+          setItemGet(null)
+        } else if (a.flash !== undefined) {
+          // 회상 장면: 흐릿하고 따뜻한 사진이 겹쳐 보임 / null 이면 사라짐
+          if (a.flash) {
+            setFlash(a.flash)
+            await nextFrame()
+            await gsap.fromTo(rootRef.current.querySelector('.cast__flash'), { opacity: 0 }, { opacity: 1, duration: a.dur ?? 1 })
+          } else {
+            const el = rootRef.current.querySelector('.cast__flash')
+            if (el) await gsap.to(el, { opacity: 0, duration: a.dur ?? 1 })
+            setFlash(null)
+          }
+        } else if (a.list !== undefined) {
+          // 목록: 시간차를 두고 하나씩 옆에서 들어옴 / null 이면 닫기
+          if (!a.list) setList(null)
+          else {
+            for (let i = 0; i <= a.list.items.length; i++) {
+              setList({ title: a.list.title, items: a.list.items.slice(0, i) })
+              if (i < a.list.items.length) {
+                if (i > 0) playSfx('pop')
+                await sleep(i === 0 ? 0.2 : (a.list.gap ?? 0.5))
+              }
+            }
+          }
+        } else if (a.like) {
+          if (!LIKES_ON) continue // 호감도 보류 중
+          // 호감도: 잠깐 알림 + 마무리 화면에 모아서 보여줌
+          likesRef.current[a.like] = (likesRef.current[a.like] || 0) + (a.n ?? 1)
+          playSfx('heart')
+          setLikePop({ who: a.like, n: a.n ?? 1, k: Math.random() })
+          setTimeout(() => setLikePop(null), 2000)
+        } else if (a.complete) {
+          // 모든 장소 공통 마무리 화면 → 지도로 돌아가기
+          if (boxRef.current) await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
+          setBoxOff(true)
+          setComplete(a.complete)
+          await new Promise((res) => (completeResRef.current = res))
           aliveRef.current = false
           await gsap.to(rootRef.current, { opacity: 0, duration: 0.4 })
-          onClose(true)
-          return
-        } else if (a.complete) {
-          await gsap.to(boxRef.current, { opacity: 0, y: 16, duration: 0.25 })
-          setComplete(a.complete)
-          await new Promise((res) => (waitClickRef.current = res))
-          await gsap.to(rootRef.current, { opacity: 0, duration: 0.4 })
-          onClose(true, null, { use: a.complete.use }) // 끝까지 봄
+          onClose(true, null, { use: a.complete.use, likes: likesRef.current }) // 끝까지 봄
           return
         }
       }
@@ -539,7 +577,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
     aliveRef.current = false
     clearInterval(typingRef.current)
     setSkipOpen(false)
-    gsap.to(rootRef.current, { opacity: 0, duration: 0.4, onComplete: () => onClose(true, null, { use: dialog.summary?.use }) })
+    gsap.to(rootRef.current, { opacity: 0, duration: 0.4, onComplete: () => onClose(true, null, { use: dialog.summary?.use, likes: dialog.summary?.likes }) })
   }
 
   const choose = (c) => {
@@ -597,7 +635,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
                 className={`cast__char cast__char--${who}`}
                 style={{ '--x': c.x, '--b': c.bottom, '--w': c.w, visibility: p ? 'visible' : 'hidden' }}
               >
-                <div className={`cast__char-inner${focus}${dialog.solo?.includes(who) && soloWho !== who ? ' is-off' : ''}`}>
+                <div className={`cast__char-inner${focus}${dialog.solo?.includes(who) && soloWho !== who ? ' is-off' : ''}${c.side ? ` from-${c.side}` : ''}`}>
                   {/* flip 목록에 있는 포즈는 좌우 반전 (같은 옆모습으로 양쪽 방향) */}
                   <div className={c.flip === true || c.flip?.includes(p) ? 'cast__flip' : undefined}>
                     {src && <PoseLayer src={src} dur={poseDur[who] ?? 0.3} />}
@@ -684,6 +722,14 @@ export default function CastScene({ dialog, onClose, startAt }) {
         <div className="cast__sun" />
         <div className="cast__dark" />
 
+        {/* 회상 장면 */}
+        {flash && (
+          <div className="cast__flash">
+            <img key={flash.src} src={BASE + flash.src} alt="" onError={(e) => flash.fallback && (e.currentTarget.src = BASE + flash.fallback)} />
+            {flash.caption && <span className="cast__flash-cap">{flash.caption}</span>}
+          </div>
+        )}
+
         {/* 가운데 짧은 글 · 휴대폰 알림 */}
         {caption && (
           <div className={`cast__caption${caption.phone ? ' is-phone' : ''}${caption.note ? ' is-note' : ''}${caption.end ? ' is-end' : ''}`}>
@@ -726,7 +772,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
           />
         )}
 
-        {reward && <RewardPop src={BASE + reward.src} label={reward.label} />}
+        {reward && <RewardPop src={BASE + reward.src} label={reward.label} note={reward.note} />}
 
         {skipOpen && dialog.summary && (
           <SkipPanel place={dialog.place} summary={dialog.summary} onCancel={() => setSkipOpen(false)} onSkip={skip} />
@@ -751,7 +797,29 @@ export default function CastScene({ dialog, onClose, startAt }) {
           </div>
         )}
 
-        {complete && <QuestComplete {...complete} />}
+        {complete && (
+          <StoryClear
+            place={dialog.summary?.name || dialog.place}
+            sub={complete.sub}
+            items={complete.items}
+            likes={likesRef.current}
+            onDone={() => completeResRef.current?.()}
+          />
+        )}
+        {list && (
+          <div className="cast__list">
+            {list.title && <p className="cast__list-title">{list.title}</p>}
+            <ol>
+              {list.items.map((t, i) => (
+                <li key={t}>
+                  <span className="cast__list-no">{i + 1}</span>
+                  {t}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        {likePop && <LikePop key={likePop.k} who={likePop.who} n={likePop.n} />}
       </div>
 
       {dialog.summary && <SkipButton hidden={chromeOff || !!itemGet || game} onClick={() => setSkipOpen(true)} />}
@@ -802,25 +870,6 @@ function KimbapBag() {
   )
 }
 
-function QuestComplete({ title, sub, foot }) {
-  const ref = useRef(null)
-  useLayoutEffect(() => {
-    const q = gsap.utils.selector(ref)
-    gsap
-      .timeline()
-      .fromTo(q('.cast__qc-title'), { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(2.2)' })
-      .fromTo(q('.cast__qc-sub'), { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, 0.35)
-      .fromTo(q('.cast__qc-foot, .cast__qc-hint'), { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.7)
-  }, [])
-  return (
-    <div className="cast__qc" ref={ref}>
-      <p className="cast__qc-title">{title}</p>
-      <p className="cast__qc-sub">{sub}</p>
-      <p className="cast__qc-foot">{foot}</p>
-      <p className="cast__qc-hint">눌러서 지도로</p>
-    </div>
-  )
-}
 
 // 소품 그림 (이미지가 없을 때)
 function PropIcon({ kind }) {
@@ -926,6 +975,7 @@ function ItemGet({ img, title, sub, desc, monologue = [], saved, onOk }) {
             className="cast__get-ok"
             onClick={(e) => {
               e.stopPropagation()
+              playSfx('select')
               onOk()
             }}
           >

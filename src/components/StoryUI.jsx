@@ -1,7 +1,7 @@
 // 지도 화면의 스토리 UI: 다음 장소 안내, 보관함, 아이템 크게 보기, 확인 창, 알림
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ITEMS } from '../data/story.js'
+import { ITEMS, CHARACTERS, LIKES_ON } from '../data/story.js'
 import { isMuted, setMuted, playSfx } from './sfx.js'
 import './StoryUI.css'
 
@@ -32,7 +32,7 @@ export function QuestBar({ step, total, place, shown }) {
 }
 
 // ── 오른쪽 위: 보관함 버튼 + 펼침 창 ──
-export function Inventory({ items, isNew, onOpen, onPick, shown }) {
+export function Inventory({ items, likes = {}, isNew, onOpen, onPick, shown }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const ids = Object.keys(items)
@@ -107,6 +107,27 @@ export function Inventory({ items, isNew, onOpen, onPick, shown }) {
             })}
           </ul>
           {ids.length === 0 && <p className="bag__empty">아직 모은 아이템이 없어요</p>}
+
+          {/* 호감도: 만난 인물마다 하트 5칸 */}
+          {LIKES_ON && <p className="bag__title bag__title--likes">호감도</p>}
+          {!LIKES_ON ? null : Object.keys(likes).length === 0 ? (
+            <p className="bag__empty">아직 친해진 사람이 없어요</p>
+          ) : (
+            <ul className="bag__likes">
+              {Object.entries(likes).map(([who, n]) => (
+                <li key={who}>
+                  <span className="bag__like-name">{CHARACTERS[who]}</span>
+                  <span className="bag__hearts" aria-label={`호감도 ${n} / 5`}>
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <span key={i} className={i < n ? 'is-on' : undefined} aria-hidden="true">
+                        ♥
+                      </span>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>

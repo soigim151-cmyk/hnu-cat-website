@@ -24,13 +24,16 @@ const ALLEY = [bg('alley', 0), cam({ zoom: 1, x: 0, dur: 0 })]
 const MENU = [
   { text: '쯔보', sub: '오렌지치킨', img: `${G}food-zzubo.webp`, goto: 'eat-zzubo' },
   { text: '도스마스', sub: '부리또', img: `${G}food-dosmas.webp`, goto: 'eat-dosmas' },
-  { text: '면식당', sub: '면 요리', img: `${G}food-noodle.webp`, goto: 'eat-noodle' },
+  { text: '면식당', sub: '라멘', img: `${G}food-noodle.webp`, goto: 'eat-noodle' },
   { text: '진앤키노', sub: '???', img: `${G}food-jin.webp`, goto: 'eat-jin' },
 ]
 // 밥을 먹었을 때 (점심 완료 화면)
-const lunch = (img, sub, desc, lines) => ({
-  itemGet: { img, title: 'LUNCH TIME!', sub, desc, monologue: lines.map((text) => ({ text })), saved: '든든하게 점심을 먹었다!' },
-})
+// 밥을 먹었을 때: 점심 화면 → 추천해 준 남매 호감도 → 공통 마무리 화면
+const lunch = (img, sub, desc, lines, who) => [
+  { itemGet: { img, title: 'LUNCH TIME!', sub, desc, monologue: lines.map((text) => ({ text })), saved: '든든하게 점심을 먹었다!' } },
+  { like: who },
+  { complete: { sub: `쪽문 4남매를 만나 ${sub.split(' · ')[0]}에서 점심을 먹었다.`, items: ['id-siblings'] } },
+]
 
 export const GATE = {
   place: '쪽문, 점심시간',
@@ -39,6 +42,7 @@ export const GATE = {
   calm: true,
   bgm: 'street',
   summary: {
+    likes: { ju1: 1 },
     name: '쪽문',
     story: '쪽문 골목에서 메뉴 하나 정하는 데도 진심인 4남매를 만나 맛집을 추천받고, 점심을 해결했다.',
     info: [
@@ -47,7 +51,7 @@ export const GATE = {
       '진앤키노는 늘 "청소 중"…. 무엇을 파는 곳인지 아무도 몰라요.',
     ],
   },
-  solo: ['ju1', 'ju2', 'ju3', 'ju4'], // 넷이 나란히 서 있지 않고, 말하는 한 명만 가운데에
+  solo: ['ju1', 'ju2', 'ju3', 'ju4'], // 말하는 한 명만: 치주일 · 치주이는 왼쪽, 치주삼 · 치주사는 오른쪽에서 들어옴
   main: ['ju1', 'ju2', 'ju3', 'ju4', 'shop'], // 4남매 대사는 기본 방향, 플레이어는 반전
   bgs: {
     gate: { src: `${G}bg-gate.webp` }, // 쪽문.png (처음 독백)
@@ -56,10 +60,10 @@ export const GATE = {
   startBg: 'gate',
   cast: {
     group: { name: '', nofocus: true, folder: `${G}group/`, fallback: `${G}group.webp`, x: 0, bottom: -40, w: 1150 },
-    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: 0, bottom: -40, w: 262 },
-    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: 0, bottom: -40, w: 286 },
-    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 0, bottom: -40, w: 276 },
-    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 0, bottom: -40, w: 242 },
+    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -330, bottom: -40, w: 262, side: 'left' },
+    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -330, bottom: -40, w: 286, side: 'left' },
+    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 330, bottom: -40, w: 276, side: 'right' },
+    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 330, bottom: -40, w: 242, side: 'right' },
     shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}ju1.webp`, x: 0, bottom: -2000, w: 10 },
   },
 
@@ -81,7 +85,7 @@ export const GATE = {
     },
     { who: 'ju2', text: '이번 주에만 세 번째야. 이제 좀 포기해.' },
     { who: 'ju3', text: '아니, 문은 맨날 열려 있는데 왜 장사를 안 하냐고.' },
-    { who: 'ju4', text: '...배고파.' },
+    { who: 'ju4', text: '…배고파.' },
     {
       who: 'ju1',
       text: '알았어. 이제 진짜 가자.',
@@ -100,7 +104,7 @@ export const GATE = {
     { who: 'ju2', text: '그래서 국정원 비밀 사무실이라는 소문도 있어요. CIA 지부라는 얘기도 있고요.' },
     { who: 'me', text: 'CIA가 왜 여기 있어요?' },
     { who: 'ju3', text: '그러니까 안 들키죠.', after: [W(0.8)] },
-    { who: 'ju1', text: '...그냥 밥 먹으러 가자.' },
+    { who: 'ju1', text: '…그냥 밥 먹으러 가자.' },
 
     // ── SCENE 03. 네 명의 점심 메뉴 ──
     { who: 'ju1', text: '우리 다음 수업까지 40분 남았어. 빨리 정하자.', before: [sfx('ding')] },
@@ -112,7 +116,7 @@ export const GATE = {
       // 세 사람이 치주사를 바라봄
       after: [cam({ zoom: 1.1, on: 'ju4', dur: 0.6 }), W(0.5)],
     },
-    { who: 'ju4', text: '...아무거나.' },
+    { who: 'ju4', text: '…아무거나.' },
     { who: 'ju2', text: '주사야, 네가 그렇게 말하면 오늘도 못 정해.' },
     { who: 'ju4', text: '그럼 몽심. 레몬 마들렌.' },
     { who: 'ju1', text: '거긴 디저트잖아….', before: [cam({ zoom: 1, x: 0, dur: 0.5 })] },
@@ -126,15 +130,15 @@ export const GATE = {
     {
       who: 'ju2',
       text: '네. 저쪽부터 첫째 치주일, 저는 둘째 치주이, 셋째 치주삼, 막내 치주사예요.',
-      after: [reveal('ju1', 0.9), reveal('ju2', 0.9), reveal('ju3', 0.9), reveal('ju4', 0.9)],
+      after: [reveal('ju1', 0.9), reveal('ju2', 0.9), reveal('ju3', 0.9), reveal('ju4', 0.9), { reward: `${T}id-siblings.png`, label: '4남매 학생증 획득!' }],
     },
     { who: 'ju3', text: '아직 메뉴 못 정하셨으면 도스마스 가세요. 부리또 괜찮아요.' },
     { who: 'ju2', text: '쯔보 오렌지치킨도 맛있어요. 좀 색다른 거 먹고 싶을 때 추천해요.' },
     { who: 'ju1', text: '면 좋아하시면 면식당도 괜찮고요.' },
-    { who: 'ju4', text: '...몽심 레몬 마들렌도요.' },
+    { who: 'ju4', text: '…몽심 레몬 마들렌도요.' },
     { who: 'ju1', text: '야, 35분 남았어.', before: [sfx('ding'), W(0.4)] },
     { who: 'ju3', text: '그럼 도스마스 가자니까.' },
-    { who: 'ju4', text: '...몽심은?' },
+    { who: 'ju4', text: '…몽심은?' },
     { who: 'ju1', text: '수업 끝나고 가자.' },
     {
       who: 'ju4',
@@ -151,7 +155,7 @@ export const GATE = {
     { who: 'me', text: '밥 먹으러 왔다가 이상한 가게 얘기만 잔뜩 들었네.', after: [W(0.5)] },
     {
       who: 'me',
-      text: '...근데 진짜 뭐 하는 곳이지?',
+      text: '…근데 진짜 뭐 하는 곳이지?',
       // 진앤키노 간판 잠깐 강조
       after: [cam({ zoom: 1.35, x: 112, y: 56, dur: 0.8 }), W(0.9), cam({ zoom: 1, x: 0, dur: 0.6 })],
     },
@@ -173,10 +177,10 @@ export const GATE = {
       text: '오렌지치킨 하나 주세요!',
       after: [
         W(0.3),
-        lunch(`${G}food-zzubo.webp`, '쯔보 · 오렌지치킨', '치주이가 추천한 쯔보의 오렌지치킨.', [
+        ...lunch(`${G}food-zzubo.webp`, '쯔보 · 오렌지치킨', '치주이가 추천한 쯔보의 오렌지치킨.', [
           '새콤달콤하니 맛있다.',
           '확실히 색다른 걸 먹고 싶을 때 딱이네.',
-        ]),
+        ], 'ju2'),
       ],
     },
     // 도스마스
@@ -186,30 +190,30 @@ export const GATE = {
       text: '부리또 하나 주세요!',
       after: [
         W(0.3),
-        lunch(`${G}food-dosmas.webp`, '도스마스 · 부리또', '치주삼이 추천한 도스마스의 부리또.', [
+        ...lunch(`${G}food-dosmas.webp`, '도스마스 · 부리또', '치주삼이 추천한 도스마스의 부리또.', [
           '들고 다니면서 먹기 편하다.',
-          '...4남매도 지금 이거 먹고 있겠지?',
-        ]),
+          '…4남매도 지금 이거 먹고 있겠지?',
+        ], 'ju3'),
       ],
     },
     // 면식당
     {
       label: 'eat-noodle',
       who: 'me',
-      text: '여기 면 하나 주세요!',
+      text: '여기 라멘 하나 주세요!',
       after: [
         W(0.3),
-        lunch(`${G}food-noodle.webp`, '면식당 · 면 요리', '치주일이 추천한 면식당의 면 요리.', [
-          '금방 나와서 좋다.',
-          '수업 전에 먹기엔 딱이네.',
-        ]),
+        ...lunch(`${G}food-noodle.webp`, '면식당 · 라멘', '치주일이 추천한 면식당의 라멘.', [
+          '국물이 진하다.',
+          '금방 나와서 수업 전에 먹기 딱이네.',
+        ], 'ju1'),
       ],
     },
     // 진앤키노: 청소 중이라 쫓겨남 → 다시 고르기
     {
       label: 'eat-jin',
       who: 'me',
-      text: '저기... 혹시 영업하세요?',
+      text: '저기… 혹시 영업하세요?',
       before: [cam({ zoom: 1.3, x: 96, y: 48, dur: 0.7 })],
     },
     {
@@ -217,14 +221,14 @@ export const GATE = {
       text: '지금 청소 중입니다! 나가 주세요!',
       after: [sfx('comic'), { shake: 'world' }, sfx('whoosh'), cam({ zoom: 1, x: 0, dur: 0.35 })],
     },
-    { who: 'me', text: '...쫓겨났다.', after: [W(0.6)] },
+    { who: 'me', text: '…쫓겨났다.', after: [W(0.6)] },
     // 쫓겨난 뒤에는 진앤키노를 다시 고를 수 없음
     {
       label: 'menu2',
       checkpoint: 'menu2',
       setup: ALLEY,
       who: 'me',
-      text: '진짜 청소 중이었네. 다른 데 가야겠다.',
+      text: '문은 열려 있는데…. 다른 데 가야겠다.',
       choices: MENU.filter((m) => m.goto !== 'eat-jin'),
     },
   ],

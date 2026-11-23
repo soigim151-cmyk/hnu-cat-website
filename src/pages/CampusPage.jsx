@@ -14,6 +14,7 @@ import { DIALOGUES } from '../data/dialogues.js'
 import { BUILDINGS } from '../data/buildings.js'
 import { STORY, ITEMS } from '../data/story.js'
 import { QuestBar, Inventory, ItemViewer, Confirm, PlaceNote, Toast } from '../components/StoryUI.jsx'
+import { FinalQuest, Finale } from '../components/Finale.jsx'
 import { playSfx, playBgm, stopBgm } from '../components/sfx.js'
 import './CampusPage.css'
 
@@ -26,6 +27,8 @@ export default function CampusPage({ onBack }) {
   // ── 스토리 진행 (저장하지 않음: 처음으로 가면 초기화) ──
   const [done, setDone] = useState([]) // 이야기를 끝낸 장소 id (순서대로)
   const [items, setItems] = useState({}) // 보관함: { 아이템 id: 'have' | 'used' }
+  const [likes, setLikes] = useState({}) // 호감도: { 인물: 하트 수 }
+  const [final, setFinal] = useState(null) // 마지막 퀘스트 · 엔딩 { step: 'quest' | 'ending', message }
   const [bagNew, setBagNew] = useState(false)
   const [viewItem, setViewItem] = useState(null)
   const [confirmBack, setConfirmBack] = useState(false)
@@ -68,7 +71,14 @@ export default function CampusPage({ onBack }) {
   // 장소 이야기를 끝까지 봄 → 다음 장소 열기 + 아이템
   const finishPlace = useCallback(
     (id, extra = {}) => {
-      if (id !== nextId) return // 이미 끝낸 장소를 다시 본 경우
+      if (id !== nextId) return // 이미 끝낸 장소를 다시 본 경우 (호감도도 처음 한 번만)
+      if (extra.likes) {
+        setLikes((m) => {
+          const n = { ...m }
+          Object.entries(extra.likes).forEach(([k, v]) => (n[k] = Math.min(5, (n[k] || 0) + v)))
+          return n
+        })
+      }
       // 장소 기본 결과 + 대화 중 선택에 따른 결과 (예: 참치김밥을 줬는지)
       const base = STORY[stepNow]
       const st = { ...base, use: [...(base.use || []), ...(extra.use || [])] }
@@ -92,7 +102,8 @@ export default function CampusPage({ onBack }) {
           after && { text: `다음 장소가 열렸어요: ${nameOf(after)}` },
         )
       } else if (after) showToast({ text: `다음 장소가 열렸어요: ${nameOf(after)}` })
-      else showToast({ text: '모든 이야기를 완료했어요!' }, 3600)
+      // 마지막 장소: 지도로 돌아오면 마지막 퀘스트가 이어짐
+      else setTimeout(() => setFinal({ step: 'quest' }), 900)
     },
     [nextId, stepNow, showToast],
   )
@@ -281,6 +292,7 @@ export default function CampusPage({ onBack }) {
       <QuestBar step={stepNow} total={STORY.length} place={nextB && nameOf(nextB)} shown={revealed && !talk} />
       <Inventory
         items={items}
+        likes={likes}
         isNew={bagNew}
         shown={revealed && !talk}
         onOpen={() => setBagNew(false)}
@@ -295,6 +307,17 @@ export default function CampusPage({ onBack }) {
           onDone={() => {
             setNote(null)
             finishPlace(note.id)
+          }}
+        />
+      )}
+      {final?.step === 'quest' && <FinalQuest onDone={(message) => setFinal({ step: 'ending', message })} />}
+      {final?.step === 'ending' && (
+        <Finale
+          message={final.message}
+          onClose={() => setFinal(null)}
+          onGallery={() => {
+            setFinal(null)
+            setTimeout(() => document.getElementById('cat-gallery')?.scrollIntoView({ behavior: 'smooth' }), 300)
           }}
         />
       )}

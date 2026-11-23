@@ -1,0 +1,120 @@
+/* 장소 마무리 화면 (모든 장소 공통) */
+.sclear {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: rgba(0, 8, 60, 0.78);
+  color: #fff;
+  text-align: center;
+  cursor: default;
+}
+.sclear p {
+  margin: 0;
+}
+.sclear__title {
+  font-size: clamp(40px, 6.5vw, 92px);
+  color: #fff;
+  text-shadow:
+    0 6px 0 var(--blue-ink),
+    0 0 24px rgba(95, 140, 247, 0.8);
+}
+.sclear__place {
+  margin-top: 4px !important;
+  color: #ffe14d;
+  font-size: clamp(18px, 2.2vw, 28px);
+}
+.sclear__sub {
+  max-width: 640px;
+  font-size: clamp(14px, 1.6vw, 19px);
+  line-height: 1.6;
+  opacity: 0.92;
+  word-break: keep-all;
+}
+.sclear__gains {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 14px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+.sclear__gain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 2px solid #fff;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: clamp(13px, 1.4vw, 17px);
+}
+.sclear__gain img {
+  height: 26px;
+  width: auto;
+}
+.sclear__gain.is-like span {
+  color: #ff7a9a;
+}
+.sclear__btn {
+  margin-top: 16px;
+  min-width: 180px;
+  padding: 12px 24px;
+  border: 3px solid #fff;
+  background: #ffe14d;
+  color: var(--blue-ink);
+  font-family: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+.sclear__btn:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+/* 호감도 알림 (왼쪽 위) */
+.slike {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 3px solid #fff;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--blue-ink);
+  font-size: 16px;
+  pointer-events: none;
+  animation: slike 2s ease forwards;
+}
+.slike__heart {
+  color: #ff4d7a;
+  font-size: 20px;
+  animation: slike-beat 0.5s ease 2;
+}
+@keyframes slike {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  12%,
+  80% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes slike-beat {
+  50% {
+    transform: scale(1.35);
+  }
+}

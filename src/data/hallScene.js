@@ -23,6 +23,7 @@ export const HALL = {
   calm: true, // 말할 때 인물이 커지지 않음
   bgm: 'bright',
   summary: {
+    likes: { hannam: 2 },
     name: '학생회관',
     story: '학생회장 후보 한남이의 선거 홍보물 나눠주기를 도와주고, 보답으로 참치김밥을 받았다.',
     info: [
@@ -43,6 +44,7 @@ export const HALL = {
   // 소품 (x · bottom · w 는 인물과 같은 단위)
   props: {
     flyers: { src: `${H}flyer.webp`, x: 0, bottom: 330, w: 240 }, // 홍보물.png
+    flyerNami: { src: `${H}flyer-nami.webp`, x: -560, bottom: 380, w: 220 }, // 한나미 홍보물 (임시, 나미 홍보물 이미지를 올리면 교체)
     kimbap: { src: `${T}kimbap.webp`, x: 60, bottom: 380, w: 200 }, // 한남이 손 근처에서 등장
   },
   // 배경을 좌우로 오가는 학생들 / 한남이 앞을 지나가는 학생 두 명
@@ -64,7 +66,7 @@ export const HALL = {
       // 학생 두 명이 앞을 지나가지만 받지 않음
       after: [{ reveal: 'hannam' }, { passers: true, dur: 2.3 }],
     },
-    { who: 'hannam', text: '아, 벌써 시간이 이렇게 됐네. 아직 한참 남았는데...', after: [W(1)] },
+    { who: 'hannam', text: '아, 벌써 시간이 이렇게 됐네. 아직 한참 남았는데…', after: [W(1)] },
     {
       label: 'ask',
       // 다시 말을 걸었을 때는 여기서부터
@@ -74,8 +76,10 @@ export const HALL = {
     },
     { who: 'hannam', text: '아, 안녕하세요. 지금 학생회장 선거운동 중인데 점심시간 안에 홍보물을 나눠줘야 하거든요.' },
     {
+      label: 'please',
       who: 'hannam',
-      text: '네. 이따 다른 일정도 있어서요. 혹시 잠깐만 도와주실 수 있을까요?',
+      text: '이따 다른 일정도 있어서요. 혹시 잠깐만 도와주실 수 있을까요?',
+      before: [prop('flyers', 'show', { dur: 0.4 })],
       choices: [
         { text: '제가 도와드릴게요.', goto: 'yes' },
         { text: '지금은 조금 바쁜데요.', goto: 'no' },
@@ -85,9 +89,9 @@ export const HALL = {
       label: 'yes',
       who: 'hannam',
       text: '정말요? 감사합니다! 학생들이 바빠서 홍보물을 잘 안 받아 가네요. 받으려는 학생들에게만 전달해 주시면 돼요.',
-      // 홍보물 더미가 화면 가운데로 → 카메라가 조금 멀어짐
-      // 홍보물이 화면 가운데에 나타났다가 사라짐 → 카메라가 조금 멀어짐
-      after: [prop('flyers', 'show', { dur: 0.4 }), W(0.9), prop('flyers', 'hide'), cam({ zoom: 1, x: 0, dur: 0.8 })],
+      // 홍보물을 충분히 보여 준 뒤 → 카메라가 조금 멀어짐
+      before: [prop('flyers', 'show', { dur: 0.3 })],
+      after: [{ like: 'hannam' }, W(2.2), prop('flyers', 'hide'), cam({ zoom: 1, x: 0, dur: 0.8 })],
       next: 'game',
     },
 
@@ -103,7 +107,7 @@ export const HALL = {
       who: 'hannam',
       text: '그럼 부탁드릴게요!',
       // 대화창이 사라지고 게임 안내창 → 성공하면 다음 장면, 그만두면 지도로
-      after: [W(0.3), { game: { quit: 'game' } }, { walkers: false }],
+      after: [W(0.3), { game: { quit: 'game' } }, { walkers: false }, { like: 'hannam' }],
       auto: true,
     },
 
@@ -118,13 +122,19 @@ export const HALL = {
     },
     { who: 'hanami', text: '한남아, 홍보물 다 나눠줬어?', after: [{ reveal: 'hanami' }] },
     { who: 'hannam', text: '응. 이분이 도와주셔서 50장 다 나눠줬어.' },
-    { who: 'hanami', text: '벌써? 난 아직 30장인데….', after: [W(0.7)] },
-    { who: 'hanami', text: '...나도 좀 도와달라고 할걸.' },
+    {
+      who: 'hanami',
+      text: '벌써? 나도 후보라서 이거 다 나눠줘야 하는데, 아직 30장밖에 못 했어….',
+      // 한나미 홍보물 (나미도 후보)
+      before: [prop('flyerNami', 'show', { dur: 0.4 })],
+      after: [W(0.7)],
+    },
+    { who: 'hanami', text: '…나도 좀 도와달라고 할걸.' },
     {
       who: 'hanami',
       text: '아직 선거 안 끝났잖아. 내일은 내가 더 많이 나눠줄 거야.',
       // 한나미 왼쪽으로 퇴장, 한남이는 다시 가운데로
-      after: [hide('hanami', { to: 'left', dur: 1.1 }), move('hannam', -430, 1)],
+      after: [prop('flyerNami', 'hide', { dur: 0.4 }), hide('hanami', { to: 'left', dur: 1.1 }), move('hannam', -430, 1)],
     },
 
     // ── SCENE 04. 참치김밥 획득 ──
@@ -141,10 +151,12 @@ export const HALL = {
     { who: 'hannam', text: '저는 지하 1층 멘사크리스티에서 먹으면 돼요. 학생식당이 바로 아래 있거든요.', before: [prop('kimbap', 'hide', { dur: 0.4 })] },
     {
       who: 'hannam',
-      text: '여기는 동아리방이나 실내체육관 같은 활동 공간뿐 아니라 장학금, 학적 관련 업무를 지원하는 부서도 있어서 학생들이 자주 이용해요.',
+      text: '그리고 여기는 학생 활동 공간도 많고, 장학금이나 학적 업무를 봐 주는 부서도 있어서 자주 오게 될 거예요.',
+      // 한남이 옆에 시설 목록이 하나씩 들어옴
+      after: [{ list: { title: '학생회관에 있는 곳', items: ['멘사크리스티 (지하 1층 학생식당)', '동아리방', '실내체육관', '장학 · 학적 업무 부서'], gap: 0.6 } }],
     },
     // 화면 밖에서 들리는 한나미 목소리 → 0.5초 뒤 왼쪽에서 상반신만
-    { who: 'hanami', text: '거기 학식 맛있어!', after: [W(0.5), show('hanamiPeek', { from: 'left', dur: 0.5 })] },
+    { who: 'hanami', text: '거기 학식 맛있어!', before: [{ list: null }], after: [W(0.5), show('hanamiPeek', { from: 'left', dur: 0.5 })] },
     { who: 'hanamiPeek', text: '맛있는 건 알려줘야지.' },
     { who: 'me', text: '잘 먹겠습니다. 선거운동 힘내세요!', before: [hide('hanamiPeek', { to: 'left', dur: 0.7 })] },
     {
@@ -160,24 +172,41 @@ export const HALL = {
             title: 'ITEM GET!',
             sub: '참치김밥 × 1',
             desc: '한남이의 선거운동을 도와주고 받은 참치김밥.',
-            monologue: [
-              { text: '...근데 나 참치김밥 안 좋아하는데.' },
-              { text: '주신 건데 버릴 수도 없고...', pause: 1 },
-              { text: '아, 시유 선배 드려야겠다.', pause: 0.8 },
-              { text: '참치김밥 좋아한다고 하셨지?' },
-            ],
-            saved: '참치김밥이 인벤토리에 보관되었습니다.',
+            monologue: [{ text: '(참치김밥은 안 좋아하는데…. 시유 선배님 갖다드려야겠다.)' }],
+            saved: '참치김밥이 보관함에 들어왔습니다.',
           },
         },
+        { complete: { sub: '한남이의 선거운동을 돕고 참치김밥을 받았다.', items: ['kimbap'] } },
       ],
     },
 
     // ── 선택지 B: 지금은 바빠요 → 대화 종료 (다시 누르면 도움 요청부터) ──
+    // 거절하면 미안해하며 홍보물을 꼭 쥠 → 거절하기 어렵게 (결국 돕게 됨)
     {
       label: 'no',
       who: 'hannam',
-      text: '아, 괜찮습니다. 그래도 관심 가져주셔서 감사해요!',
-      after: [cam({ zoom: 1, x: 0, dur: 0.7 }), W(0.4), { leave: 'ask' }],
+      text: '아…. 그래요…? 죄송해요. 괜한 부탁을 드렸네요….',
+      before: [prop('flyers', 'show', { dur: 0.3 })],
+      after: [W(0.8), prop('flyers', 'pulse')],
+    },
+    {
+      who: 'hannam',
+      text: '혼자서 점심시간 안에 다 나눠줄 수 있겠죠, 뭐…. 하하….',
+      choices: [
+        { text: '…잠깐이면 도와드릴게요.', goto: 'yes' },
+        { text: '그래도 지금은 좀…', goto: 'no2' },
+      ],
+    },
+    {
+      label: 'no2',
+      who: 'hannam',
+      text: '네…. 괜찮아요…. 정말 괜찮아요….',
+      after: [W(1), prop('flyers', 'pulse'), W(0.5), prop('flyers', 'pulse')],
+    },
+    {
+      who: 'me',
+      text: '(홍보물을 꼭 쥐고 있는 모습이 너무 눈에 밟힌다….)',
+      choices: [{ text: '…도와드릴게요!', goto: 'yes' }],
     },
   ],
 }

@@ -226,6 +226,25 @@
   height: auto;
   filter: drop-shadow(0 calc(16 * var(--u)) calc(24 * var(--u)) rgba(0, 10, 80, 0.45));
 }
+.dialog__reward-note {
+  position: relative;
+  margin: 0;
+  padding: calc(14 * var(--u)) calc(28 * var(--u));
+  border: calc(4 * var(--u)) solid var(--blue-ink);
+  border-radius: calc(22 * var(--u));
+  background: #fff;
+  color: var(--blue-ink);
+  font-size: calc(32 * var(--u));
+}
+.dialog__reward-note::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  border: calc(12 * var(--u)) solid transparent;
+  border-bottom-color: var(--blue-ink);
+  transform: translateX(-50%);
+}
 .dialog__reward-hint {
   position: relative;
   margin: 0;
