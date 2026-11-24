@@ -2,122 +2,14 @@
 // 그림이 아직 없어 지금 있는 사진 · 캐릭터 이미지에 만화 필터를 씌운 임시 컷
 // 컷마다 그림을 새로 만들면 src 만 바꾸면 됨 (public/ 기준 경로)
 //
-// 페이지: layout = 컷 배치 (CSS grid-template-areas), panels = 컷 목록
+// (아래 PAGES 형식) 페이지: layout = 컷 배치 (CSS grid-template-areas), panels = 컷 목록
 // 컷: area(배치 이름) · src(배경) · tone(day / night / cctv / flash) · move(카메라 움직임)
 //     layers(위에 겹치는 그림) · caption(노란 해설 상자) · sfx(효과 글자) · balloons(말풍선)
 //     burst(번쩍이는 빛) · speed(집중선)
 const P = (n) => `images/gallery/cat_${n}_l.webp`
 const T = 'talk/'
 
-export const COMIC = [
-  // ── SCENE 01. 한남대학교에는 전설이 있다 (직접 그린 만화) ──
-  {
-    bgm: 'map',
-    layout: '"a"',
-    panels: [{ area: 'a', src: `images/cartoon/web/s1.webp`, tone: 'art', frameless: true, aspect: '1536 / 932', move: 'zoom-in', hold: 3 }],
-  },
-  {
-    bgm: 'map',
-    layout: '"a b" "c c"',
-    panels: [
-      { area: 'a', src: `images/cartoon/web/s2a.webp`, tone: 'art', move: 'pan-r' },
-      { area: 'b', src: `images/cartoon/web/s2b.webp`, tone: 'art', move: 'zoom-in', sfx: [{ t: '터벅 터벅', x: 26, y: 84, rot: -6, size: 0.8, color: 'white', sound: 'steps' }] },
-      {
-        area: 'c',
-        src: `images/cartoon/web/s2c.webp`,
-        tone: 'art',
-        move: 'pan-l',
-        caption: { text: '학생들은 수업을 들으러, 고양이들은 저마다의 하루를 보내러.', pos: 'bl' },
-      },
-    ],
-  },
-
-  // ── 전설: 화면을 꽉 채운 달밤 → 아래로 내려가며 → 바닥의 고양이 → 암전 ──
-  {
-    kind: 'scroll',
-    bgm: 'tense',
-    src: `images/cartoon/web/s3.webp`,
-    aspect: '941 / 1672',
-    duration: 8,
-    floor: { src: `images/cartoon/web/s35.webp`, style: { left: '36%', bottom: '3%', width: '26%' } },
-    lines: [
-      { text: '한남대학교에는 오래전부터 전해 내려오는 전설이 있다.', at: 1, out: 4.8, pos: 'top' },
-      { text: '학교의 고양이들이, 사람이 된다는 전설.', at: 6.4, pos: 'top', big: true },
-    ],
-  },
-
-  // ── SCENE 02. 전설이 현실이 된 날 (효과 글자 · 말풍선은 컷 밖으로) ──
-  {
-    bgm: 'tense',
-    layout: '"a b" "c d"',
-    panels: [
-      {
-        area: 'a',
-        src: `images/cartoon/web/s4a.webp`,
-        tone: 'art',
-        move: 'zoom-in',
-        caption: { text: '모두가 잠든 늦은 밤.', pos: 'tl' },
-        sfx: [{ t: '!?', x: -4, y: 60, rot: -10, size: 1.2, color: 'white' }],
-      },
-      {
-        area: 'b',
-        src: `images/cartoon/web/s4b.webp`,
-        tone: 'art',
-        move: 'shake',
-        burst: true,
-        caption: { text: '갑자기, 정체불명의 빛이!', pos: 'bl' },
-        sfx: [{ t: 'FLASH!!', x: 72, y: -8, rot: -8, size: 1.3, color: 'yellow', sound: 'flash' }],
-      },
-      {
-        area: 'c',
-        src: `images/cartoon/web/s4c.webp`,
-        tone: 'art',
-        move: 'shake',
-        speed: true,
-        sfx: [{ t: 'BZZZZT!!', x: 30, y: 106, rot: 6, size: 1.2, color: 'yellow', sound: 'zap' }],
-      },
-      {
-        area: 'd',
-        src: `images/cartoon/web/s4d.webp`,
-        tone: 'art',
-        move: 'zoom-in',
-        caption: { text: '빛이 사라진 자리에는…', pos: 'tl' },
-        balloons: [{ t: '이, 이게… 내 손?!', x: 97, y: 66, tail: 'l', delay: 0.4, w: '6.4em' }],
-      },
-    ],
-  },
-
-  // ── SCENE 03. 학교에 비상이 걸리다: CCTV 화면 속에서 빠져나오며 장면 전환 ──
-  {
-    bgm: 'tense',
-    layout: '"a a ." ". b b"',
-    panels: [
-      {
-        area: 'a',
-        src: `images/cartoon/web/s5a.webp`,
-        tone: 'art',
-        frameless: true,
-        aspect: '426 / 217',
-        align: 'start',
-        fromMonitor: { origin: '68% 28%', scale: 3.4, img: `images/cartoon/web/s4d.webp` },
-        caption: { text: '그날 밤의 일이 전부 학교 CCTV에 찍혀 버렸다!', pos: 'out-b' },
-        sfx: [{ t: 'REC ●', x: 97, y: 6, rot: 0, size: 0.55, color: 'red', sound: 'alarm' }],
-      },
-      {
-        area: 'b',
-        src: `images/cartoon/web/s5b.webp`,
-        tone: 'art',
-        frameless: true,
-        aspect: '461 / 215',
-        align: 'end',
-        caption: { text: '다음 날 아침, 긴급회의.', pos: 'tl' },
-        balloons: [
-          { t: '이 일이 밖으로 알려지면 큰일입니다!', x: 26, y: 26, tail: 'bl', delay: 0.2 },
-          { t: '…방법은 하나뿐이군요.', x: 78, y: 36, tail: 'br', delay: 1.2 },
-        ],
-      },
-    ],
-  },
+const PAGES = [
   // 입학 서류 · 학생증 (그림이 생기면 교체 — 지금은 임시 컷)
   {
     bgm: 'tense',
@@ -253,3 +145,115 @@ export const COMIC = [
     ],
   },
 ]
+
+// ── 세로로 이어지는 만화 (웹툰처럼 화면을 꽉 채우고 자동으로 아래로) ──
+// 블록 종류
+//   img  : 그림 한 장 (w: 화면 대비 너비, aspect: 그림 비율). 위에 caption · sfx · balloons (위치는 그림 기준 %)
+//   row  : 그림 여러 장을 가로로 나란히
+//   text : 컷 사이 여백의 해설 (tone: dark = 검은 여백의 흰 글씨)
+//   space: 여백 (h: 높이, bg: 색). 색이 바뀌는 여백으로 암전을 표현
+//   page : 아직 그림이 없는 장면 (임시 컷, 화면 한 장 크기)
+// 블록마다 자동으로 멈췄다 넘어감 (hold 초). 화면을 누르면 다음 블록으로 바로
+const PAPER = '#f6f1e7'
+const NIGHT = '#05070f'
+
+export const STRIP = [
+  { type: 'space', h: 6, bg: PAPER },
+  // SCENE 01. 한남대학교에는 전설이 있다
+  { type: 'img', src: `images/cartoon/web/s1.webp`, aspect: '1536 / 932', w: 100, bg: PAPER, hold: 2.4 },
+  { type: 'space', h: 4, bg: PAPER },
+  {
+    type: 'row',
+    bg: PAPER,
+    items: [
+      { src: `images/cartoon/web/s2a.webp`, aspect: '889 / 413', grow: 889 / 413 },
+      {
+        src: `images/cartoon/web/s2b.webp`,
+        aspect: '767 / 413',
+        grow: 767 / 413,
+        sfx: [{ t: '터벅 터벅', x: 26, y: 84, rot: -6, size: 0.9, sound: 'steps' }],
+      },
+    ],
+    hold: 1.6,
+  },
+  { type: 'text', text: '학생들은 수업을 들으러, 고양이들은 저마다의 하루를 보내러.', bg: PAPER },
+  { type: 'img', src: `images/cartoon/web/s2c.webp`, aspect: '1600 / 419', w: 100, bg: PAPER, hold: 1.8 },
+  { type: 'space', h: 14, bg: `linear-gradient(${PAPER}, ${NIGHT})` },
+
+  // 전설: 달밤을 따라 천천히 내려감 → 바닥의 고양이 → 암전
+  {
+    type: 'img',
+    src: `images/cartoon/web/s3.webp`,
+    aspect: '941 / 1672',
+    w: 100,
+    bg: NIGHT,
+    pan: 8, // 화면보다 긴 그림: 위에서 아래까지 8초 동안
+    lines: [
+      { text: '한남대학교에는 오래전부터 전해 내려오는 전설이 있다.', at: 0.12 },
+      { text: '학교의 고양이들이, 사람이 된다는 전설.', at: 0.78, big: true },
+    ],
+    floor: { src: `images/cartoon/web/s35.webp`, style: { left: '36%', bottom: '3%', width: '26%' } },
+    hold: 1.6,
+  },
+  { type: 'space', h: 60, bg: NIGHT, beat: true, hold: 0.6 },
+
+  // SCENE 02. 전설이 현실이 된 날 (검은 여백 위에 한 컷씩)
+  { type: 'text', text: '모두가 잠든 늦은 밤.', tone: 'dark', bg: NIGHT },
+  { type: 'img', src: `images/cartoon/web/s4a.webp`, aspect: '774 / 266', w: 100, bg: NIGHT, sfx: [{ t: '!?', x: 88, y: 26, rot: 10, size: 1.2 }] },
+  { type: 'space', h: 3, bg: NIGHT },
+  {
+    type: 'img',
+    src: `images/cartoon/web/s4b.webp`,
+    aspect: '774 / 269',
+    w: 100,
+    bg: NIGHT,
+    flash: true,
+    sfx: [{ t: 'FLASH!!', x: 76, y: -4, rot: -8, size: 1.5, sound: 'flash', tone: 'light' }],
+  },
+  { type: 'space', h: 3, bg: NIGHT },
+  { type: 'img', src: `images/cartoon/web/s4c.webp`, aspect: '774 / 307', w: 100, bg: NIGHT, shake: true, sfx: [{ t: 'BZZZZT!!', x: 74, y: 104, rot: 6, size: 1.4, sound: 'zap', tone: 'light' }] },
+  { type: 'space', h: 6, bg: NIGHT },
+  { type: 'text', text: '빛이 사라진 자리에는…', tone: 'dark', bg: NIGHT },
+  {
+    type: 'img',
+    src: `images/cartoon/web/s4d.webp`,
+    aspect: '774 / 244',
+    w: 100,
+    bg: NIGHT,
+    balloons: [{ t: '이, 이게… 내 손?!', x: 84, y: 112, tail: 't', delay: 0.4 }],
+  },
+  { type: 'space', h: 16, bg: NIGHT },
+
+  // SCENE 03. 학교에 비상이 걸리다: CCTV 화면 속에서 빠져나오며
+  {
+    type: 'img',
+    src: `images/cartoon/web/s5a.webp`,
+    aspect: '426 / 217',
+    w: 86,
+    align: 'start',
+    bg: NIGHT,
+    fromMonitor: { origin: '68% 28%', scale: 3.4, img: `images/cartoon/web/s4d.webp` },
+    sfx: [{ t: 'REC ●', x: 96, y: 7, rot: 0, size: 0.6, sound: 'alarm', tone: 'red' }],
+  },
+  { type: 'text', text: '그날 밤의 일이 전부 학교 CCTV에 찍혀 버렸다!', tone: 'dark', bg: NIGHT, align: 'start' },
+  { type: 'space', h: 4, bg: NIGHT },
+  { type: 'text', text: '다음 날 아침, 긴급회의.', tone: 'dark', bg: NIGHT, align: 'end' },
+  {
+    type: 'img',
+    src: `images/cartoon/web/s5b.webp`,
+    aspect: '461 / 215',
+    w: 86,
+    align: 'end',
+    bg: NIGHT,
+    balloons: [
+      { t: '이 일이 밖으로 알려지면 큰일입니다!', x: 26, y: 22, tail: 'bl', delay: 0.2 },
+      { t: '…방법은 하나뿐이군요.', x: 78, y: 30, tail: 'br', delay: 1.2 },
+    ],
+    hold: 2.2,
+  },
+  { type: 'space', h: 14, bg: `linear-gradient(${NIGHT}, ${PAPER})` },
+
+  // 아직 그림이 없는 장면 (임시 컷)
+  ...PAGES.map((page) => ({ type: 'page', page, bg: PAPER })),
+]
+

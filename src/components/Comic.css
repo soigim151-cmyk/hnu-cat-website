@@ -650,3 +650,145 @@
   padding: 0;
   filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, 0.55));
 }
+
+/* ── 세로로 이어지는 만화 (웹툰처럼 화면 꽉 채움) ── */
+.cmc.is-strip {
+  display: block;
+  padding: 0;
+  background: #f6f1e7;
+}
+.cmc__strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  will-change: transform;
+}
+.wb {
+  position: relative;
+  width: 100%;
+}
+.wb--img {
+  display: flex;
+}
+.wb--img.align-center {
+  justify-content: center;
+}
+.wb--img.align-start {
+  justify-content: flex-start;
+}
+.wb--img.align-end {
+  justify-content: flex-end;
+}
+.wb__frame {
+  position: relative;
+}
+.wb__pic {
+  position: relative;
+  width: 100%;
+}
+.wb__clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.wb__art {
+  position: absolute;
+  inset: 0;
+}
+.wb__art > img:first-child {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wb--row {
+  display: flex;
+  gap: 1vw;
+}
+.wb__cell {
+  min-width: 0;
+}
+/* 컷 사이 해설 */
+.wb--text {
+  display: flex;
+  padding: 4vh 6vw;
+}
+.wb--text.align-center {
+  justify-content: center;
+  text-align: center;
+}
+.wb--text.align-start {
+  justify-content: flex-start;
+}
+.wb--text.align-end {
+  justify-content: flex-end;
+  text-align: right;
+}
+.wb--text p {
+  margin: 0;
+  max-width: 900px;
+  font-size: clamp(16px, 1.9vw, 26px);
+  font-weight: 500;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+.wb--text.is-light p {
+  color: #1d2340;
+}
+.wb--text.is-dark p {
+  color: #f3ead6;
+  font-weight: 300;
+}
+.wb--page {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  height: 100dvh;
+  padding: 48px 16px;
+}
+/* 긴 그림 위 고정 글 */
+.cmc.is-strip .cmc__line {
+  position: absolute;
+  top: 16%;
+  opacity: 0;
+}
+.cmc__hint--strip {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 5;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(16, 24, 58, 0.72);
+  color: #f3ead6;
+  font-size: 13px;
+  font-weight: 600;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+/* 효과 글자: 그림 색감에 맞춤 (크림 + 남색 테두리) */
+.cmc__sfx.t-cream span {
+  color: #f3e7c9;
+  -webkit-text-stroke-color: #10183a;
+  text-shadow: 2px 2px 0 rgba(16, 24, 58, 0.6);
+}
+.cmc__sfx.t-light span {
+  color: #fbefc2;
+  -webkit-text-stroke-color: #10183a;
+  text-shadow:
+    0 0 14px rgba(251, 239, 194, 0.55),
+    2px 2px 0 rgba(16, 24, 58, 0.7);
+}
+.cmc__sfx.t-red span {
+  color: #e9584f;
+  -webkit-text-stroke-color: #10183a;
+  text-shadow: none;
+}
+/* 위를 가리키는 꼬리 (컷 아래 여백에 놓인 말풍선) */
+.cmc__balloon.tail-t::after {
+  left: 50%;
+  top: -7px;
+  transform: translateX(-50%) rotate(-135deg);
+}

@@ -1,113 +1,110 @@
-// 시작 만화 (미국 카툰 스타일, 움직이는 인터랙티브 만화)
-// 한 컷씩: 컷이 나오고 → 그 컷만 움직이고 → 멈춘 뒤 다음 컷 (여러 컷이 동시에 움직이지 않음)
-// 화면을 누르면: 연출 중이면 바로 끝까지 → 다 나왔으면 다음 페이지. SKIP 으로 언제든 건너뛰기
+// 시작 만화 (미국 카툰 스타일) — 웹툰처럼 화면을 꽉 채우고 자동으로 아래로 내려가며 보여줌
+// 블록(컷)마다 멈춰서 글자 · 효과음 · 말풍선이 나오고, 잠시 뒤 다음 블록으로
+// 화면을 누르면 다음 블록으로 바로. SKIP 으로 언제든 건너뛰기
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
-import { COMIC } from '../data/comic.js'
+import { STRIP } from '../data/comic.js'
 import { playSfx, playBgm, stopBgm } from './sfx.js'
 import './Comic.css'
 
 const BASE = import.meta.env.BASE_URL
-const HOLD = 2.2 // 한 컷이 움직이는 시간 (초)
-
-// 컷 안 카메라 움직임 (한 번만, HOLD 동안)
-const MOVES = {
-  'pan-r': [{ xPercent: -4, scale: 1.1 }, { xPercent: 4, scale: 1.1 }],
-  'pan-l': [{ xPercent: 4, scale: 1.1 }, { xPercent: -4, scale: 1.1 }],
-  'zoom-in': [{ scale: 1 }, { scale: 1.08 }],
-  'zoom-out': [{ scale: 1.12 }, { scale: 1 }],
-  pop: [{ scale: 0.85, rotation: -4 }, { scale: 1, rotation: 0, ease: 'back.out(2)' }],
-  shake: [{ scale: 1.06 }, { scale: 1.06 }], // 흔들 때 가장자리가 비지 않게 살짝 확대
-}
+const isBeat = (b) => b.type !== 'space' || b.beat
 
 export default function Comic({ onDone }) {
-  const [page, setPage] = useState(0)
   const rootRef = useRef(null)
+  const stripRef = useRef(null)
+  const blockRefs = useRef([])
   const tlRef = useRef(null)
+  const labelsRef = useRef([])
   const leavingRef = useRef(false)
-  const pg = COMIC[page]
-  const last = page === COMIC.length - 1
+  const [size, setSize] = useState(() => `${window.innerWidth}x${window.innerHeight}`)
+  const [ended, setEnded] = useState(false)
 
-  const goNext = useRef(null)
+  // 화면 크기가 바뀌면 위치를 다시 계산
+  useEffect(() => {
+    const onResize = () => setSize(`${window.innerWidth}x${window.innerHeight}`)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
-  // ── 페이지 연출 ──
+  // ── 전체 연출 (스크롤 + 블록별 등장) ──
   useLayoutEffect(() => {
-    leavingRef.current = false
-    const q = gsap.utils.selector(rootRef)
-    const tl = gsap.timeline()
+    const strip = stripRef.current
+    const vh = window.innerHeight
+    const maxY = Math.max(0, strip.offsetHeight - vh)
+    const clampY = (y) => Math.min(maxY, Math.max(0, y))
+    const tl = gsap.timeline({ onComplete: () => setEnded(true) })
     tlRef.current = tl
+    labelsRef.current = []
+    let cur = 0
+    gsap.set(strip, { y: 0 })
+    tl.fromTo(rootRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5 })
 
-    // 세로로 긴 밤 장면: 화면을 꽉 채우고 위에서 아래로 → 바닥의 고양이 → 암전 → 다음 페이지
-    if (pg.kind === 'scroll') {
-      const tall = q('.cmc__tall')[0]
-      const dist = () => Math.max(0, tall.offsetHeight - window.innerHeight)
-      tl.fromTo(q('.cmc__scroll'), { opacity: 0 }, { opacity: 1, duration: 0.8 })
-      tl.fromTo(tall, { y: 0 }, { y: () => -dist(), duration: pg.duration ?? 8, ease: 'sine.inOut' }, 0.3)
-      q('.cmc__line').forEach((el) => {
-        const at = Number(el.dataset.at)
-        tl.fromTo(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 1.1, ease: 'power2.out' }, at)
-        if (el.dataset.out) tl.to(el, { opacity: 0, duration: 0.8 }, Number(el.dataset.out))
-      })
-      tl.fromTo(q('.cmc__floorcat'), { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, (pg.duration ?? 8) - 1.2)
-      tl.to(q('.cmc__black'), { opacity: 1, duration: 1.4, ease: 'power1.in' }, '+=1.6')
-      tl.call(() => goNext.current?.(true))
-      return () => tl.kill()
+    const scrollTo = (y) => {
+      const d = Math.abs(y - cur)
+      if (d > 2) tl.to(strip, { y: -y, duration: Math.min(2.4, Math.max(0.8, d / 520)), ease: 'power2.inOut' })
+      cur = y
     }
 
-    tl.fromTo(q('.cmc__page'), { opacity: 0 }, { opacity: 1, duration: 0.3 })
-    let cursor = 0.3
-    q('.cmc__panel').forEach((el, i) => {
-      const p = pg.panels[i]
-      const at = cursor
-      const hold = p.hold ?? HOLD
-      const inner = el.querySelector('.cmc__art')
+    STRIP.forEach((b, i) => {
+      if (!isBeat(b)) return
+      const el = blockRefs.current[i]
+      if (!el) return
+      const top = el.offsetTop
+      const h = el.offsetHeight
+      const label = `b${i}`
+      tl.addLabel(label)
+      labelsRef.current.push(label)
+      const bgm = b.bgm || b.page?.bgm
+      if (bgm) tl.call(() => playBgm(bgm, undefined, 1.2))
 
-      // 컷 등장 (조용히): CCTV 화면 안에서 빠져나오는 컷은 확대된 상태에서 시작
-      if (p.fromMonitor) {
-        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2 }, at)
-        // 그림만 확대 → 원래 크기로 (컷 밖으로는 넘치지 않음)
-        tl.fromTo(el.querySelectorAll('.cmc__art, .cmc__onscreen'), { scale: p.fromMonitor.scale ?? 4, transformOrigin: p.fromMonitor.origin }, { scale: 1, duration: 1.6, ease: 'power3.inOut' }, at)
-        tl.fromTo(el.querySelector('.cmc__onscreen'), { opacity: 1 }, { opacity: 0, duration: 0.9, ease: 'power1.in' }, at + 0.2)
-      } else {
-        tl.fromTo(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, at)
+      if (b.pan && h > vh) {
+        // 긴 그림: 맨 위로 간 뒤 천천히 끝까지
+        scrollTo(clampY(top))
+        const start = tl.duration()
+        tl.to(strip, { y: -clampY(top + h - vh), duration: b.pan, ease: 'sine.inOut' })
+        cur = clampY(top + h - vh)
+        const lines = rootRef.current.querySelectorAll(`.cmc__line[data-block="${i}"]`)
+        lines.forEach((ln, k, all) => {
+          const at = start + Number(ln.dataset.at) * b.pan
+          tl.fromTo(ln, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1 }, at)
+          if (k < all.length - 1) tl.to(ln, { opacity: 0, duration: 0.8 }, start + Number(all[k + 1].dataset.at) * b.pan - 0.9)
+        })
+        const cat = el.querySelector('.cmc__floorcat')
+        if (cat) tl.fromTo(cat, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1 }, start + b.pan - 1.2)
+        tl.to({}, { duration: b.hold ?? 1.5 })
+        tl.to(lines, { opacity: 0, duration: 0.8 })
+        return
       }
-      tl.call(() => playSfx('pop'), [], at)
-      const t0 = at + (p.fromMonitor ? 1.6 : 0.3)
 
-      // 이 컷만 움직임 (HOLD 동안 한 번)
-      const mv = MOVES[p.move]
-      if (inner && mv) tl.fromTo(inner, mv[0], { ...mv[1], duration: p.move === 'pop' ? 0.8 : hold, ease: mv[1].ease || 'sine.inOut' }, at)
-      if (inner && p.move === 'shake') tl.fromTo(inner, { x: -5 }, { x: 5, duration: 0.06, repeat: 7, yoyo: true, ease: 'none', clearProps: 'x' }, at + 0.4)
-      // 번쩍
-      const burst = el.querySelector('.cmc__burst')
-      if (burst) tl.fromTo(burst, { scale: 0.2, opacity: 0 }, { scale: 1.3, opacity: 0.7, duration: 0.5, ease: 'power4.out' }, at + 0.3).to(burst, { opacity: 0.2, rotation: 15, duration: 1.4 }, at + 0.9)
-      const white = el.querySelector('.cmc__white')
-      if (white) tl.fromTo(white, { opacity: 0 }, { opacity: 1, duration: 0.1 }, at + 0.3).to(white, { opacity: 0, duration: 0.7 }, at + 0.45)
-      // 해설 · 효과 글자 · 말풍선: 컷이 자리 잡은 뒤 차례로
-      el.querySelectorAll('.cmc__cap').forEach((c, k) => tl.fromTo(c, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4 }, t0 + k * 0.9))
-      el.querySelectorAll('.cmc__sfx').forEach((s, k) => {
-        const d = t0 + 0.2 + Number(s.dataset.delay || 0) + k * 0.2
-        tl.fromTo(s, { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)' }, d)
-        if (s.dataset.sound) tl.call(() => playSfx(s.dataset.sound), [], d)
-      })
-      el.querySelectorAll('.cmc__balloon').forEach((b) => {
-        const d = t0 + 0.4 + Number(b.dataset.delay || 0)
-        tl.fromTo(b, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, d)
-      })
-      const stamp = el.querySelector('.cmc__stamp')
-      if (stamp) tl.fromTo(stamp, { opacity: 0, scale: 3, rotation: 20 }, { opacity: 1, scale: 1, rotation: -12, duration: 0.25, ease: 'power4.in' }, t0 + 0.6)
-      // 다음 컷은 이 컷의 움직임이 끝난 뒤
-      cursor = Math.max(at + hold, tl.duration()) + 0.25
+      // 블록을 화면 가운데로 (화면보다 크면 위쪽에 맞춤)
+      scrollTo(clampY(h < vh ? top + h / 2 - vh / 2 : top))
+      const t0 = tl.duration()
+
+      // 컷 등장
+      if (b.type === 'page') {
+        el.querySelectorAll('.cmc__panel').forEach((pn, k) => {
+          tl.fromTo(pn, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45 }, t0 + k * 1.1)
+          tl.call(() => playSfx('pop'), [], t0 + k * 1.1)
+          revealIn(tl, pn, t0 + k * 1.1 + 0.4)
+        })
+      } else {
+        const art = el.querySelectorAll('.wb__art, .cmc__onscreen')
+        if (b.fromMonitor) {
+          // CCTV 화면 속(앞 장면)에서 빠져나오며 방 전체가 보임
+          tl.fromTo(art, { scale: b.fromMonitor.scale ?? 4, transformOrigin: b.fromMonitor.origin }, { scale: 1, duration: 1.6, ease: 'power3.inOut' }, t0)
+          tl.fromTo(el.querySelector('.cmc__onscreen'), { opacity: 1 }, { opacity: 0, duration: 0.9 }, t0 + 0.2)
+        }
+        if (b.flash) {
+          tl.fromTo(el.querySelector('.cmc__white'), { opacity: 0 }, { opacity: 0.9, duration: 0.1 }, t0 + 0.1).to(el.querySelector('.cmc__white'), { opacity: 0, duration: 0.8 }, t0 + 0.25)
+        }
+        if (b.shake) tl.fromTo(el.querySelector('.wb__art'), { x: -5 }, { x: 5, duration: 0.06, repeat: 7, yoyo: true, ease: 'none', clearProps: 'x' }, t0 + 0.2)
+        revealIn(tl, el, t0 + (b.fromMonitor ? 1.5 : 0.2))
+      }
+      tl.to({}, { duration: b.hold ?? 1.3 })
     })
-    const go = q('.cmc__go')
-    if (go.length) tl.fromTo(go, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 })
     return () => tl.kill()
-  }, [page, pg])
-
-  // 페이지별 음악
-  useEffect(() => {
-    if (pg.bgm) playBgm(pg.bgm, undefined, 1.2)
-  }, [pg.bgm])
+  }, [size])
 
   const finish = useCallback(() => {
     if (leavingRef.current) return
@@ -116,36 +113,22 @@ export default function Comic({ onDone }) {
     gsap.to(rootRef.current, { opacity: 0, duration: 0.6, onComplete: onDone })
   }, [onDone])
 
-  const turn = useCallback(
-    (quiet) => {
-      if (leavingRef.current || last) return
-      leavingRef.current = true
-      const el = rootRef.current.querySelector('.cmc__page, .cmc__scroll')
-      if (quiet) return setPage((n) => n + 1) // 암전에서 바로 다음 페이지로
-      playSfx('whoosh')
-      gsap.to(el, { opacity: 0, duration: 0.35, ease: 'power2.in', onComplete: () => setPage((n) => n + 1) })
-    },
-    [last],
-  )
-  useEffect(() => {
-    goNext.current = turn
-  }, [turn])
-
+  // 누르면: 다음 블록으로 바로
   const next = useCallback(() => {
-    if (leavingRef.current) return
     const tl = tlRef.current
-    // 연출 중이면 한 번에 끝까지 (밤 장면은 끝나면 스스로 넘어감)
-    if (tl && tl.progress() < 1) {
-      tl.progress(1)
-      return
-    }
-    turn(false)
-  }, [turn])
+    if (!tl || leavingRef.current) return
+    const now = tl.time()
+    const nextLabel = labelsRef.current.find((l) => tl.labels[l] > now + 0.05)
+    if (nextLabel) {
+      playSfx('tick')
+      tl.seek(nextLabel)
+    } else tl.progress(1)
+  }, [])
 
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') finish()
-      else if ([' ', 'Enter', 'ArrowRight'].includes(e.key)) {
+      else if ([' ', 'Enter', 'ArrowRight', 'ArrowDown'].includes(e.key)) {
         e.preventDefault()
         next()
       }
@@ -155,7 +138,7 @@ export default function Comic({ onDone }) {
   }, [next, finish])
 
   return (
-    <div className="cmc" ref={rootRef} onClick={next} role="dialog" aria-modal="true" aria-label="시작 만화: 한남대 고양이가 학생이 되었다">
+    <div className="cmc is-strip" ref={rootRef} onClick={next} role="dialog" aria-modal="true" aria-label="시작 만화: 한남대 고양이가 학생이 되었다">
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
         <filter id="cmc-ink">
           <feComponentTransfer>
@@ -166,22 +149,21 @@ export default function Comic({ onDone }) {
         </filter>
       </svg>
 
-      {pg.kind === 'scroll' ? (
-        <ScrollScene key={page} pg={pg} />
-      ) : (
-        <div className="cmc__page" key={page} style={{ gridTemplateAreas: pg.layout }}>
-          {pg.panels.map((p, i) => (
-            <Panel key={i} p={p} onGo={finish} />
-          ))}
-        </div>
-      )}
-
-      <div className="cmc__ui">
-        <span className="cmc__count">
-          {page + 1} / {COMIC.length}
-        </span>
-        {!last && pg.kind !== 'scroll' && <span className="cmc__hint">화면을 눌러 넘기기 ▶</span>}
+      <div className="cmc__strip" ref={stripRef}>
+        {STRIP.map((b, i) => (
+          <Block key={i} b={b} refFn={(el) => (blockRefs.current[i] = el)} onGo={finish} />
+        ))}
       </div>
+
+      {/* 긴 그림 위에 고정된 글 (그림이 내려가도 화면 위 같은 자리) */}
+      {STRIP.map((b, i) =>
+        b.lines?.map((l, k) => (
+          <p key={`${i}-${k}`} className={`cmc__line${l.big ? ' is-big' : ''}`} data-block={i} data-at={l.at}>
+            {l.text}
+          </p>
+        )),
+      )}
+      {!ended && <span className="cmc__hint cmc__hint--strip">화면을 누르면 다음 장면으로 ▼</span>}
       <button
         type="button"
         className="cmc__skip"
@@ -197,20 +179,84 @@ export default function Comic({ onDone }) {
   )
 }
 
-// 화면을 꽉 채운 세로 그림: 위에서 아래로 내려가며 글이 하나씩
-function ScrollScene({ pg }) {
-  return (
-    <div className="cmc__scroll">
-      <div className="cmc__tall" style={{ aspectRatio: pg.aspect }}>
-        <img className="cmc__tall-img" src={BASE + pg.src} alt="" draggable="false" />
-        {pg.floor && <img className="cmc__floorcat" src={BASE + pg.floor.src} alt="" style={pg.floor.style} draggable="false" />}
+// 블록 안의 글자 · 효과음 · 말풍선 · 도장을 차례로
+function revealIn(tl, root, t) {
+  root.querySelectorAll('.cmc__cap, .cmc__sfx, .cmc__balloon, .cmc__stamp').forEach((el, k) => {
+    const d = t + k * 0.35 + Number(el.dataset.delay || 0)
+    if (el.classList.contains('cmc__stamp')) tl.fromTo(el, { opacity: 0, scale: 3, rotation: 20 }, { opacity: 1, scale: 1, rotation: -12, duration: 0.25, ease: 'power4.in' }, d)
+    else if (el.classList.contains('cmc__sfx')) tl.fromTo(el, { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)' }, d)
+    else tl.fromTo(el, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, d)
+    if (el.dataset.sound) tl.call(() => playSfx(el.dataset.sound), [], d)
+  })
+}
+
+// 블록 하나
+function Block({ b, refFn, onGo }) {
+  const style = { background: b.bg }
+  if (b.type === 'space') return <div ref={refFn} className="wb wb--space" style={{ ...style, height: `${b.h}vh` }} />
+  if (b.type === 'text')
+    return (
+      <div ref={refFn} className={`wb wb--text is-${b.tone || 'light'} align-${b.align || 'center'}`} style={style}>
+        <p>{b.text}</p>
       </div>
-      {pg.lines.map((l, k) => (
-        <p key={k} className={`cmc__line pos-${l.pos || 'top'}${l.big ? ' is-big' : ''}`} data-at={l.at} data-out={l.out ?? ''}>
-          {l.text}
-        </p>
+    )
+  if (b.type === 'page')
+    return (
+      <div ref={refFn} className="wb wb--page" style={style}>
+        <div className="cmc__page" style={{ gridTemplateAreas: b.page.layout }}>
+          {b.page.panels.map((p, k) => (
+            <Panel key={k} p={p} onGo={onGo} />
+          ))}
+        </div>
+      </div>
+    )
+  if (b.type === 'row')
+    return (
+      <div ref={refFn} className="wb wb--row" style={style}>
+        {b.items.map((it, k) => (
+          <div key={k} className="wb__cell" style={{ flex: it.grow }}>
+            <Art it={it} />
+          </div>
+        ))}
+      </div>
+    )
+  return (
+    <div ref={refFn} className={`wb wb--img align-${b.align || 'center'}`} style={style}>
+      <div className="wb__frame" style={{ width: `${b.w ?? 100}%` }}>
+        <Art it={b} />
+      </div>
+    </div>
+  )
+}
+
+// 그림 + 위에 얹는 것들 (위치는 그림 기준 %)
+function Art({ it }) {
+  return (
+    <div className="wb__pic" style={{ aspectRatio: it.aspect }}>
+      <div className="wb__clip">
+        <div className="wb__art">
+          <img src={BASE + it.src} alt="" draggable="false" />
+          {it.floor && <img className="cmc__floorcat" src={BASE + it.floor.src} alt="" style={it.floor.style} draggable="false" />}
+        </div>
+        {it.fromMonitor && <img className="cmc__onscreen" src={BASE + it.fromMonitor.img} alt="" />}
+        {it.flash && <span className="cmc__white" />}
+      </div>
+      {it.sfx?.map((s, k) => (
+        <span
+          key={k}
+          className={`cmc__sfx t-${s.tone || 'cream'}`}
+          data-delay={s.delay || 0}
+          data-sound={s.sound || ''}
+          style={{ left: `${s.x}%`, top: `${s.y}%`, '--rot': `${s.rot}deg`, '--sz': s.size }}
+        >
+          <span>{s.t}</span>
+        </span>
       ))}
-      <span className="cmc__black" />
+      {it.balloons?.map((bl, k) => (
+        <span key={k} className={`cmc__balloon tail-${bl.tail}`} data-delay={bl.delay || 0} style={{ left: `${bl.x}%`, top: `${bl.y}%` }}>
+          {bl.t}
+        </span>
+      ))}
     </div>
   )
 }
