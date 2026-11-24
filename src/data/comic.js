@@ -34,33 +34,13 @@ const PAGES = [
     ],
   },
 
-  // ── SCENE 04. 고양이들의 강제 입학 ──
+  // ── SCENE 04-2. 습관은 숨길 수 없다 (비둘기, 임시 컷) ──
   {
     bgm: 'play',
-    layout: '"a b c"',
+    layout: '"a"',
     panels: [
       {
         area: 'a',
-        src: `${T}bg-insarye.webp`,
-        tone: 'day',
-        move: 'zoom-in',
-        layers: [
-          { src: `${T}siyu-full.webp`, style: { left: '50%', bottom: '-55%', height: '150%', translate: '-50% 0' } },
-          { src: `${T}id-siyu-v2.png`, style: { left: '18%', bottom: '8%', width: '64%', rotate: '-6deg' }, cls: 'is-card' },
-        ],
-        caption: { text: '하루아침에 대학생이 된 고양이들.', pos: 'tl' },
-      },
-      {
-        area: 'b',
-        src: `${T}bg-linton.webp`,
-        tone: 'day',
-        move: 'pan-r',
-        layers: [{ src: `${T}gate/ju1.webp`, style: { left: '50%', bottom: '-18%', height: '96%', translate: '-50% 0' } }],
-        caption: { text: '평범한 학생인 척, 첫 등교!', pos: 'tl' },
-        balloons: [{ t: '(태연하게… 태연하게…)', x: 50, y: 14, tail: 'b', thought: true, delay: 0.6 }],
-      },
-      {
-        area: 'c',
         src: P('16'),
         tone: 'day',
         move: 'shake',
@@ -254,6 +234,26 @@ export const STRIP = [
   { type: 'space', h: 14, bg: `linear-gradient(${NIGHT}, ${PAPER})` },
 
   // 아직 그림이 없는 장면 (임시 컷)
-  ...PAGES.map((page) => ({ type: 'page', page, bg: PAPER })),
+  { type: 'page', page: PAGES[0], bg: PAPER }, // 입학 서류 · 학생증 (임시)
+
+  // SCENE 04. 고양이들의 강제 입학: 학생증을 받고 등교 준비 (직접 그린 만화)
+  { type: 'text', text: '하루아침에 대학생이 된 고양이들.', bg: PAPER, bgm: 'play' },
+  { type: 'img', src: `images/cartoon/web/s6a.webp`, aspect: '742 / 486', w: 100, bg: PAPER, hold: 1.8 },
+  { type: 'space', h: 3, bg: PAPER },
+  {
+    type: 'row',
+    bg: PAPER,
+    items: [
+      { src: `images/cartoon/web/s6b.webp`, aspect: '742 / 486', grow: 1, sfx: [{ t: '척', x: 78, y: 22, rot: 8, size: 0.9 }] },
+      { src: `images/cartoon/web/s6c.webp`, aspect: '738 / 486', grow: 1 },
+    ],
+    hold: 1.6,
+  },
+  { type: 'text', text: '어색한 옷을 입고, 가방을 메고. 평범한 학생인 척, 첫 등교!', bg: PAPER },
+  { type: 'img', src: `images/cartoon/web/s6d.webp`, aspect: '742 / 484', w: 100, bg: PAPER, sfx: [{ t: '저벅', x: 82, y: 70, rot: -6, size: 1, sound: 'steps' }], hold: 1.8 },
+  { type: 'space', h: 6, bg: PAPER },
+
+  // 아직 그림이 없는 장면 (임시 컷)
+  ...PAGES.slice(1).map((page) => ({ type: 'page', page, bg: PAPER })),
 ]
 
