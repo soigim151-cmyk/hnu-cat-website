@@ -14,58 +14,39 @@ export const COMIC = [
   {
     bgm: 'map',
     layout: '"a"',
-    panels: [
-      {
-        area: 'a',
-        src: `images/cartoon/web/s1.webp`,
-        tone: 'art',
-        frameless: true,
-        aspect: '1536 / 932',
-        move: 'zoom-in',
-      },
-    ],
+    panels: [{ area: 'a', src: `images/cartoon/web/s1.webp`, tone: 'art', frameless: true, aspect: '1536 / 932', move: 'zoom-in', hold: 3 }],
   },
   {
     bgm: 'map',
     layout: '"a b" "c c"',
     panels: [
-      { area: 'a', src: `images/cartoon/web/s2a.webp`, tone: 'art', move: 'pan-r', sfx: [{ t: '하암…', x: 66, y: 30, rot: -6, size: 0.8, color: 'white' }] },
-      { area: 'b', src: `images/cartoon/web/s2b.webp`, tone: 'art', move: 'zoom-in', sfx: [{ t: '터벅 터벅', x: 30, y: 78, rot: -8, size: 0.9, color: 'white', sound: 'steps' }] },
+      { area: 'a', src: `images/cartoon/web/s2a.webp`, tone: 'art', move: 'pan-r' },
+      { area: 'b', src: `images/cartoon/web/s2b.webp`, tone: 'art', move: 'zoom-in', sfx: [{ t: '터벅 터벅', x: 26, y: 84, rot: -6, size: 0.8, color: 'white', sound: 'steps' }] },
       {
         area: 'c',
         src: `images/cartoon/web/s2c.webp`,
         tone: 'art',
         move: 'pan-l',
-        caption: { text: '학생들은 수업을 들으러, 고양이들은 여유로운 하루를 보내러.', pos: 'bl' },
+        caption: { text: '학생들은 수업을 들으러, 고양이들은 저마다의 하루를 보내러.', pos: 'bl' },
       },
     ],
   },
 
-  // ── 전설: 달밤의 캠퍼스 ──
+  // ── 전설: 화면을 꽉 채운 달밤 → 아래로 내려가며 → 바닥의 고양이 → 암전 ──
   {
+    kind: 'scroll',
     bgm: 'tense',
-    layout: '"a b"',
-    panels: [
-      {
-        area: 'a',
-        src: `images/cartoon/web/s3.webp`,
-        tone: 'art',
-        move: 'pan-down',
-        caption: { text: '한남대학교에는 오래전부터 전해 내려오는 전설이 있다.', pos: 'tl' },
-      },
-      {
-        area: 'b',
-        src: `images/cartoon/web/s35.webp`,
-        tone: 'art',
-        frameless: true,
-        aspect: '381 / 294',
-        move: 'pop',
-        caption2: { text: '한남대 고양이는 사람이 된다는 전설.', pos: 'bc', big: true },
-      },
+    src: `images/cartoon/web/s3.webp`,
+    aspect: '941 / 1672',
+    duration: 8,
+    floor: { src: `images/cartoon/web/s35.webp`, style: { left: '36%', bottom: '3%', width: '26%' } },
+    lines: [
+      { text: '한남대학교에는 오래전부터 전해 내려오는 전설이 있다.', at: 1, out: 4.8, pos: 'top' },
+      { text: '학교의 고양이들이, 사람이 된다는 전설.', at: 6.4, pos: 'top', big: true },
     ],
   },
 
-  // ── SCENE 02. 전설이 현실이 된 날 ──
+  // ── SCENE 02. 전설이 현실이 된 날 (효과 글자 · 말풍선은 컷 밖으로) ──
   {
     bgm: 'tense',
     layout: '"a b" "c d"',
@@ -75,8 +56,8 @@ export const COMIC = [
         src: `images/cartoon/web/s4a.webp`,
         tone: 'art',
         move: 'zoom-in',
-        caption: { text: '학생들이 모두 떠난 늦은 밤.', pos: 'tl' },
-        sfx: [{ t: '!?', x: 84, y: 30, rot: 10, size: 1.3, color: 'white' }],
+        caption: { text: '모두가 잠든 늦은 밤.', pos: 'tl' },
+        sfx: [{ t: '!?', x: -4, y: 60, rot: -10, size: 1.2, color: 'white' }],
       },
       {
         area: 'b',
@@ -84,8 +65,8 @@ export const COMIC = [
         tone: 'art',
         move: 'shake',
         burst: true,
-        caption: { text: '정체불명의 빛이 고양이를 감싼다!', pos: 'bl' },
-        sfx: [{ t: 'FLASH!!', x: 30, y: 26, rot: -12, size: 1.5, color: 'yellow', sound: 'flash' }],
+        caption: { text: '갑자기, 정체불명의 빛이!', pos: 'bl' },
+        sfx: [{ t: 'FLASH!!', x: 72, y: -8, rot: -8, size: 1.3, color: 'yellow', sound: 'flash' }],
       },
       {
         area: 'c',
@@ -93,7 +74,7 @@ export const COMIC = [
         tone: 'art',
         move: 'shake',
         speed: true,
-        sfx: [{ t: 'BZZZZT!!', x: 70, y: 30, rot: 8, size: 1.4, color: 'yellow', sound: 'zap' }],
+        sfx: [{ t: 'BZZZZT!!', x: 30, y: 106, rot: 6, size: 1.2, color: 'yellow', sound: 'zap' }],
       },
       {
         area: 'd',
@@ -101,12 +82,12 @@ export const COMIC = [
         tone: 'art',
         move: 'zoom-in',
         caption: { text: '빛이 사라진 자리에는…', pos: 'tl' },
-        balloons: [{ t: '이, 이게… 내 손?!', x: 30, y: 70, tail: 'b', delay: 0.6 }],
+        balloons: [{ t: '이, 이게… 내 손?!', x: 97, y: 66, tail: 'l', delay: 0.4, w: '6.4em' }],
       },
     ],
   },
 
-  // ── SCENE 03. 학교에 비상이 걸리다 ──
+  // ── SCENE 03. 학교에 비상이 걸리다: CCTV 화면 속에서 빠져나오며 장면 전환 ──
   {
     bgm: 'tense',
     layout: '"a a ." ". b b"',
@@ -118,9 +99,9 @@ export const COMIC = [
         frameless: true,
         aspect: '426 / 217',
         align: 'start',
-        move: 'zoom-in',
-        caption: { text: '이상 현상이 학교 CCTV에 포착되었다!', pos: 'bl' },
-        sfx: [{ t: 'REC ●', x: 86, y: 12, rot: 0, size: 0.6, color: 'red', sound: 'alarm' }],
+        fromMonitor: { origin: '68% 28%', scale: 3.4, img: `images/cartoon/web/s4d.webp` },
+        caption: { text: '그날 밤의 일이 전부 학교 CCTV에 찍혀 버렸다!', pos: 'out-b' },
+        sfx: [{ t: 'REC ●', x: 97, y: 6, rot: 0, size: 0.55, color: 'red', sound: 'alarm' }],
       },
       {
         area: 'b',
@@ -129,11 +110,10 @@ export const COMIC = [
         frameless: true,
         aspect: '461 / 215',
         align: 'end',
-        move: 'zoom-in',
-        caption: { text: '긴급회의 소집.', pos: 'tl' },
+        caption: { text: '다음 날 아침, 긴급회의.', pos: 'tl' },
         balloons: [
-          { t: '외부에 알려지면 큰일입니다!', x: 24, y: 30, tail: 'bl', delay: 0.4 },
-          { t: '…방법은 하나뿐이군요.', x: 78, y: 40, tail: 'br', delay: 1.4 },
+          { t: '이 일이 밖으로 알려지면 큰일입니다!', x: 26, y: 26, tail: 'bl', delay: 0.2 },
+          { t: '…방법은 하나뿐이군요.', x: 78, y: 36, tail: 'br', delay: 1.2 },
         ],
       },
     ],

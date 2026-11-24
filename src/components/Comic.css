@@ -39,10 +39,23 @@
 /* 컷 */
 .cmc__panel {
   position: relative;
-  overflow: hidden;
   border: clamp(3px, 0.45vw, 6px) solid #111;
   background: #fff;
   box-shadow: 6px 6px 0 #111;
+}
+.cmc__clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.cmc__onscreen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6) contrast(1.1) brightness(0.9);
+  pointer-events: none;
 }
 .cmc__art {
   position: absolute;
@@ -303,56 +316,61 @@
   filter: drop-shadow(4px 4px 0 #111);
 }
 
-/* 노란 해설 상자 */
+/* 해설 상자: 얇은 선, 그림자 없이 */
 .cmc__cap {
   position: absolute;
   z-index: 3;
-  max-width: 62%;
+  max-width: 64%;
   margin: 0;
-  padding: 0.5em 0.8em;
-  border: 3px solid #111;
-  background: #ffe14d;
-  color: #111;
-  font-size: clamp(11px, 1.25vw, 18px);
-  font-weight: 800;
-  line-height: 1.4;
+  padding: 0.45em 0.85em;
+  border: 1.5px solid #111;
+  background: #fffbe8;
+  color: #1a1a1a;
+  font-size: clamp(11px, 1.15vw, 16px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
   word-break: keep-all;
-  box-shadow: 3px 3px 0 #111;
 }
 .cmc__cap.pos-tl {
-  left: 0;
-  top: 0;
-  border-width: 0 3px 3px 0;
+  left: 10px;
+  top: 10px;
 }
 .cmc__cap.pos-tr {
-  right: 0;
-  top: 0;
+  right: 10px;
+  top: 10px;
 }
 .cmc__cap.pos-bl {
-  left: 0;
-  bottom: 0;
-  border-width: 3px 3px 0 0;
+  left: 10px;
+  bottom: 10px;
 }
 .cmc__cap.pos-br {
-  right: 0;
-  bottom: 0;
-  border-width: 3px 0 0 3px;
+  right: 10px;
+  bottom: 10px;
 }
 .cmc__cap.pos-bc {
   left: 50%;
-  bottom: 6%;
+  bottom: 10px;
   width: max-content;
   max-width: 96%;
   translate: -50% 0;
   text-align: center;
 }
+/* 컷 밖 (아래 · 위) */
+.cmc__cap.pos-out-b {
+  left: 0;
+  top: calc(100% + 8px);
+}
+.cmc__cap.pos-out-t {
+  left: 0;
+  bottom: calc(100% + 8px);
+}
 .cmc__cap.is-big {
-  font-size: clamp(15px, 2.2vw, 32px);
-  background: #fff;
-  color: #d4182a;
+  font-size: clamp(14px, 1.8vw, 26px);
+  font-weight: 600;
 }
 
-/* 효과 글자 */
+/* 효과 글자: 테두리 얇게 */
 .cmc__sfx {
   position: absolute;
   z-index: 4;
@@ -362,41 +380,42 @@
 }
 .cmc__sfx span {
   display: block;
-  font-size: calc(clamp(20px, 3.4vw, 54px) * var(--sz, 1));
-  font-weight: 900;
+  font-size: calc(clamp(18px, 3vw, 48px) * var(--sz, 1));
+  font-weight: 800;
   font-style: italic;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   white-space: nowrap;
-  -webkit-text-stroke: clamp(2px, 0.3vw, 4px) #111;
+  -webkit-text-stroke: clamp(1px, 0.14vw, 2px) #111;
   paint-order: stroke fill;
-  text-shadow: 4px 4px 0 #111;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
 }
 .cmc__sfx.c-yellow span {
   color: #ffe14d;
 }
 .cmc__sfx.c-red span {
-  color: #ff3b3b;
+  color: #ff4b4b;
 }
 .cmc__sfx.c-white span {
   color: #fff;
 }
 .cmc__sfx.c-blue span {
-  color: #7fb2ff;
+  color: #8fbaff;
 }
 
-/* 말풍선 */
+/* 말풍선: 얇은 선 */
 .cmc__balloon {
   position: absolute;
   z-index: 4;
-  max-width: 46%;
-  padding: 0.55em 0.9em;
-  border: 3px solid #111;
-  border-radius: 999px;
+  width: max-content;
+  max-width: min(260px, 40vw);
+  padding: 0.5em 0.95em;
+  border: 1.5px solid #111;
+  border-radius: 1.4em;
   background: #fff;
-  color: #111;
-  font-size: clamp(11px, 1.3vw, 19px);
-  font-weight: 800;
-  line-height: 1.35;
+  color: #1a1a1a;
+  font-size: clamp(11px, 1.2vw, 17px);
+  font-weight: 600;
+  line-height: 1.4;
   text-align: center;
   word-break: keep-all;
   translate: -50% -50%;
@@ -404,26 +423,35 @@
 .cmc__balloon::after {
   content: '';
   position: absolute;
-  width: 18px;
-  height: 18px;
-  border: 3px solid #111;
-  border-width: 0 3px 3px 0;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid #111;
+  border-width: 0 1.5px 1.5px 0;
   background: #fff;
 }
 .cmc__balloon.tail-b::after {
   left: 50%;
-  bottom: -11px;
+  bottom: -7px;
   transform: translateX(-50%) rotate(45deg);
 }
 .cmc__balloon.tail-bl::after {
   left: 22%;
-  bottom: -11px;
-  transform: rotate(60deg) skewX(-20deg);
+  bottom: -7px;
+  transform: rotate(45deg);
 }
 .cmc__balloon.tail-br::after {
   right: 22%;
-  bottom: -11px;
-  transform: rotate(30deg) skewX(20deg);
+  bottom: -7px;
+  transform: rotate(45deg);
+}
+/* 왼쪽을 가리키는 꼬리 (컷 오른쪽 밖에 놓인 말풍선) */
+.cmc__balloon.tail-l {
+  translate: 0 -50%;
+}
+.cmc__balloon.tail-l::after {
+  left: -7px;
+  top: 50%;
+  transform: translateY(-50%) rotate(135deg);
 }
 .cmc__balloon.is-thought {
   border-style: dashed;
@@ -431,6 +459,71 @@
 }
 .cmc__balloon.is-thought::after {
   display: none;
+}
+
+/* ── 화면을 꽉 채운 세로 장면 (전설의 밤) ── */
+.cmc__scroll {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #050a1e;
+}
+.cmc__tall {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: max(100vw, calc(100dvh * 941 / 1672));
+  translate: -50% 0;
+}
+.cmc__tall-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cmc__floorcat {
+  position: absolute;
+  max-width: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.6));
+}
+/* 얇은 흰 글씨 */
+.cmc__line {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+  width: min(86vw, 760px);
+  margin: 0;
+  color: #fff;
+  font-size: clamp(16px, 2vw, 26px);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  text-align: center;
+  text-shadow: 0 2px 14px rgba(0, 0, 20, 0.8);
+  word-break: keep-all;
+  translate: -50% 0;
+  pointer-events: none;
+}
+.cmc__line.pos-top {
+  top: 16%;
+}
+.cmc__line.pos-mid {
+  top: 42%;
+}
+.cmc__line.pos-bottom {
+  bottom: 14%;
+}
+.cmc__line.is-big {
+  font-size: clamp(20px, 2.8vw, 38px);
+  font-weight: 300;
+}
+.cmc__black {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* 비둘기 · 키링 */
