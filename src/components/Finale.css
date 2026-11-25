@@ -380,3 +380,13 @@
 .fin__gap {
   height: 9vh;
 }
+
+/* 퀴즈 뒤 신전이: 대화 장면과 같은 크기 · 자리 (대화창 위로 상반신만) */
+.fin__jeon {
+  right: auto;
+  left: calc(50% + 380 * var(--u) - 560 * var(--u));
+  bottom: calc(-690 * var(--u));
+  width: calc(1120 * var(--u));
+  height: auto;
+  opacity: 1;
+}

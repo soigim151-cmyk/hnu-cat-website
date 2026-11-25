@@ -47,7 +47,7 @@ export const M56 = {
   cast: {
     // 화면 오른쪽, 기념관 입구 근처에 앉아 있음
     // 새 신전이 (정면 · 미소 · 씁쓸 — 신전이정면 · 신전이미소 · 신전이씁쓸.png)
-    jeon: { name: '신전이', title: '56주년 기념관 앞 대선배 · 학번 비공개', folder: `${M}jeon/`, ext: 'webp', fallback: `${M}jeon.webp`, x: 400, bottom: 120, w: 520 },
+    jeon: { name: '신전이', title: '56주년 기념관 앞 대선배 · 학번 비공개', folder: `${M}jeon/`, ext: 'webp', fallback: `${M}jeon.webp`, x: 380, bottom: -476, w: 900 }, // 대화창 위로 상반신만
   },
   walkers: [
     { src: `${T}hall/npc1.webp`, h: 230, bottom: 300, dur: 22, delay: -6, dir: 1 },
