@@ -309,3 +309,74 @@
     animation: none;
   }
 }
+
+/* 신전이 대화창: 게임 속 대화창과 같은 크기 */
+.fin {
+  --u: min(calc(100vw / 1440), calc(100dvh / 1021));
+}
+.fin__box {
+  bottom: 0;
+  width: min(calc(100% - 32px), calc(1372 * var(--u)));
+  height: calc(264 * var(--u));
+  padding: 0;
+  border: calc(7 * var(--u)) solid #fff;
+  border-bottom: 0;
+  background: rgba(74, 100, 255, 0.46);
+}
+.fin__box p {
+  position: absolute;
+  left: calc(103 * var(--u));
+  right: calc(143 * var(--u));
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: calc(38 * var(--u));
+  line-height: 1.6;
+}
+.fin__name {
+  left: calc(-7 * var(--u));
+  width: calc(447 * var(--u));
+  height: calc(63 * var(--u));
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-top-right-radius: calc(24 * var(--u));
+  font-size: calc(36 * var(--u));
+}
+/* 엔딩 크레딧: 검은 화면에서 아래 → 위로 */
+.fin__credits {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+}
+.fin__roll {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(calc(100% - 40px), 820px);
+  translate: -50% 0;
+  text-align: center;
+  font-family: var(--font-base);
+}
+.fin__roll p {
+  margin: 0 0 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(16px, 2vw, 24px);
+  font-weight: 500;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+.fin__roll p.is-title {
+  color: #fff;
+  font-family: 'Galmuri9', var(--font-base);
+  font-size: clamp(24px, 3.4vw, 42px);
+}
+.fin__roll p.is-head {
+  margin-top: 10px;
+  color: #ffd27a;
+  font-size: clamp(14px, 1.6vw, 19px);
+  letter-spacing: 0.08em;
+}
+.fin__gap {
+  height: 9vh;
+}

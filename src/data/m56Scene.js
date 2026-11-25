@@ -21,7 +21,7 @@ const FLASH = [
   { src: `${M}flash3.webp`, fallback: 'images/gallery/cat_23_l.webp', caption: '우산 씌워 주던 사람' },
 ]
 // 중간부터 다시 시작할 때 무대
-const STAGE = [bg('m56', 0), show('jeon', { dur: 0 }), { walkers: true }, cam({ zoom: 1.06, on: 'jeon', dur: 0 }), bgm('bright')]
+const STAGE = [bg('m56', 0), show('jeon', { dur: 0 }), cam({ zoom: 1.06, on: 'jeon', dur: 0 }), bgm('bright')]
 
 export const M56 = {
   place: '쪽문, 점심을 먹은 뒤',
@@ -96,7 +96,7 @@ export const M56 = {
       setup: STAGE,
       who: 'jeon',
       text: '아…. 이 학교도 참 오래 다녔네.',
-      before: [cam({ zoom: 1.16, on: 'jeon', dur: 0.8, wait: false }), { walkers: true }],
+      before: [cam({ zoom: 1.16, on: 'jeon', dur: 0.8, wait: false })],
     },
     { who: 'me', text: '혹시… 선배님이세요?' },
     { who: 'jeon', text: '대선배지.' },
@@ -114,12 +114,10 @@ export const M56 = {
     {
       who: 'jeon',
       text: '첫째, 56주년 기념관에는 리클라이너가 있어서 잠도 잘 수 있어. 학교에 몇 안 되는 수면 시설이니까 알아 둬.',
-      after: [{ sun: true, dur: 1.2, wait: false }],
     },
     {
       who: 'jeon',
       text: '둘째, 여기는 생각보다 행사가 많아서, 운만 좋으면 가끔 맛있는 것도 줘.',
-      before: [{ sun: false, dur: 0.8, wait: false }],
       after: [W(0.5)],
     },
     { who: 'me', text: '(출석률이 좋으신 이유가 이것 때문이었구나….)' },
@@ -139,7 +137,7 @@ export const M56 = {
       text: '아, 근데 나 이제 졸업한다.',
       after: [W(0.8)],
     },
-    { who: 'me', text: '예? 방금 친해졌는데요?' },
+    { who: 'me', text: '예? 방금 알았는데요?' },
     { who: 'jeon', text: '내가 이 학교를 너무 오래 다녀서, 이제는 진짜 졸업해야 돼. 이러다 교수님들이랑 친구 하게 생겼어….' },
     { who: 'me', text: '졸업하시면 뭐 하시려고요?' },
     {
@@ -151,7 +149,7 @@ export const M56 = {
     { who: 'jeon', text: '흠, 글쎄. 있지 않을까?', after: [W(0.8), cam({ zoom: 1, x: 0, dur: 2.5, wait: false })] },
     { who: 'jeon', text: '그래도 막상 떠나려니까 좀 아쉽네.' },
     // 1.2초 정적 · 지나가던 학생들이 천천히 화면 밖으로
-    { who: 'jeon', text: '여기서 좋은 사람들을 참 많이 만났거든.', after: [W(1.2), { walkers: false }] },
+    { who: 'jeon', text: '여기서 좋은 사람들을 참 많이 만났거든.', after: [W(1.2)] },
 
     // ── SCENE 05. 회상 · 마지막 인사 ──
     {
@@ -168,7 +166,7 @@ export const M56 = {
     { who: 'jeon', text: '근데 그 사람들한테 고맙다는 말을 한 번도 제대로 못 했어.', before: [{ flash: null, dur: 1.2 }] },
     { who: 'me', text: '지금이라도 하시면 되죠.' },
     { who: 'jeon', text: '그러게. 그럼… 네가 대신 전해 줄래?', after: [W(1), cam({ zoom: 1.15, on: 'jeon', dur: 1.4 })] },
-    { who: 'jeon', text: '그동안 고마웠다고. 다들 덕분에, 여기서 지내는 게 참 좋았다고.' },
+    { who: 'jeon', text: '지금까지 나와 함께해 줘서 고마웠다고. 다들 덕분에, 여기서 지내는 게 참 좋았다고.' },
     { who: 'me', text: '선배님…?', after: [W(0.8)] },
     {
       who: 'jeon',

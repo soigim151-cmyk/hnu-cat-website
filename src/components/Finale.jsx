@@ -7,7 +7,6 @@ import { playSfx, playBgm, stopBgm } from './sfx.js'
 import './Finale.css'
 
 const BASE = import.meta.env.BASE_URL
-const G = (n) => `images/gallery/cat_${n}_l.webp` // 임시 사진 (갤러리 고양이)
 const JEON_LINE = '그동안 고마웠다고. 다들 덕분에, 여기서 지내는 게 참 좋았다고.'
 
 // ── 마지막 퀘스트 창 (지도 위) ──
@@ -48,7 +47,7 @@ export function FinalQuest({ onDone }) {
           autoFocus
         />
         {wrong && <p className="fq__wrong">음…. 선배가 뭐라고 했더라? 힌트를 눌러 봐요.</p>}
-        {hint && <p className="fq__hint">“그동안 ○○○다고. 다들 덕분에, 여기서 지내는 게 참 좋았다고.”</p>}
+        {hint && <p className="fq__hint">“지금까지 나와 함께해 줘서 ○○○”</p>}
         <div className="fq__actions">
           <button type="button" className="fq__btn" onClick={() => setHint(true)}>
             힌트
@@ -64,22 +63,36 @@ export function FinalQuest({ onDone }) {
 }
 
 // ── 엔딩 장면들 ──
-// kind: talk(신전이 대화) · reveal(반전) · story(만든 이유) · end(마지막 카드)
+// kind: note(내가 전한 말) · talk(신전이 대화) · credits(만든 이유, 엔딩 크레딧처럼 올라감) · end(마지막 카드)
+const CREDITS = [
+  { t: '한남대 고양이가 학생이 되었다', cls: 'is-title' },
+  { gap: true },
+  { t: '학교 곳곳에는 우리가 미처 알지 못한 작은 존재들이 함께 살고 있습니다.' },
+  { t: '벤치 위에서, 화단 사이에서, 건물 앞 계단에서.' },
+  { gap: true },
+  { t: '신전이처럼 스쳐 가는 인연일지도 모릅니다.' },
+  { t: '하지만 누군가에게는, 오래 남는 추억이 되기도 하죠.' },
+  { gap: true },
+  { t: '사람도, 고양이도 서로 불편하지 않은 학교를 바라며' },
+  { t: '이 이야기를 만들었습니다.' },
+  { gap: true },
+  { t: '우리 학교가 그냥 지나치는 곳이 아니라,' },
+  { t: '추억과 청춘이 머무는 곳이 되기를.' },
+  { gap: true },
+  { gap: true },
+  { t: '등장인물', cls: 'is-head' },
+  { t: '김시유 · 이고등 · 턱시혁' },
+  { t: '한남이 · 한나미' },
+  { t: '치주일 · 치주이 · 치주삼 · 치주사' },
+  { t: '신전이' },
+  { gap: true },
+  { t: '그리고, 한남대학교의 모든 고양이들', cls: 'is-head' },
+]
 const scenes = (msg) => [
   { kind: 'note', bg: 'talk/m56/bg.webp', label: '내가 전한 말', text: msg },
   { kind: 'talk', bg: 'talk/m56/bg.webp', jeon: true, who: '신전이', text: '…전해 줘서 고마워, 후배.' },
   { kind: 'talk', bg: 'talk/m56/bg.webp', jeon: true, fade: true, who: '신전이', text: '덕분에 이 학교에서 보낸 시간이 참 따뜻했어. 이제 정말 졸업할게.' },
-  {
-    kind: 'reveal',
-    img: 'talk/m56/jeon-real.webp',
-    fallback: G('26'),
-    text: '신전이는 오랫동안 56주년 기념관 앞을 지켜 온 학교 고양이였습니다.',
-    sub: '그리고 얼마 전, 고양이별로 졸업했습니다.',
-  },
-  { kind: 'story', img: G('03'), text: '학교 곳곳에는 우리가 미처 알지 못한 작은 존재들이 함께 살고 있어요.' },
-  { kind: 'story', img: G('12'), text: '신전이처럼 스쳐 가는 인연일 수도 있지만, 누군가에게는 오래 남는 추억이 되기도 하죠.' },
-  { kind: 'story', img: G('16'), text: '사람도, 고양이도 서로 불편하지 않은 학교였으면 하는 마음으로 이 이야기를 만들었어요.' },
-  { kind: 'story', img: G('21'), text: '우리 학교가 그냥 지나치는 곳이 아니라, 추억과 청춘이 머무는 곳이 되기를.' },
+  { kind: 'credits' },
   { kind: 'end' },
 ]
 
@@ -98,29 +111,44 @@ export function Finale({ message, onGallery, onClose }) {
     tl.fromTo(q('.fin__bg, .fin__photo'), { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.out' })
       .fromTo(q('.fin__line'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.7 }, 0.4)
     if (s.fade) tl.to(q('.fin__jeon'), { opacity: 0, duration: 3, ease: 'power1.in' }, 1.2)
+    if (s.kind === 'credits') {
+      const roll = q('.fin__roll')[0]
+      tl.fromTo(roll, { y: window.innerHeight }, { y: () => -roll.offsetHeight, duration: 34, ease: 'none', onComplete: () => goNext.current?.() }, 0)
+    }
     return () => tl.kill()
   }, [i, s.fade])
 
   // 장면별 음악
   useEffect(() => {
     if (s.kind === 'note' || s.kind === 'talk') playBgm('sad', undefined, 2)
-    if (s.kind === 'story') playBgm('piano', undefined, 2.5)
+    if (s.kind === 'credits') playBgm('piano', undefined, 2.5)
   }, [s.kind])
   useEffect(() => () => stopBgm(1.5), [])
 
+  const goNext = useRef(null)
   const next = useCallback(() => {
-    if (lockRef.current || i >= list.length - 1) return
+    if (s.kind === 'credits') {
+      // 크레딧 중에 누르면 빨리 감기
+      const tl = gsap.getTweensOf(rootRef.current.querySelector('.fin__roll'))[0]
+      if (tl && tl.timeScale() < 3) return tl.timeScale(4)
+    } else if (lockRef.current || i >= list.length - 1) return
     playSfx('tick')
     gsap.to(rootRef.current.querySelectorAll('.fin__scene'), {
       opacity: 0,
       duration: 0.6,
       onComplete: () => setI((n) => n + 1),
     })
-  }, [i, list.length])
+  }, [i, list.length, s.kind])
+  useEffect(() => {
+    // 크레딧이 끝나면 마지막 카드로
+    goNext.current = () => {
+      gsap.to(rootRef.current.querySelectorAll('.fin__scene'), { opacity: 0, duration: 0.8, onComplete: () => setI((n) => n + 1) })
+    }
+  }, [next])
 
   // 가만히 있어도 천천히 넘어감
   useEffect(() => {
-    if (s.kind === 'end') return
+    if (s.kind === 'end' || s.kind === 'credits') return
     const t = setTimeout(next, s.kind === 'story' ? 6500 : 7500)
     return () => clearTimeout(t)
   }, [i, s.kind, next])
@@ -147,20 +175,12 @@ export function Finale({ message, onGallery, onClose }) {
           </>
         )}
 
-        {s.kind === 'reveal' && (
-          <div className="fin__reveal">
-            <img className="fin__photo" src={BASE + s.img} alt="" onError={(e) => (e.currentTarget.src = BASE + s.fallback)} />
-            <p className="fin__line fin__big">{s.text}</p>
-            <p className="fin__line fin__small">{s.sub}</p>
+        {s.kind === 'credits' && (
+          <div className="fin__credits">
+            <div className="fin__roll">
+              {CREDITS.map((c, k) => (c.gap ? <div key={k} className="fin__gap" /> : <p key={k} className={c.cls}>{c.t}</p>))}
+            </div>
           </div>
-        )}
-
-        {s.kind === 'story' && (
-          <>
-            <img className="fin__bg is-photo" src={BASE + s.img} alt="" />
-            <div className="fin__shade" />
-            <p className="fin__line fin__story">{s.text}</p>
-          </>
         )}
 
         {s.kind === 'end' && (
