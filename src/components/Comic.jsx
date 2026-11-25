@@ -42,12 +42,25 @@ export default function Comic({ onDone }) {
 
     const scrollTo = (y) => {
       const d = Math.abs(y - cur)
-      if (d > 2) tl.to(strip, { y: -y, duration: Math.min(2.4, Math.max(0.8, d / 520)), ease: 'power2.inOut' })
+      // 거리에 맞춘 부드러운 이동 (짧게 덜컥거리지 않게)
+      if (d > 2) tl.to(strip, { y: -y, duration: Math.min(2.6, Math.max(1.1, d / 420)), ease: 'power1.inOut' })
       cur = y
     }
 
+    // 멈추는 자리: 해설 + 바로 뒤 그림은 한 묶음 (해설 위쪽에 맞춰 멈춤)
+    const groupTop = (i) => {
+      const prev = STRIP[i - 1]
+      if (prev?.type === 'text' && !prev.after) return blockRefs.current[i - 1].offsetTop
+      return blockRefs.current[i].offsetTop
+    }
+    const MARGIN = vh * 0.04 // 위쪽 끝에서 살짝 띄움
+
     STRIP.forEach((b, i) => {
       if (!isBeat(b)) return
+      // 다음 그림과 묶이는 해설 · 앞 그림에 붙는 해설은 따로 멈추지 않음 (그림과 함께 보임)
+      if (b.type === 'text') {
+        return
+      }
       const el = blockRefs.current[i]
       if (!el) return
       const top = el.offsetTop
@@ -55,8 +68,9 @@ export default function Comic({ onDone }) {
       const label = `b${i}`
       tl.addLabel(label)
       labelsRef.current.push(label)
-      const bgm = b.bgm || b.page?.bgm
+      const bgm = b.bgm || b.page?.bgm || (STRIP[i - 1]?.type === 'text' && STRIP[i - 1].bgm)
       if (bgm) tl.call(() => playBgm(bgm, undefined, 1.2))
+      const prevText = STRIP[i - 1]?.type === 'text' && !STRIP[i - 1].after ? blockRefs.current[i - 1] : null
 
       if (b.pan && h > vh) {
         // 긴 그림: 맨 위로 간 뒤 천천히 끝까지
@@ -65,11 +79,7 @@ export default function Comic({ onDone }) {
         tl.to(strip, { y: -clampY(top + h - vh), duration: b.pan, ease: 'sine.inOut' })
         cur = clampY(top + h - vh)
         const lines = rootRef.current.querySelectorAll(`.cmc__line[data-block="${i}"]`)
-        lines.forEach((ln, k, all) => {
-          const at = start + Number(ln.dataset.at) * b.pan
-          tl.fromTo(ln, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1 }, at)
-          if (k < all.length - 1) tl.to(ln, { opacity: 0, duration: 0.8 }, start + Number(all[k + 1].dataset.at) * b.pan - 0.9)
-        })
+        lines.forEach((ln) => tl.fromTo(ln, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 1 }, start + Number(ln.dataset.at) * b.pan))
         const cat = el.querySelector('.cmc__floorcat')
         if (cat) tl.fromTo(cat, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1 }, start + b.pan - 1.2)
         tl.to({}, { duration: b.hold ?? 1.5 })
@@ -77,9 +87,12 @@ export default function Comic({ onDone }) {
         return
       }
 
-      // 블록을 화면 가운데로 (화면보다 크면 위쪽에 맞춤)
-      scrollTo(clampY(h < vh ? top + h / 2 - vh / 2 : top))
+      // 묶음의 위쪽 끝을 화면 위쪽에 맞춤 (묶음이 화면보다 작으면 가운데)
+      const gTop = groupTop(i)
+      const gH = top + h - gTop
+      scrollTo(clampY(gH < vh * 0.92 ? gTop - (vh - gH) / 2 : gTop - MARGIN))
       const t0 = tl.duration()
+      if (prevText) tl.fromTo(prevText.querySelector('p'), { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.5 }, t0 - 0.4)
 
       // 컷 등장
       if (b.type === 'page') {
@@ -222,7 +235,10 @@ function Block({ b, refFn, onGo }) {
     )
   return (
     <div ref={refFn} className={`wb wb--img align-${b.align || 'center'}`} style={style}>
-      <div className="wb__frame" style={{ width: `${b.w ?? 100}%` }}>
+      <div
+        className="wb__frame"
+        style={{ width: b.fit ? `min(94vw, calc(${b.fitH ?? 90}dvh * ${b.aspect}))` : `${b.w ?? 100}%` }}
+      >
         <Art it={b} />
       </div>
     </div>
@@ -241,6 +257,11 @@ function Art({ it }) {
         {it.fromMonitor && <img className="cmc__onscreen" src={BASE + it.fromMonitor.img} alt="" />}
         {it.flash && <span className="cmc__white" />}
       </div>
+      {it.caption && (
+        <p className={`cmc__cap pos-${it.caption.pos || 'tl'}${it.caption.big ? ' is-big' : ''}`} style={it.caption.style}>
+          {it.caption.text}
+        </p>
+      )}
       {it.sfx?.map((s, k) => (
         <span
           key={k}

@@ -134,30 +134,37 @@ const PAGES = [
 //   space: 여백 (h: 높이, bg: 색). 색이 바뀌는 여백으로 암전을 표현
 //   page : 아직 그림이 없는 장면 (임시 컷, 화면 한 장 크기)
 // 블록마다 자동으로 멈췄다 넘어감 (hold 초). 화면을 누르면 다음 블록으로 바로
-const PAPER = '#f6f1e7'
+const PAPER = '#f0e2cf' // 그림 여백과 같은 크림색 (테두리가 티 나지 않게)
 const NIGHT = '#05070f'
 
 export const STRIP = [
-  { type: 'space', h: 6, bg: PAPER },
-  // SCENE 01. 한남대학교에는 전설이 있다
-  { type: 'img', src: `images/cartoon/web/s1.webp`, aspect: '1536 / 932', w: 100, bg: PAPER, hold: 2.4 },
-  { type: 'space', h: 4, bg: PAPER },
+  // SCENE 01. 한남대학교에는 전설이 있다 / 02. 캠퍼스의 고양이들 — 원래 그림 비율 그대로, 화면에 맞춰 크게
   {
-    type: 'row',
+    type: 'img',
+    src: `images/cartoon/web/s1.webp`,
+    aspect: '1536 / 932',
+    fit: true,
     bg: PAPER,
-    items: [
-      { src: `images/cartoon/web/s2a.webp`, aspect: '889 / 413', grow: 889 / 413 },
-      {
-        src: `images/cartoon/web/s2b.webp`,
-        aspect: '767 / 413',
-        grow: 767 / 413,
-        sfx: [{ t: '터벅 터벅', x: 26, y: 84, rot: -6, size: 0.9, sound: 'steps' }],
-      },
-    ],
-    hold: 1.6,
+    // 그림에 있던 글을 지우고, 다른 컷과 같은 해설 상자로
+    caption: {
+      text: '한남대학교에는\n전설이 있다.',
+      big: true,
+      // 원래 그림 속 글 상자가 있던 자리 그대로
+      style: { left: '3.1%', top: '8.2%', width: '24.1%', height: '15.8%', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'pre-line', textAlign: 'center' },
+    },
+    hold: 2.4,
   },
   { type: 'text', text: '학생들은 수업을 들으러, 고양이들은 저마다의 하루를 보내러.', bg: PAPER },
-  { type: 'img', src: `images/cartoon/web/s2c.webp`, aspect: '1600 / 419', w: 100, bg: PAPER, hold: 1.8 },
+  {
+    type: 'img',
+    src: `images/cartoon/web/s2.webp`,
+    aspect: '1600 / 845',
+    fit: true,
+    fitH: 76, // 위의 해설과 한 화면에 같이 보이게
+    bg: PAPER,
+    sfx: [{ t: '터벅 터벅', x: 70, y: 40, rot: -6, size: 0.9, sound: 'steps' }],
+    hold: 2,
+  },
   { type: 'space', h: 14, bg: `linear-gradient(${PAPER}, ${NIGHT})` },
 
   // 전설: 달밤을 따라 천천히 내려감 → 바닥의 고양이 → 암전
@@ -168,10 +175,7 @@ export const STRIP = [
     w: 100,
     bg: NIGHT,
     pan: 8, // 화면보다 긴 그림: 위에서 아래까지 8초 동안
-    lines: [
-      { text: '한남대학교에는 오래전부터 전해 내려오는 전설이 있다.', at: 0.12 },
-      { text: '학교의 고양이들이, 사람이 된다는 전설.', at: 0.78, big: true },
-    ],
+    lines: [{ text: '학교의 고양이들이, 사람이 된다는 전설.', at: 0.72, big: true }],
     floor: { src: `images/cartoon/web/s35.webp`, style: { left: '36%', bottom: '3%', width: '26%' } },
     hold: 1.6,
   },
@@ -179,25 +183,25 @@ export const STRIP = [
 
   // SCENE 02. 전설이 현실이 된 날 (검은 여백 위에 한 컷씩)
   { type: 'text', text: '모두가 잠든 늦은 밤.', tone: 'dark', bg: NIGHT },
-  { type: 'img', src: `images/cartoon/web/s4a.webp`, aspect: '774 / 266', w: 100, bg: NIGHT, sfx: [{ t: '!?', x: 88, y: 26, rot: 10, size: 1.2 }] },
+  { type: 'img', src: `images/cartoon/web/s4a.webp`, aspect: '770 / 262', w: 100, bg: NIGHT, sfx: [{ t: '!?', x: 88, y: 26, rot: 10, size: 1.2 }] },
   { type: 'space', h: 3, bg: NIGHT },
   {
     type: 'img',
     src: `images/cartoon/web/s4b.webp`,
-    aspect: '774 / 269',
+    aspect: '770 / 265',
     w: 100,
     bg: NIGHT,
     flash: true,
     sfx: [{ t: 'FLASH!!', x: 76, y: -4, rot: -8, size: 1.5, sound: 'flash', tone: 'light' }],
   },
   { type: 'space', h: 3, bg: NIGHT },
-  { type: 'img', src: `images/cartoon/web/s4c.webp`, aspect: '774 / 307', w: 100, bg: NIGHT, shake: true, sfx: [{ t: 'BZZZZT!!', x: 74, y: 104, rot: 6, size: 1.4, sound: 'zap', tone: 'light' }] },
+  { type: 'img', src: `images/cartoon/web/s4c.webp`, aspect: '770 / 303', w: 100, bg: NIGHT, shake: true, sfx: [{ t: 'BZZZZT!!', x: 74, y: 104, rot: 6, size: 1.4, sound: 'zap', tone: 'light' }] },
   { type: 'space', h: 6, bg: NIGHT },
   { type: 'text', text: '빛이 사라진 자리에는…', tone: 'dark', bg: NIGHT },
   {
     type: 'img',
     src: `images/cartoon/web/s4d.webp`,
-    aspect: '774 / 244',
+    aspect: '770 / 233',
     w: 100,
     bg: NIGHT,
     balloons: [{ t: '이, 이게… 내 손?!', x: 84, y: 112, tail: 't', delay: 0.4 }],
@@ -215,7 +219,7 @@ export const STRIP = [
     fromMonitor: { origin: '68% 28%', scale: 3.4, img: `images/cartoon/web/s4d.webp` },
     sfx: [{ t: 'REC ●', x: 96, y: 7, rot: 0, size: 0.6, sound: 'alarm', tone: 'red' }],
   },
-  { type: 'text', text: '그날 밤의 일이 전부 학교 CCTV에 찍혀 버렸다!', tone: 'dark', bg: NIGHT, align: 'start' },
+  { type: 'text', text: '그날 밤의 일이 전부 학교 CCTV에 찍혀 버렸다!', tone: 'dark', bg: NIGHT, align: 'start', after: true },
   { type: 'space', h: 4, bg: NIGHT },
   { type: 'text', text: '다음 날 아침, 긴급회의.', tone: 'dark', bg: NIGHT, align: 'end' },
   {
@@ -238,19 +242,19 @@ export const STRIP = [
 
   // SCENE 04. 고양이들의 강제 입학: 학생증을 받고 등교 준비 (직접 그린 만화)
   { type: 'text', text: '하루아침에 대학생이 된 고양이들.', bg: PAPER, bgm: 'play' },
-  { type: 'img', src: `images/cartoon/web/s6a.webp`, aspect: '742 / 486', w: 100, bg: PAPER, hold: 1.8 },
+  { type: 'img', src: `images/cartoon/web/s6a.webp`, aspect: '738 / 482', w: 100, bg: PAPER, hold: 1.8 },
   { type: 'space', h: 3, bg: PAPER },
   {
     type: 'row',
     bg: PAPER,
     items: [
-      { src: `images/cartoon/web/s6b.webp`, aspect: '742 / 486', grow: 1, sfx: [{ t: '척', x: 78, y: 22, rot: 8, size: 0.9 }] },
-      { src: `images/cartoon/web/s6c.webp`, aspect: '738 / 486', grow: 1 },
+      { src: `images/cartoon/web/s6b.webp`, aspect: '738 / 482', grow: 1, sfx: [{ t: '척', x: 78, y: 22, rot: 8, size: 0.9 }] },
+      { src: `images/cartoon/web/s6c.webp`, aspect: '734 / 482', grow: 1 },
     ],
     hold: 1.6,
   },
   { type: 'text', text: '어색한 옷을 입고, 가방을 메고. 평범한 학생인 척, 첫 등교!', bg: PAPER },
-  { type: 'img', src: `images/cartoon/web/s6d.webp`, aspect: '742 / 484', w: 100, bg: PAPER, sfx: [{ t: '저벅', x: 82, y: 70, rot: -6, size: 1, sound: 'steps' }], hold: 1.8 },
+  { type: 'img', src: `images/cartoon/web/s6d.webp`, aspect: '738 / 480', w: 100, bg: PAPER, sfx: [{ t: '저벅', x: 82, y: 70, rot: -6, size: 1, sound: 'steps' }], hold: 1.8 },
   { type: 'space', h: 6, bg: PAPER },
 
   // 아직 그림이 없는 장면 (임시 컷)

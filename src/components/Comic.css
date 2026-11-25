@@ -792,3 +792,20 @@
   top: -7px;
   transform: translateX(-50%) rotate(-135deg);
 }
+
+/* 글자는 모두 굵게 (잘 보이게) */
+.wb--text p {
+  font-weight: 700 !important;
+}
+.cmc__line,
+.cmc__line.is-big {
+  font-weight: 700 !important;
+}
+.cmc__cap,
+.cmc__balloon {
+  font-weight: 800;
+}
+/* 그림이 원래 비율로 화면에 맞춰질 때 위아래 여백 */
+.wb--img:has(.wb__frame[style*='min(94vw']) {
+  padding: 3vh 0;
+}
