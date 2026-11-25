@@ -77,7 +77,7 @@ const CREDITS = [
   { t: '이 이야기를 만들었습니다.' },
   { gap: true },
   { t: '우리 학교가 그냥 지나치는 곳이 아니라,' },
-  { t: '추억과 청춘이 머무는 곳이 되기를.' },
+  { t: '추억과 청춘이 머무는 곳이 되어 주길 바랍니다.' },
   { gap: true },
   { gap: true },
   { t: '등장인물', cls: 'is-head' },
@@ -85,8 +85,6 @@ const CREDITS = [
   { t: '한남이 · 한나미' },
   { t: '치주일 · 치주이 · 치주삼 · 치주사' },
   { t: '신전이' },
-  { gap: true },
-  { t: '그리고, 한남대학교의 모든 고양이들', cls: 'is-head' },
 ]
 const scenes = (msg) => [
   { kind: 'note', bg: 'talk/m56/bg.webp', label: '내가 전한 말', text: msg },
