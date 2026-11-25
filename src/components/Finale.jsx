@@ -113,7 +113,7 @@ export function Finale({ message, onGallery, onClose }) {
     if (s.fade) tl.to(q('.fin__jeon'), { opacity: 0, duration: 3, ease: 'power1.in' }, 1.2)
     if (s.kind === 'credits') {
       const roll = q('.fin__roll')[0]
-      tl.fromTo(roll, { y: window.innerHeight }, { y: () => -roll.offsetHeight, duration: 34, ease: 'none', onComplete: () => goNext.current?.() }, 0)
+      tl.fromTo(roll, { y: window.innerHeight }, { y: () => -roll.offsetHeight, duration: 62, ease: 'none', onComplete: () => goNext.current?.() }, 0)
     }
     return () => tl.kill()
   }, [i, s.fade])
@@ -130,7 +130,7 @@ export function Finale({ message, onGallery, onClose }) {
     if (s.kind === 'credits') {
       // 크레딧 중에 누르면 빨리 감기
       const tl = gsap.getTweensOf(rootRef.current.querySelector('.fin__roll'))[0]
-      if (tl && tl.timeScale() < 3) return tl.timeScale(4)
+      if (tl && tl.timeScale() < 1.5) return tl.timeScale(2)
     } else if (lockRef.current || i >= list.length - 1) return
     playSfx('tick')
     gsap.to(rootRef.current.querySelectorAll('.fin__scene'), {
