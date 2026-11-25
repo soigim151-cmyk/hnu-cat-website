@@ -16,6 +16,7 @@ import { STORY, ITEMS } from '../data/story.js'
 import { QuestBar, Inventory, ItemViewer, Confirm, PlaceNote, Toast } from '../components/StoryUI.jsx'
 import { FinalQuest, Finale } from '../components/Finale.jsx'
 import Comic from '../components/Comic.jsx'
+import { COMIC_ON } from '../data/comic.js'
 import { playSfx, playBgm, stopBgm } from '../components/sfx.js'
 import './CampusPage.css'
 
@@ -29,7 +30,7 @@ export default function CampusPage({ onBack }) {
   const [done, setDone] = useState([]) // 이야기를 끝낸 장소 id (순서대로)
   const [items, setItems] = useState({}) // 보관함: { 아이템 id: 'have' | 'used' }
   const [likes, setLikes] = useState({}) // 호감도: { 인물: 하트 수 }
-  const [comic, setComic] = useState(true) // 들어오자마자 시작 만화 (지도는 그동안 뒤에서 불러옴)
+  const [comic, setComic] = useState(COMIC_ON) // 들어오자마자 시작 만화 (지도는 그동안 뒤에서 불러옴)
   const [final, setFinal] = useState(null) // 마지막 퀘스트 · 엔딩 { step: 'quest' | 'ending', message }
   const [bagNew, setBagNew] = useState(false)
   const [viewItem, setViewItem] = useState(null)

@@ -137,6 +137,9 @@ const PAGES = [
 const PAPER = '#f0e2cf' // 그림 여백과 같은 크림색 (테두리가 티 나지 않게)
 const NIGHT = '#05070f'
 
+// 시작 만화 켜기/끄기 (지금은 꺼 둠. true 로 바꾸면 다시 나옴)
+export const COMIC_ON = false
+
 export const STRIP = [
   // SCENE 01. 한남대학교에는 전설이 있다 / 02. 캠퍼스의 고양이들 — 원래 그림 비율 그대로, 화면에 맞춰 크게
   {
