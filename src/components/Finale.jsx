@@ -86,10 +86,12 @@ const CREDITS = [
   { t: '치주일 · 치주이 · 치주삼 · 치주사' },
   { t: '신전이' },
 ]
+// 퀴즈를 풀면 바로 엔딩 크레딧 (신전이 인사 장면은 지금은 빼 둠: 아래 줄을 살리면 다시 나옴)
+// { kind: 'note', bg: 'talk/m56/bg.webp', label: '내가 전한 말', text: msg },
+// { kind: 'talk', bg: 'talk/m56/bg.webp', jeon: true, who: '신전이', text: '…전해 줘서 고마워, 후배.' },
+// { kind: 'talk', bg: 'talk/m56/bg.webp', jeon: true, fade: true, who: '신전이', text: '덕분에 이 학교에서 보낸 시간이 참 따뜻했어. 이제 정말 졸업할게.' },
+// eslint-disable-next-line no-unused-vars
 const scenes = (msg) => [
-  { kind: 'note', bg: 'talk/m56/bg.webp', label: '내가 전한 말', text: msg },
-  { kind: 'talk', bg: 'talk/m56/bg.webp', jeon: true, who: '신전이', text: '…전해 줘서 고마워, 후배.' },
-  { kind: 'talk', bg: 'talk/m56/bg.webp', jeon: true, fade: true, who: '신전이', text: '덕분에 이 학교에서 보낸 시간이 참 따뜻했어. 이제 정말 졸업할게.' },
   { kind: 'credits' },
   { kind: 'end' },
 ]
