@@ -43,13 +43,15 @@ const unblack = (dur) => ({ dark: dur, to: 0 }) // 암전 풀기
 
 export const LINTON = {
   bgm: 'play',
+  listSide: 'right', // 인물이 왼쪽에 있어서 정보 목록은 오른쪽
   summary: {
     name: '린튼공원',
     story: '시유 선배를 찾다가 커플 이고등 · 턱시혁의 조별 과제 사진 소동에 휘말렸고, 선배와 함께 빠져나와 참치김밥을 건넸다.',
     info: [
-      '벤치가 많고 나무 그늘이 좋아, 캠퍼스 안에서 쉬어 가기 좋은 공원이에요.',
-      '한남대학교 설립자 윌리엄 린튼(인돈) 선교사의 이름을 땄어요.',
-      '점심시간이나 공강 시간에 학생들이 자주 머무는 곳이에요.',
+      '초대 총장인 윌리엄 린튼(한국명 인돈) 선교사를 기리기 위해 그분의 이름을 딴 공원이에요.',
+      '바로 옆에 오정못과 울창한 수목, 벤치, 정자가 있어 학생들의 쉼터로 사랑받고 있어요.',
+      '동아리, 취업박람회, 축제 프로그램 등 학생 행사가 많이 열려요.',
+      '린튼공원과 오정못 사이의 작은 다리는 인돈 선교사의 부인 인사례(샬롯)의 이름을 붙여 「사례교」라고 해요.',
     ],
     use: ['kimbap'], // 건너뛰면 참치김밥은 전달한 것으로
     likes: { siyu: 2, goeun: 1 },
@@ -68,14 +70,14 @@ export const LINTON = {
   main: ['sihyuk', 'goeun'], // 시혁·고등 대사는 기본 방향, 시유와 플레이어 대사는 대화창 좌우 반전
   cast: {
     // 멀리서 본 두 사람 (고등시혁대화.png) — 대화하지 않는 원경에서만
-    couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -40, bottom: 5, w: 810 },
+    couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -140.5, bottom: -10, w: 719 }, // 고등 + 새 시혁 (개별 이미지와 같은 자리)
     // 대화 중 개별 이미지 (턱시혁.png · 이고등.png)
-    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, ext: 'webp', fallback: `${T}sihyuk.webp`, x: -190, bottom: -10, w: 470 }, // 시혁정면1 · 시혁대화
+    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, ext: 'webp', fallback: `${T}sihyuk.webp`, x: -210, bottom: -10, w: 580 }, // 시혁정면1 · 시혁대화
     goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: 110, bottom: -10, w: 218 },
     // 대화 중 시유: 시유전신.png (화면 오른쪽, 다리 아래는 화면 밖). 포즈 이미지가 생기면 siyu/<포즈>.png
-    siyu: { name: '김시유', known: true, folder: `${T}siyu-l/`, ext: 'webp', fallback: `${T}siyu-full.webp`, x: 430, bottom: -429, w: 718 }, // 시유정면 · 미소 · 씁쓸
+    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}siyu-full.webp`, x: 534, bottom: -429, w: 530 },
     // 걸어가며 지나가는 시유 (시유옆모습.png) — left: 왼쪽을 보고 걸음(반전), right: 오른쪽으로 걸음
-    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 430, bottom: -429, w: 713, flip: ['left'] },
+    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 534, bottom: -429, w: 533, flip: ['left'] },
   },
   photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.589, 0.629], window: [0.844, 0.312] },
   bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png
@@ -170,9 +172,24 @@ export const LINTON = {
     { who: 'sihyuk', text: '턱시혁.', after: [reveal('sihyuk'), { reward: `${T}id-sihyuk.png`, label: '턱시혁 학생증 획득!' }] },
     {
       who: 'goeun',
-      text: '저희는 공강마다 여기 있어요. 린튼공원은 벤치도 많고 그늘이 좋아서, 쉬기엔 학교에서 여기가 최고거든요.',
+      text: '저희는 공강마다 여기 있어요. 린튼공원은 벤치도 많고 바로 옆에 오정못도 있어서, 쉬기엔 학교에서 여기가 최고거든요.',
+      // 고등이 옆에 린튼공원 정보가 하나씩
+      after: [
+        {
+          list: {
+            title: '린튼공원',
+            items: [
+              '초대 총장 윌리엄 린튼(한국명 인돈) 선교사를 기리는 공원',
+              '오정못 · 울창한 나무 · 벤치 · 정자가 있는 학생들의 쉼터',
+              '동아리 행사 · 취업박람회 · 축제가 열리는 곳',
+              '오정못의 작은 다리 「사례교」 — 인돈 선교사의 부인 인사례(샬롯)의 이름',
+            ],
+            gap: 0.7,
+          },
+        },
+      ],
     },
-    { who: 'me', text: '두 분 사이좋아 보이세요.' },
+    { who: 'me', text: '두 분 사이좋아 보이세요.', before: [{ list: null }] },
     { who: 'goeun', text: '얘가 나 따라다니는 거지, 뭐.', after: [pose('goeun', 'lean'), move('goeun', 25, 0.5), pose('sihyuk', 'look'), pose('goeun', 'smile')] },
 
     // ── SCENE 05. 하필 지금? ──

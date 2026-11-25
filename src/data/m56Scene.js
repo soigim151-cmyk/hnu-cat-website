@@ -4,6 +4,7 @@ const T = 'talk/'
 const M = `${T}m56/`
 
 const W = (s) => ({ wait: s })
+const pose = (who, p, dur = 0.3) => ({ pose: who, p, dur })
 const show = (who, o = {}) => ({ show: who, pose: 'base', ...o })
 const hide = (who, o = {}) => ({ hide: who, ...o })
 const cam = (o) => ({ cam: o })
@@ -45,7 +46,8 @@ export const M56 = {
   startBg: 'gate',
   cast: {
     // 화면 오른쪽, 기념관 입구 근처에 앉아 있음
-    jeon: { name: '신전이', title: '56주년 기념관 앞 대선배 · 학번 비공개', folder: `${M}jeon/`, fallback: `${M}jeon.webp`, x: 380, bottom: 170, w: 360 },
+    // 새 신전이 (정면 · 미소 · 씁쓸 — 파일 이름은 '시유…'로 올라온 이미지)
+    jeon: { name: '신전이', title: '56주년 기념관 앞 대선배 · 학번 비공개', folder: `${M}jeon/`, ext: 'webp', fallback: `${M}jeon.webp`, x: 400, bottom: 120, w: 520 },
   },
   walkers: [
     { src: `${T}hall/npc1.webp`, h: 230, bottom: 300, dur: 22, delay: -6, dir: 1 },
@@ -99,14 +101,14 @@ export const M56 = {
       before: [cam({ zoom: 1.16, on: 'jeon', dur: 0.8, wait: false })],
     },
     { who: 'me', text: '혹시… 선배님이세요?' },
-    { who: 'jeon', text: '대선배지.' },
+    { who: 'jeon', text: '대선배지.', before: [pose('jeon', 'smile')] },
     { who: 'jeon', text: '예전엔 나 보러 일부러 찾아오는 애들도 많았어. 사진도 찍어 가고, 간식도 주고.' },
     { who: 'me', text: '네? 왜요?' },
-    { who: 'jeon', text: '내가 인기가 좀 많아.' },
+    { who: 'jeon', text: '내가 인기가 좀 많아.', before: [pose('jeon', 'smile')] },
     { who: 'me', text: '(…스스로 저렇게 말하는 사람은 처음 봐.)' },
     { who: 'jeon', text: '출석률은 또 얼마나 좋은데. 비가 와도 눈이 와도 매일 여기 있었어.' },
     { who: 'me', text: '…학점은요?' },
-    { who: 'jeon', text: '그건 별개지.', after: [W(0.8)] },
+    { who: 'jeon', text: '그건 별개지.', before: [pose('jeon', 'smile')], after: [W(0.8)] },
     { who: 'me', text: '(출석률이랑 학점은 별개구나….)' },
 
     // ── SCENE 03. 대선배의 대학생활 꿀팁 ──
@@ -114,18 +116,19 @@ export const M56 = {
     {
       who: 'jeon',
       text: '첫째, 56주년 기념관에는 리클라이너가 있어서 잠도 잘 수 있어. 학교에 몇 안 되는 수면 시설이니까 알아 둬.',
+      after: [{ list: { title: '56주년 기념관', items: ['리클라이너가 있는 휴게 공간 (학교에 몇 안 되는 수면 시설)'] } }],
     },
     {
       who: 'jeon',
       text: '둘째, 여기는 생각보다 행사가 많아서, 운만 좋으면 가끔 맛있는 것도 줘.',
-      after: [W(0.5)],
+      after: [{ list: { title: '56주년 기념관', items: ['리클라이너가 있는 휴게 공간 (학교에 몇 안 되는 수면 시설)', '행사가 자주 열리는 곳'] } }, W(0.5)],
     },
     { who: 'me', text: '(출석률이 좋으신 이유가 이것 때문이었구나….)' },
     { who: 'jeon', text: '셋째, 교수님들 생각보다 다정하셔. 모르는 거 있으면 그냥 여쭤봐. 나도 교수님들이 많이 예뻐해 주셨거든.' },
-    { who: 'me', text: '선배님은 대체 학교에서 뭘 하고 다니신 거예요?' },
+    { who: 'me', text: '선배님은 대체 학교에서 뭘 하고 다니신 거예요?', before: [{ list: null }] },
     // 1초 정적 후 이름 공개 (NEW CHARACTER)
-    { who: 'jeon', text: '학교생활 열심히 했지. 주로 낮잠.', after: [W(1), { reveal: 'jeon', dur: 2 }] },
-    { who: 'jeon', text: '아, 나는 신전이야. 이름 기억해 줘.' },
+    { who: 'jeon', text: '학교생활 열심히 했지. 주로 낮잠.', before: [pose('jeon', 'smile')], after: [W(1), { reveal: 'jeon', dur: 2 }] },
+    { who: 'jeon', text: '아, 나는 신전이야. 이름 기억해 줘.', before: [pose('jeon', 'front')] },
     { who: 'me', text: '네, 신전이 선배님!' },
 
     // ── SCENE 04. 뜻밖의 졸업 소식 ──
@@ -146,8 +149,8 @@ export const M56 = {
       before: [bgm('volume', { vol: 0.015, dur: 3 })],
     },
     { who: 'me', text: '…그런 데가 있어요?' },
-    { who: 'jeon', text: '흠, 글쎄. 있지 않을까?', after: [W(0.8), cam({ zoom: 1, x: 0, dur: 2.5, wait: false })] },
-    { who: 'jeon', text: '그래도 막상 떠나려니까 좀 아쉽네.' },
+    { who: 'jeon', text: '흠, 글쎄. 있지 않을까?', before: [pose('jeon', 'bitter')], after: [W(0.8), cam({ zoom: 1, x: 0, dur: 2.5, wait: false })] },
+    { who: 'jeon', text: '그래도 막상 떠나려니까 좀 아쉽네.', before: [pose('jeon', 'bitter')] },
     // 1.2초 정적 · 지나가던 학생들이 천천히 화면 밖으로
     { who: 'jeon', text: '여기서 좋은 사람들을 참 많이 만났거든.', after: [W(1.2)] },
 
@@ -163,14 +166,14 @@ export const M56 = {
     },
     { who: 'jeon', text: '한참을 찾아와서 걱정해 주던 사람,', before: [{ flash: FLASH[1], dur: 1 }] },
     { who: 'jeon', text: '비 오는 날 우산 씌워 주던 사람….', before: [{ flash: FLASH[2], dur: 1 }] },
-    { who: 'jeon', text: '근데 그 사람들한테 고맙다는 말을 한 번도 제대로 못 했어.', before: [{ flash: null, dur: 1.2 }] },
+    { who: 'jeon', text: '근데 그 사람들한테 고맙다는 말을 한 번도 제대로 못 했어.', before: [pose('jeon', 'bitter'), { flash: null, dur: 1.2 }] },
     { who: 'me', text: '지금이라도 하시면 되죠.' },
-    { who: 'jeon', text: '그러게. 그럼… 네가 대신 전해 줄래?', after: [W(1), cam({ zoom: 1.15, on: 'jeon', dur: 1.4 })] },
+    { who: 'jeon', text: '그러게. 그럼… 네가 대신 전해 줄래?', before: [pose('jeon', 'smile')], after: [W(1), cam({ zoom: 1.15, on: 'jeon', dur: 1.4 })] },
     { who: 'jeon', text: '지금까지 나와 함께해 줘서 고마웠다고. 다들 덕분에, 여기서 지내는 게 참 좋았다고.' },
     { who: 'me', text: '선배님…?', after: [W(0.8)] },
     {
       who: 'jeon',
-      text: '아, 너 수업 늦겠다. 얼른 가.',
+      text: '아, 너 수업 늦겠다. 얼른 가.', before: [pose('jeon', 'smile')],
       // 음악이 잠깐 작아지고 휴대폰 알림
       before: [bgm('volume', { vol: 0.02, dur: 0.6 }), sfx('ding'), W(0.6), bgm('volume', { vol: 0.065, dur: 1.2 })],
     },

@@ -50,9 +50,9 @@ export const DIALOGUES = {
         '건물 앞 벤치는 오후에 햇볕이 잘 들어요.',
       ],
     },
+    listSide: 'right',
     main: ['???', '김시유'], // 메인 캐릭터(시유) 대사만 기본 방향, 나머지는 대화창 좌우 반전
-    // 새 시유 (시유정면 · 시유미소 · 시유씁쓸 가슴 위 클로즈업). 누운 자세만 예전 그림(siyu/lying*.png)
-    character: { folder: `${T}siyu-bust/`, ext: 'webp', fallback: `${T}siyu-bust/base.webp`, lying: `${T}siyu/` },
+    character: { folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp` },
     // 보조 인물 (실루엣): 화면 오른쪽 가장자리에 크게, 일부만 보이게
     extras: { student: { src: `${T}student.webp`, opacity: 0.55 } },
     typeSpeed: 35, // ms/글자
@@ -68,11 +68,11 @@ export const DIALOGUES = {
       { who: '???', text: '응, 이제 딱 좋다. 근데 너 여기 처음 와? 아까부터 두리번거리던데.', before: [W(0.5)] },
       { who: '나', text: '네. 학교가 아직 익숙하지 않아서요.' },
       // SCENE 02. 11번 건물 소개 (학생이 말 걸기 전까지 계속 누워 있음)
-      { who: '???', text: '그럼 여긴 기억해 둬. 1층에 인쇄실, 문구점, 서점, 편의점도 있고.' },
-      { who: '???', text: '일자리센터랑 쉴 곳도 있어. 웬만한 건 여기서 해결돼.', page: true },
+      { who: '???', text: '그럼 여긴 기억해 둬. 1층에 인쇄실, 문구점, 서점, 편의점도 있고.', after: [{ list: { title: '인사례교양동 1층', items: ['인쇄실', '문구점', '서점', '편의점'], gap: 0.5 } }] },
+      { who: '???', text: '일자리센터랑 쉴 곳도 있어. 웬만한 건 여기서 해결돼.', page: true, after: [{ list: { title: '인사례교양동 1층', items: ['인쇄실', '문구점', '서점', '편의점', '일자리센터', '쉼터'], gap: 0.4 } }] },
       { who: '???', text: '오후엔 이 벤치에 햇빛도 잘 들고. 사람만 좀 덜 지나가면 딱인데.', before: [W(0.4)], after: [W(1.2)] },
       // SCENE 03. 이름 공개 (학생은 목소리만) — 학생이 말을 걸자 벌떡 일어남
-      { who: '학생들', text: '어, 시유야. 여기 있었네?', before: [{ enter: 'student', dur: 0.5 }], after: [W(0.2), { rise: 'voice', dur: 0.35 }] },
+      { who: '학생들', text: '어, 시유야. 여기 있었네?', before: [{ list: null }, { enter: 'student', dur: 0.5 }], after: [W(0.2), { rise: 'voice', dur: 0.35 }] },
       { who: '???', text: '어, 안녕! 수업 끝났어?' },
       { who: '학생들', text: '응. 너 또 여기서 자고 있었냐?' },
       { who: '???', text: '아니거든? 눈만 감고 있었어.', before: [W(0.3), P('frown')] },

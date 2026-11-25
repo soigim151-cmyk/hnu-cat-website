@@ -30,6 +30,7 @@ export default function DialogScene({ dialog, onClose }) {
   const [profile, setProfile] = useState(null) // NEW CHARACTER 카드
   const [skipOpen, setSkipOpen] = useState(false) // 건너뛰기 정리 창
   const [likePop, setLikePop] = useState(null)
+  const [list, setList] = useState(null) // 옆에 하나씩 들어오는 장소 정보
   const likesRef = useRef({})
   const [complete, setComplete] = useState(null)
   const completeResRef = useRef(null)
@@ -145,6 +146,17 @@ export default function DialogScene({ dialog, onClose }) {
         } else if (a.exit) {
           const el = charRef.current
           if (el) await gsap.to(el, { x: `+=${a.exit}`, opacity: 0, duration: a.dur ?? 0.7, ease: 'power1.in' })
+        } else if (a.list !== undefined) {
+          if (!a.list) setList(null)
+          else {
+            for (let i = 0; i <= a.list.items.length; i++) {
+              setList({ title: a.list.title, items: a.list.items.slice(0, i) })
+              if (i < a.list.items.length) {
+                if (i > 0) playSfx('pop')
+                await sleep(i === 0 ? 0.2 : (a.list.gap ?? 0.5))
+              }
+            }
+          }
         } else if (a.like) {
           if (!LIKES_ON) continue // 호감도 보류 중
           likesRef.current[a.like] = (likesRef.current[a.like] || 0) + (a.n ?? 1)
@@ -339,6 +351,19 @@ export default function DialogScene({ dialog, onClose }) {
           likes={likesRef.current}
           onDone={() => completeResRef.current?.()}
         />
+      )}
+      {list && (
+        <div className={`cast__list${dialog.listSide ? ` is-${dialog.listSide}` : ''}`}>
+          {list.title && <p className="cast__list-title">{list.title}</p>}
+          <ol>
+            {list.items.map((t, i) => (
+              <li key={t}>
+                <span className="cast__list-no">{i + 1}</span>
+                {t}
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
       {likePop && <LikePop key={likePop.k} who={likePop.who} n={likePop.n} />}
       {skipOpen && dialog.summary && (

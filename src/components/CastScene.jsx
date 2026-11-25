@@ -807,7 +807,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
           />
         )}
         {list && (
-          <div className="cast__list">
+          <div className={`cast__list${dialog.listSide ? ` is-${dialog.listSide}` : ''}`}>
             {list.title && <p className="cast__list-title">{list.title}</p>}
             <ol>
               {list.items.map((t, i) => (

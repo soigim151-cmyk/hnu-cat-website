@@ -265,7 +265,6 @@
   background: rgba(229, 36, 59, 0.85);
   color: #fff;
   font-size: 17px;
-  animation: fg-pulse 1.2s ease-in-out infinite;
 }
 .fg__btn {
   min-width: 150px;

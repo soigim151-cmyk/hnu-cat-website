@@ -844,3 +844,55 @@
     transform: scale(1);
   }
 }
+
+/* 목록을 오른쪽에 (인물이 왼쪽에 있는 장면) */
+.cast__list.is-right {
+  left: auto;
+  right: max(16px, calc(50% - 640 * var(--u)));
+  align-items: flex-end;
+}
+.cast__list.is-right ol {
+  align-items: flex-end;
+}
+.cast__list.is-right li {
+  animation-name: cast-list-in-r;
+}
+@keyframes cast-list-in-r {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+}
+.cast__list ol {
+  align-items: flex-start;
+}
+
+/* 목록을 가운데 위에 */
+.cast__list.is-center {
+  left: 50%;
+  top: calc(60 * var(--u));
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cast__list.is-center ol {
+  align-items: center;
+}
+.cast__list.is-center li {
+  animation-name: cast-list-in-c;
+}
+@keyframes cast-list-in-c {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+.cast__list.is-right {
+  display: flex;
+  flex-direction: column;
+}
+.cast__list li {
+  max-width: calc(620 * var(--u));
+  min-width: 0;
+}

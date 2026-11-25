@@ -51,6 +51,7 @@ export const GATE = {
       '진앤키노는 늘 "청소 중"…. 무엇을 파는 곳인지 아무도 몰라요.',
     ],
   },
+  listSide: 'center', // 남매가 양옆에 있어서 정보 목록은 가운데 위
   solo: ['ju1', 'ju2', 'ju3', 'ju4'], // 말하는 한 명만: 치주일 · 치주이는 왼쪽, 치주삼 · 치주사는 오른쪽에서 들어옴
   main: ['ju1', 'ju2', 'ju3', 'ju4', 'shop'], // 4남매 대사는 기본 방향, 플레이어는 반전
   bgs: {
@@ -59,10 +60,10 @@ export const GATE = {
   },
   startBg: 'gate',
   cast: {
-    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -330, bottom: -40, w: 585, side: 'left' },
-    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -330, bottom: -40, w: 585, side: 'left' },
-    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 330, bottom: -40, w: 585, side: 'right' },
-    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 330, bottom: -40, w: 585, side: 'right' },
+    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -330, bottom: -260, w: 780, side: 'left' },
+    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -330, bottom: -260, w: 780, side: 'left' },
+    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 330, bottom: -260, w: 780, side: 'right' },
+    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 330, bottom: -260, w: 780, side: 'right' },
     shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}ju1.webp`, x: 0, bottom: -2000, w: 10 },
   },
 
@@ -126,11 +127,11 @@ export const GATE = {
       text: '네. 저쪽부터 첫째 치주일, 저는 둘째 치주이, 셋째 치주삼, 막내 치주사예요.',
       after: [reveal('ju1', 0.9), reveal('ju2', 0.9), reveal('ju3', 0.9), reveal('ju4', 0.9), { reward: `${T}id-siblings.png`, label: '4남매 학생증 획득!' }],
     },
-    { who: 'ju3', text: '아직 메뉴 못 정하셨으면 도스마스 가세요. 부리또 괜찮아요.' },
-    { who: 'ju2', text: '쯔보 오렌지치킨도 맛있어요. 좀 색다른 거 먹고 싶을 때 추천해요.' },
-    { who: 'ju1', text: '면 좋아하시면 면식당도 괜찮고요.' },
-    { who: 'ju4', text: '…몽심 레몬 마들렌도요.' },
-    { who: 'ju1', text: '야, 35분 남았어.', before: [sfx('ding'), W(0.4)] },
+    { who: 'ju3', text: '아직 메뉴 못 정하셨으면 도스마스 가세요. 부리또 괜찮아요.', after: [{ list: { title: '쪽문 맛집', items: ['도스마스 · 부리또'] } }] },
+    { who: 'ju2', text: '쯔보 오렌지치킨도 맛있어요. 좀 색다른 거 먹고 싶을 때 추천해요.', after: [{ list: { title: '쪽문 맛집', items: ['도스마스 · 부리또', '쯔보 · 오렌지치킨'] } }] },
+    { who: 'ju1', text: '면 좋아하시면 면식당도 괜찮고요.', after: [{ list: { title: '쪽문 맛집', items: ['도스마스 · 부리또', '쯔보 · 오렌지치킨', '면식당 · 라멘'] } }] },
+    { who: 'ju4', text: '…몽심 레몬 마들렌도요.', after: [{ list: { title: '쪽문 맛집', items: ['도스마스 · 부리또', '쯔보 · 오렌지치킨', '면식당 · 라멘', '몽심 · 레몬 마들렌 (디저트)'] } }] },
+    { who: 'ju1', text: '야, 35분 남았어.', before: [{ list: null }, sfx('ding'), W(0.4)] },
     { who: 'ju3', text: '그럼 도스마스 가자니까.' },
     { who: 'ju4', text: '…몽심은?' },
     { who: 'ju1', text: '수업 끝나고 가자.' },
