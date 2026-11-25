@@ -121,7 +121,7 @@ export default function CastScene({ dialog, onClose, startAt }) {
     Object.keys(need).forEach((k) => {
       const [who, p] = k.split('/')
       const c = dialog.cast[who]
-      const url = `${BASE}${c.folder}${p}.png`
+      const url = `${BASE}${c.folder}${p}.${c.ext || 'png'}`
       const img = new Image()
       img.onload = () => !off && setSrcs((m) => ({ ...m, [k]: url }))
       img.onerror = () => !off && setSrcs((m) => ({ ...m, [k]: BASE + c.fallback }))

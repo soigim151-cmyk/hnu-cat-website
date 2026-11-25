@@ -70,14 +70,14 @@ export const LINTON = {
     // 멀리서 본 두 사람 (고등시혁대화.png) — 대화하지 않는 원경에서만
     couple: { name: '', folder: `${T}couple/`, fallback: `${T}couple.webp`, x: -40, bottom: 5, w: 810 },
     // 대화 중 개별 이미지 (턱시혁.png · 이고등.png)
-    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, fallback: `${T}sihyuk.webp`, x: -160, bottom: -10, w: 288 },
+    sihyuk: { name: '턱시혁', folder: `${T}sihyuk/`, ext: 'webp', fallback: `${T}sihyuk.webp`, x: -190, bottom: -10, w: 470 }, // 시혁정면1 · 시혁대화
     goeun: { name: '이고등', folder: `${T}goeun/`, fallback: `${T}goeun.webp`, x: 110, bottom: -10, w: 218 },
     // 대화 중 시유: 시유전신.png (화면 오른쪽, 다리 아래는 화면 밖). 포즈 이미지가 생기면 siyu/<포즈>.png
-    siyu: { name: '김시유', known: true, folder: `${T}siyu/`, fallback: `${T}siyu-full.webp`, x: 534, bottom: -429, w: 530 },
+    siyu: { name: '김시유', known: true, folder: `${T}siyu-l/`, ext: 'webp', fallback: `${T}siyu-full.webp`, x: 430, bottom: -429, w: 718 }, // 시유정면 · 미소 · 씁쓸
     // 걸어가며 지나가는 시유 (시유옆모습.png) — left: 왼쪽을 보고 걸음(반전), right: 오른쪽으로 걸음
-    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 534, bottom: -429, w: 533, flip: ['left'] },
+    siyuSide: { name: '김시유', known: true, folder: `${T}siyu-side/`, as: 'siyu', fallback: `${T}siyu-side.webp`, x: 430, bottom: -429, w: 713, flip: ['left'] },
   },
-  photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.567, 0.7], window: [0.89, 0.33] },
+  photo: { src: `${T}photo-group.webp`, fallback: `${T}placeholder/photo.webp`, face: [0.589, 0.629], window: [0.844, 0.312] },
   bagImg: { src: `${T}kimbap.webp` }, // 참치김밥.png
 
   lines: [

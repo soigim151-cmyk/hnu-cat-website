@@ -51,7 +51,8 @@ export const DIALOGUES = {
       ],
     },
     main: ['???', '김시유'], // 메인 캐릭터(시유) 대사만 기본 방향, 나머지는 대화창 좌우 반전
-    character: { folder: `${T}siyu/`, fallback: `${T}char-siyu-v2.webp` },
+    // 새 시유 (시유정면 · 시유미소 · 시유씁쓸 가슴 위 클로즈업). 누운 자세만 예전 그림(siyu/lying*.png)
+    character: { folder: `${T}siyu-bust/`, ext: 'webp', fallback: `${T}siyu-bust/base.webp`, lying: `${T}siyu/` },
     // 보조 인물 (실루엣): 화면 오른쪽 가장자리에 크게, 일부만 보이게
     extras: { student: { src: `${T}student.webp`, opacity: 0.55 } },
     typeSpeed: 35, // ms/글자

@@ -272,7 +272,7 @@ export default function DialogScene({ dialog, onClose }) {
   useEffect(() => {
     let off = false
     Object.keys(seenPoses(lines)).forEach((p) => {
-      const url = `${BASE}${ch.folder}${p}.png`
+      const url = p.startsWith('lying') && ch.lying ? `${BASE}${ch.lying}${p}.png` : `${BASE}${ch.folder}${p}.${ch.ext || 'png'}`
       const img = new Image()
       img.onload = () => !off && setSrcs((m) => ({ ...m, [p]: url }))
       img.onerror = () => !off && setSrcs((m) => ({ ...m, [p]: BASE + ch.fallback }))
