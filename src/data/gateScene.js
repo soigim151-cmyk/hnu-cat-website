@@ -1,5 +1,5 @@
 // 쪽문 — 4남매와의 첫 만남 → 점심 메뉴 고르기
-// 배경: 쪽문.png → 진앤키노.png · 인물: 차주일~차주사.png · 처음 모습: 남매.png
+// 배경: 쪽문.png → 진앤키노.png · 인물: 차주일~차주사.png · (4명 단체 사진은 쓰지 않음)
 // 음식 그림은 임시 (public/talk/gate/food-*.webp 를 바꾸면 적용)
 const T = 'talk/'
 const G = `${T}gate/`
@@ -59,11 +59,10 @@ export const GATE = {
   },
   startBg: 'gate',
   cast: {
-    group: { name: '', nofocus: true, folder: `${G}group/`, fallback: `${G}group.webp`, x: 0, bottom: -40, w: 1150 },
-    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -330, bottom: -40, w: 262, side: 'left' },
-    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -330, bottom: -40, w: 286, side: 'left' },
-    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 330, bottom: -40, w: 276, side: 'right' },
-    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 330, bottom: -40, w: 242, side: 'right' },
+    ju1: { name: '치주일', folder: `${G}ju1/`, fallback: `${G}ju1.webp`, x: -330, bottom: -40, w: 585, side: 'left' },
+    ju2: { name: '치주이', folder: `${G}ju2/`, fallback: `${G}ju2.webp`, x: -330, bottom: -40, w: 585, side: 'left' },
+    ju3: { name: '치주삼', folder: `${G}ju3/`, fallback: `${G}ju3.webp`, x: 330, bottom: -40, w: 585, side: 'right' },
+    ju4: { name: '치주사', folder: `${G}ju4/`, fallback: `${G}ju4.webp`, x: 330, bottom: -40, w: 585, side: 'right' },
     shop: { name: '진앤키노', known: true, folder: `${G}shop/`, fallback: `${G}ju1.webp`, x: 0, bottom: -2000, w: 10 },
   },
 
@@ -81,7 +80,7 @@ export const GATE = {
       label: 'alley',
       who: 'ju3',
       text: '와, 오늘도 청소 중이네.',
-      before: [{ boxOff: true }, sfx('steps'), bg('alley', 0.8), show('group', { from: 'fade', dur: 0.6 }), { boxOff: false }],
+      before: [{ boxOff: true }, sfx('steps'), bg('alley', 0.8), ...showAll(0.5), { boxOff: false }],
     },
     { who: 'ju2', text: '이번 주에만 세 번째야. 이제 좀 포기해.' },
     { who: 'ju3', text: '아니, 문은 맨날 열려 있는데 왜 장사를 안 하냐고.' },
@@ -89,11 +88,6 @@ export const GATE = {
     {
       who: 'ju1',
       text: '알았어. 이제 진짜 가자.',
-      // 각자 이미지로 바뀜 (말하는 한 명만 보임)
-      after: [
-        hide('group', { dur: 0.35, wait: false }),
-        ...showAll(0.35),
-      ],
     },
     { who: 'ju3', text: '어, 조심하세요.', before: [cam({ zoom: 1.14, on: 'ju3', dur: 0.35 }), { shake: 'ju3' }] },
     { who: 'ju3', text: '혹시 저기 가시려고요?', after: [cam({ zoom: 1, x: 0, dur: 0.6 })] },
